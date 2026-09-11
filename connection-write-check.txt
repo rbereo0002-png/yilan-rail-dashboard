@@ -1,0 +1,4 @@
+Repository connection check
+Repository: rbereo0002-png/yilan-rail-dashboard-test
+Purpose: Verify file creation and read-back on an isolated test branch.
+No changes to main or existing application files.
