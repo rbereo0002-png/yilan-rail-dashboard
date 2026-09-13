@@ -98,7 +98,7 @@ function renderDashboard(model) {
   html('ovStageList',d.stages.map(x=>`<div class="stage-item"><span>${e(x.name)}</span><b>${x.completed}/${x.total}</b></div>`).join(''));
   document.querySelector('.payment-kpis').innerHTML=Object.entries(model.payments.totals).map(([tier,t])=>`<div class="payment-kpi"><span>${tierNames[tier]}</span><b>${t.count} 項</b><small>${money(t.amount)} 元</small></div>`).join('')+`<div class="payment-kpi"><span>最近預估付款日</span><b>${fmt(model.payments.nextPayDate)}</b></div>`;
   const c=model.summary.counts;
-  document.querySelector('#contractRuleControl .timeline-kpis').innerHTML=[['目前標段',e(model.project.name)],['契約期限節點',`${c.contract} 項`],['管理預估節點',`${c.management} 項`],['外部／條件式節點',`${c.external} 項`],['最末契約期限',fmt(model.summary.lastContract)]].map(([label,value])=>`<div><span>${label}</span><b>${value}</b></div>`).join('');
+  document.querySelector('#contractRuleControl .timeline-kpis').innerHTML=[['目前標段',e(model.project.name)],['已起算契約期限節點',`${c.contract} 項`],['管理預估節點',`${c.management} 項`],['外部／條件式節點',`${c.external} 項`],['目前已起算之最末契約期限',fmt(model.summary.lastContract)]].map(([label,value])=>`<div><span>${label}</span><b>${value}</b></div>`).join('');
 }
 
 function renderTimeline(model) {

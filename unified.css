@@ -16,6 +16,37 @@
 .payment-strip .pay-node.payment-external .pay-dot { background:#94a3b8; }
 button:disabled { cursor:wait; opacity:.6; }
 @media print {
+  /* Keep every payment milestone in the printable width; screen strip is unchanged. */
+  #paymentMilestoneStrip {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6mm 4mm;
+    width:100%;
+    min-width:0;
+    overflow:visible;
+    padding:3mm 0;
+  }
+  #paymentMilestoneStrip .pay-node {
+    min-width:0;
+    width:auto;
+    height:auto;
+    max-height:none;
+    overflow:visible;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  #paymentMilestoneStrip .pay-node b,
+  #paymentMilestoneStrip .pay-node span,
+  #paymentMilestoneStrip .pay-node small,
+  #paymentMilestoneStrip .pay-node em {
+    white-space:normal;
+    overflow:visible;
+    overflow-wrap:anywhere;
+    max-height:none;
+  }
+
   #appStatus, #dataWarnings, .condition-toggle { display:none; }
   #paymentTable, #dependencyTable, #contractRuleTable, #scheduleTable { min-width:0; width:100%; table-layout:fixed; }
   .tbl th, .tbl td { overflow-wrap:anywhere; padding:3px; font-size:9px; }
