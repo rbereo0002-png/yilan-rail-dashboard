@@ -67,6 +67,7 @@ function renderForms(model,readOnly,catalog) {
   text('heroSub',p.title);
   renderNavigation(catalog,p.id);
   for (const key of ['awardDate','evaluationDate','negotiationDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
+  $('actualSignDate').max=model.today;
   for (const [key,value] of Object.entries(p.dates)) if ($(key)) $(key).value=value || '';
   $('pcmDays').value=p.settings.pcmDays;
   $('payMode').value=String(p.settings.payWorkdays);
@@ -75,7 +76,7 @@ function renderForms(model,readOnly,catalog) {
   $('forecastMode').value=p.settings.forecastMode;
   $('holidays').value=p.settings.holidays.join(', ');
   $('soilWaterEnabled').checked=p.settings.enabledRules.soilWaterPlan === true;
-  const milestones = [['決標',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['議價',p.milestones.negotiationDate],['簽約基準',p.milestones.signDate],['實際簽約',p.milestones.actualSignDate]];
+  const milestones = [['決標',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['議價',p.milestones.negotiationDate],['簽約基準',p.milestones.signDate],[model.schedule.signing.effective ? '實際簽約' : '待確認實際簽約',p.milestones.actualSignDate]];
   html('badges',milestones.filter(([,d])=>d).map(([label,date])=>`<span class="badge">${label} ${fmt(date)}</span>`).join(''));
   text('budgetNote',`${p.name}預算總額 ${money(p.budget.total)} 元；發包技術服務費 ${money(p.budget.serviceTotal)} 元。${p.notes || ''}`);
   const labels = {survey:'補充測量',geo:'補充地質調查',utility:'管線調查',land:'用地及地上物相關作業',design:'工程設計',supervision:'施工監造'};
@@ -89,7 +90,7 @@ function renderForms(model,readOnly,catalog) {
 function renderDashboard(model) {
   const d=model.dashboard;
   text('overviewToday',fmt(model.today));text('ovProject',model.project.name);
-  text('ovSignDate',fmt(model.project.milestones.actualSignDate || model.project.milestones.signDate));
+  text('ovSignDate',fmt(model.schedule.sign));
   text('ovOverallStatus',d.overall);text('ovProgress',`${d.progress}%`);text('ovProgressText',`${d.completed} / ${d.total}`);
   $('ovProgressBar').style.width=`${d.progress}%`;
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'pending',ovCompleted:'completed'})) text(id,d[key]);

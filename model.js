@@ -1,6 +1,6 @@
 import {calculateSchedule} from './schedule-engine.js';
 import {calculatePayments} from './payment-engine.js';
-import {daysBetween} from './dates.js';
+import {daysBetween, todayLocal, SIGN_DATE_WARNING} from './dates.js';
 
 function freeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -8,7 +8,7 @@ function freeze(value) {
   }
   return value;
 }
-export function calculateModel(project, today) {
+export function calculateModel(project, today = todayLocal()) {
   const source = structuredClone(project);
   const schedule = calculateSchedule(source,today);
   const payments = calculatePayments(source,schedule);
@@ -20,8 +20,7 @@ export function calculateModel(project, today) {
   const overdue = open.filter(x => x.overdueDays > 0).length;
   const due14 = open.filter(x => {const n = daysBetween(today,x.contractDue); return n >= 0 && n <= 14;}).length;
   const due30 = open.filter(x => {const n = daysBetween(today,x.contractDue); return n >= 0 && n <= 30;}).length;
-  const signed = schedule.actualSign && schedule.actualSign <= today;
-  const overall = !signed ? '尚未登錄實際簽約' : overdue ? '有逾期事項' : due14 ? '有近期到期事項' : pending ? '有成果待核定' : '正常管制';
+  const overall = schedule.signing.status;
   const important = deliverables.filter(x => (x.effectiveSubmit && !x.effectiveApproval) || open.includes(x) && daysBetween(today,x.contractDue) <= 30)
     .sort((a,b) => (b.overdueDays - a.overdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999')).slice(0,8);
   const stages = Object.values(deliverables.reduce((acc,item) => {
@@ -37,6 +36,6 @@ export function calculateModel(project, today) {
   const summary = {counts,lastContract:latest(schedule.list.map(x => x.contractDue)),
     lastForecast:latest(schedule.list.map(x => x.forecastDue)),affected,
     maxShift:Math.max(0,...schedule.list.map(x => x.forecastShift)),
-    warnings:[...(source.migrationWarnings || []),...schedule.list.flatMap(x => x.warnings.map(w => `${x.name}：${w}`))]};
+    warnings:[...(schedule.signing.future ? [SIGN_DATE_WARNING] : []),...(source.migrationWarnings || []),...schedule.list.flatMap(x => x.warnings.map(w => `${x.name}：${w}`))]};
   return freeze({project:source,today,schedule,payments,dashboard,summary});
 }

@@ -1,6 +1,6 @@
 import {ProjectStore} from './store.js';
 import {calculateModel} from './model.js';
-import {todayTaipei} from './dates.js';
+import {todayLocal, signingState, SIGN_DATE_WARNING} from './dates.js';
 import {renderModel, renderNavigation, exportHTML} from './views.js';
 
 const $ = id => document.getElementById(id);
@@ -24,7 +24,7 @@ function showState() {
 }
 function refresh() {
   if (store.project && !store.loading) {
-    model = calculateModel(store.project,todayTaipei());
+    model = calculateModel(store.project,todayLocal());
     renderModel(model,{readOnly:store.readOnly,catalog:store.catalog});
   }
   showState();
@@ -86,6 +86,14 @@ async function init() {
       return;
     }
     if (store.readOnly || store.loading) return;
+    if (input.id === 'actualSignDate') {
+      input.max=todayLocal();
+      if (signingState(input.value,input.max).future) {
+        input.setCustomValidity(SIGN_DATE_WARNING);input.reportValidity();
+        input.setCustomValidity('');
+        fail(new Error(SIGN_DATE_WARNING));return;
+      }
+    }
     try {
       store.edit(p=>{
         if (input.dataset.row) {
@@ -109,7 +117,7 @@ async function init() {
   });
   window.addEventListener('beforeunload',event=>{if (store.dirty.size) {event.preventDefault();event.returnValue='';}});
   window.addEventListener('pagehide',()=>{if(lastDownloadURL)URL.revokeObjectURL(lastDownloadURL);});
-  window.addEventListener('focus',()=>{if(model && model.today !== todayTaipei() && !store.loading)refresh();});
+  window.addEventListener('focus',()=>{if(model && model.today !== todayLocal() && !store.loading)refresh();});
   let last;
   try {last=storage?.getItem('yilan-dashboard-last-project');} catch { /* remote defaults remain usable */ }
   await store.select(catalog.projects.some(p=>p.id === last) ? last : catalog.defaultProject);

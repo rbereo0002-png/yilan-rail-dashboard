@@ -1,7 +1,7 @@
 import {YilanRules, calculationPolicy} from './rules.js';
-import {addDays, daysBetween, isHoliday} from './dates.js';
+import {addDays, daysBetween, isHoliday, todayLocal, signingState} from './dates.js';
 
-export function calculateSchedule(project, today) {
+export function calculateSchedule(project, today = todayLocal()) {
   const rules = YilanRules.getRules(project.id, project.settings);
   const byRule = new Map(rules.map(rule => [rule.id, rule]));
   const rows = project.rows || {}, dates = project.dates || {};
@@ -9,11 +9,12 @@ export function calculateSchedule(project, today) {
   const baselineSign = project.milestones.signDate || null;
   const actualSign = project.milestones.actualSignDate || null;
   const hasOccurred = date => !!date && date <= today;
-  const sign = actualSign || baselineSign;
+  const signing = signingState(actualSign, today);
+  const sign = signing.effective ? actualSign : baselineSign;
   const model = {
     sign: {id:'sign', name:'契約簽訂', baselineDue:baselineSign, baselineApproval:baselineSign,
-      forecastDue:sign, forecastApproval:sign, actualApproval:actualSign,
-      effectiveApproval:hasOccurred(actualSign) ? actualSign : null},
+      forecastDue:sign, forecastApproval:sign, actualApproval:signing.effective ? actualSign : null,
+      effectiveApproval:signing.effective ? actualSign : null},
     award: {id:'award', name:'決標', actualApproval:project.milestones.awardDate || null}
   };
   const visiting = new Set();
@@ -31,7 +32,7 @@ export function calculateSchedule(project, today) {
     switch (rule.triggerType) {
       case 'signDate':
         baselineStart = baselineSign; forecastStart = sign;
-        actualBase = hasOccurred(actualSign) ? actualSign : null;
+        actualBase = signing.effective ? actualSign : null;
         break;
       case 'awardDate':
         baselineStart = forecastStart = project.milestones.awardDate || null;
@@ -109,7 +110,7 @@ export function calculateSchedule(project, today) {
     return item;
   }
   const list = rules.map(rule => resolve(rule.id));
-  return {projectId:project.id, today, pcm, sign, actualSign, model, list};
+  return {projectId:project.id, today, pcm, sign, actualSign, signing, model, list};
 }
 
 function statusOf(item, today) {

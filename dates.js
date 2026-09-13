@@ -28,8 +28,12 @@ export function addWorkdays(value, count, holidays = []) {
   return date;
 }
 export const formatDate = value => value ? value.replaceAll('-', '/') : '—';
-export function todayTaipei() {
-  const parts = new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit'}).formatToParts(new Date());
-  const get = type => parts.find(p => p.type === type).value;
-  return `${get('year')}-${get('month')}-${get('day')}`;
+export function todayLocal(now = new Date()) {
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+export const SIGN_DATE_WARNING = '實際簽約日不可晚於今日；目前仍以簽約基準日作管理預估。';
+export function signingState(actualSignDate, today = todayLocal()) {
+  const effective = validDate(actualSignDate) && actualSignDate <= today;
+  const future = validDate(actualSignDate) && actualSignDate > today;
+  return {effective, future, status:effective ? '履約管制中' : future ? '實際簽約日尚未生效' : '尚未登錄實際簽約'};
 }
