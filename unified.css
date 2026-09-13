@@ -1,0 +1,25 @@
+/* v1 adds no visual redesign; preserve the existing dashboard's layout and palette. */
+[hidden], .supervision-details, #supervisionSection { display:none !important; }
+#appStatus { min-height:1.5em; color:#344054; }
+#dataWarnings { color:#9a4f04; }
+#dataWarnings:empty { display:none; }
+.condition-toggle { display:flex; gap:8px; align-items:center; margin-top:16px; }
+.condition-toggle input { width:auto; }
+.view-mode #projectSelect { pointer-events:auto; background:#fff; }
+.tbl input[type="date"] { min-width:135px; padding:6px; }
+.gantt-range { padding:12px; text-align:center; font-size:13px; }
+.payment-strip .pay-node.payment-ready:before { border-color:#15803d; }
+.payment-strip .pay-node.payment-ready .pay-dot { background:#15803d; }
+.payment-strip .pay-node.payment-forecast:before { border-color:#d97706; }
+.payment-strip .pay-node.payment-forecast .pay-dot { background:#d97706; }
+.payment-strip .pay-node.payment-external:before { border-color:#94a3b8; }
+.payment-strip .pay-node.payment-external .pay-dot { background:#94a3b8; }
+button:disabled { cursor:wait; opacity:.6; }
+@media print {
+  #appStatus, #dataWarnings, .condition-toggle { display:none; }
+  #paymentTable, #dependencyTable, #contractRuleTable, #scheduleTable { min-width:0; width:100%; table-layout:fixed; }
+  .tbl th, .tbl td { overflow-wrap:anywhere; padding:3px; font-size:9px; }
+  .tbl input[type="date"] { min-width:0; width:100%; border:0; font-size:9px; }
+  .timeline-pill { white-space:normal; }
+  .card { break-inside:auto; }
+}

@@ -1,0 +1,7 @@
+{
+  "defaultProject": "south",
+  "projects": [
+    {"id":"south","name":"南段","title":"宜蘭至羅東鐵路高架化計畫南段（宜蘭新站南～冬山站北）土建、軌道工程委託設計及監造技術服務","data":"data/south.json"},
+    {"id":"north","name":"北段","title":"宜蘭至羅東鐵路高架化計畫北段（四城站～宜蘭新站）土建、軌道工程委託設計及施工監造技術服務","data":"data/north.json"}
+  ]
+}

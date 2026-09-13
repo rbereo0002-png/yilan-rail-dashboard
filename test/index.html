@@ -1,0 +1,108 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>宜蘭高架履約管制 TEST V1.2.2</title>
+<style>
+:root{--nav:#17365d;--blue:#1f5fbf;--bg:#f4f7fb;--line:#dce3ec;--muted:#687386;--bad:#b42318;--warn:#b54708;--ok:#17803d}*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Noto Sans TC",sans-serif;background:var(--bg);color:#182230}.hide{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:20px}.box,.card,.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}.box{width:min(440px,100%)}input,select,button{font:inherit}input,select{width:100%;padding:9px;border:1px solid #ccd5e1;border-radius:8px;background:#fff}button{padding:9px 13px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer}.top{background:var(--nav);color:#fff;padding:14px 22px;display:flex;justify-content:space-between;gap:10px}.top button{background:transparent}.main{max-width:1380px;margin:auto;padding:18px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tab{background:#fff;color:#17365d;border:1px solid #ccd5e1}.tab.active{background:#17365d;color:#fff}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.projects{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.num{font-size:28px;font-weight:800}.muted{color:var(--muted);font-size:12px;line-height:1.5}.tag{background:#ffffff22;padding:5px 9px;border-radius:20px;font-size:12px}.panel{margin-top:14px}.err{color:var(--bad);font-size:13px}.ok{color:var(--ok);font-size:13px}.table{width:100%;border-collapse:collapse;font-size:13px}.table th,.table td{padding:8px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:middle}.table th{background:#eef3f9;position:sticky;top:0}.scroll{overflow:auto;max-height:62vh}.pill{display:inline-block;padding:3px 8px;border-radius:99px;background:#eef3f9}.pill.bad{background:#fee4e2;color:#b42318}.pill.warn{background:#fffaeb;color:#b54708}.pill.ok{background:#ecfdf3;color:#067647}.formgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.formgrid label{font-size:12px;color:#475467}.wide{grid-column:span 2}.note{margin-top:12px;padding:12px;background:#fff8e8;border-radius:10px;font-size:12px}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}.projects{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.grid,.formgrid{grid-template-columns:1fr}.top{flex-direction:column}}
+</style></head><body>
+<div id="loginView" class="login">
+  <div class="box">
+    <form id="loginForm">
+      <h2>宜蘭高架委設監造履約管制系統</h2>
+      <div class="muted">TEST V1.2.2｜時程＋PCM審查管制</div>
+      <input id="email" type="email" autocomplete="username" value="rbereo.0002@gmail.com" required style="margin-top:12px">
+      <input id="pw" type="password" autocomplete="current-password" placeholder="密碼" required style="margin-top:8px">
+      <button type="submit" style="width:100%;margin-top:10px">登入系統</button>
+      <div id="loginErr" class="err"></div>
+    </form>
+    <button id="forgotBtn" type="button" class="secondary" style="width:100%;margin-top:10px">忘記密碼／寄送重設信</button>
+    <div id="recoveryMsg" class="ok"></div>
+  </div>
+</div>
+
+<div id="resetView" class="login hide">
+  <form id="resetForm" class="box">
+    <h2>設定新密碼</h2>
+    <div class="muted">請輸入兩次新密碼，完成後會直接回到系統。</div>
+    <input id="newPw1" type="password" minlength="10" autocomplete="new-password" placeholder="新密碼（至少10字元）" required style="margin-top:12px">
+    <input id="newPw2" type="password" minlength="10" autocomplete="new-password" placeholder="再次輸入新密碼" required style="margin-top:8px">
+    <button type="submit" style="width:100%;margin-top:10px">儲存新密碼</button>
+    <div id="resetErr" class="err"></div>
+    <div id="resetOk" class="ok"></div>
+  </form>
+</div>
+<div id="appView" class="hide"><header class="top"><b>宜蘭至羅東鐵路高架化工程｜履約管制 TEST V1.2.2</b><div><span id="role" class="tag"></span> <span id="who"></span> <button id="out">登出</button></div></header><main class="main">
+<div class="tabs"><button class="tab active" data-page="dash">主管 Dashboard</button><button class="tab" data-page="schedule">時程資料輸入</button><button class="tab" data-page="review">PCM 審查管制</button></div>
+<section id="dashPage"><h2>主管 Dashboard</h2><div id="time" class="muted">讀取中…</div><div class="grid" style="margin-top:12px"><div class="card"><div class="muted">北／南段標案</div><div id="pc" class="num">-</div></div><div class="card"><div class="muted">主管里程碑</div><div id="mc" class="num">-</div></div><div class="card"><div class="muted">已完成</div><div id="cc" class="num">-</div></div><div class="card"><div class="muted">逾期／即將到期</div><div id="ac" class="num">-</div></div></div><div id="projects" class="projects"></div><section class="panel scroll"><table class="table"><thead><tr><th>標案</th><th>管制項目</th><th>期限</th><th>剩餘天數</th><th>狀態</th></tr></thead><tbody id="alerts"></tbody></table></section></section>
+<section id="schedulePage" class="hide"><h2>時程資料輸入</h2><div class="muted">契約主檔日期僅 ADMIN 可修改；EDITOR 可更新里程碑實際提送、核定、完成日期。系統依觸發關係自動重算可明確推導的期限。</div><section id="projectDatePanel" class="panel"><b>契約主檔日期</b><div class="formgrid" style="margin-top:10px"><label>標案<select id="projectSelect"></select></label><label>契約簽訂日<input id="signDate" type="date"></label><label>契約生效日<input id="effectiveDate" type="date"></label><label>&nbsp;<button id="saveProjectDates" style="width:100%">儲存並重算</button></label></div><div id="projectDateMsg"></div></section><section class="panel scroll"><table class="table"><thead><tr><th>標案</th><th>里程碑</th><th>觸發依據</th><th>天數</th><th>契約期限</th><th>實際提送</th><th>核定日</th><th>完成日</th><th>動作</th></tr></thead><tbody id="milestoneEditRows"></tbody></table></section></section>
+<section id="reviewPage" class="hide"><h2>PCM 審查管制</h2><div class="muted">管理規則：PCM 原則一次審查 30 日曆天；假日只警示、不自動順延。輸入 PCM 收件日後，系統自動計算管理期限。</div><section class="panel"><div class="formgrid"><label>標案<select id="reviewProject"></select></label><label class="wide">審查里程碑<select id="reviewMilestone"></select></label><label>版次／次別<input id="revisionNo" placeholder="V1 / 第1次"></label><label>廠商提送日<input id="contractorSubmitDate" type="date"></label><label>PCM 收件日<input id="pcmReceiveDate" type="date"></label><label>&nbsp;<button id="addReview" style="width:100%">新增審查紀錄</button></label></div><div id="reviewMsg"></div></section><section class="panel scroll"><table class="table"><thead><tr><th>標案</th><th>成果</th><th>版次</th><th>PCM收件</th><th>PCM管理期限</th><th>PCM完成</th><th>狀態</th></tr></thead><tbody id="reviewRows"></tbody></table></section></section>
+<div class="note">TEST V1.2.2：新增契約日期輸入、里程碑日期輸入、自動期限重算、PCM 30 日審查期限及 Dashboard 預警。</div></main></div>
+<script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2';const s=createClient('https://gpxnervtwrancfrukdba.supabase.co','sb_publishable_2TaZAQtvOrOGqTqD7kOMkw_JtIDcbYk',{auth:{persistSession:true,autoRefreshToken:true}}),q=x=>document.getElementById(x);let role='',projects=[],milestones=[],reviews=[];const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString('zh-TW'):'—';function pill(x){let c=x==='OVERDUE'?'bad':x==='DUE_SOON'?'warn':x==='COMPLETED'?'ok':'';return'<span class="pill '+c+'">'+({OVERDUE:'逾期',DUE_SOON:'即將到期',COMPLETED:'完成',NORMAL:'正常',NO_DATE:'待起算'}[x]||x)+'</span>'}function page(n){['dash','schedule','review'].forEach(x=>q(x+'Page').classList.toggle('hide',x!==n));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===n))}document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>page(b.dataset.page));
+function recoveryInUrl(){
+  const h=location.hash||'', qs=location.search||'';
+  return h.includes('type=recovery') || qs.includes('type=recovery') || h.includes('access_token=');
+}
+async function boot(){
+  const{data:{session}}=await s.auth.getSession();
+  if(session && recoveryInUrl()){
+    q('loginView').classList.add('hide');
+    q('appView').classList.add('hide');
+    q('resetView').classList.remove('hide');
+    return;
+  }
+  q('resetView').classList.add('hide');
+  if(!session){
+    q('loginView').classList.remove('hide');
+    q('appView').classList.add('hide');
+    return;
+  }
+  q('loginView').classList.add('hide');
+  q('appView').classList.remove('hide');
+  q('who').textContent=session.user.email||'';
+  const{data:u,error}=await s.from('user_profiles').select('role,is_active').eq('user_id',session.user.id).single();
+  if(error||!u||!u.is_active){
+    await s.auth.signOut();
+    q('loginErr').textContent='此帳號尚未取得系統權限。';
+    return boot();
+  }
+  role=u.role;
+  q('role').textContent=role;
+  q('projectDatePanel').classList.toggle('hide',role!=='ADMIN');
+  await loadAll();
+}
+async function loadAll(){const[pr,mr,rr,ar]=await Promise.all([s.from('projects').select('id,project_code,short_name,project_name,pre_tender_budget_amount,contract_sign_date,contract_effective_date').order('project_code'),s.from('milestones').select('id,project_id,milestone_code,stage,milestone_name,trigger_description,contract_days,contract_due_date,actual_submit_date,approved_date,actual_finish_date,status,progress_percent,dashboard_visible,review_required').order('milestone_code'),s.from('reviews').select('id,project_id,milestone_id,revision_no,pcm_receive_date,pcm_target_date,pcm_finish_date,review_status').order('created_at',{ascending:false}),s.from('v_control_alerts').select('*').order('due_date',{ascending:true})]);if(pr.error||mr.error||rr.error||ar.error){q('time').textContent='讀取失敗：'+(pr.error?.message||mr.error?.message||rr.error?.message||ar.error?.message);return}projects=pr.data||[];milestones=mr.data||[];reviews=rr.data||[];renderDash(ar.data||[]);renderSelectors();renderMilestones();renderReviews()}
+function renderDash(a){let dm=milestones.filter(x=>x.dashboard_visible);q('pc').textContent=projects.length;q('mc').textContent=dm.length;q('cc').textContent=dm.filter(x=>x.actual_finish_date||x.status==='COMPLETED').length;q('ac').textContent=a.filter(x=>['OVERDUE','DUE_SOON'].includes(x.alert_status)).length;q('time').textContent='雲端資料讀取成功｜'+new Date().toLocaleString('zh-TW');q('projects').innerHTML=projects.map(p=>{let m=dm.filter(x=>x.project_id===p.id),d=m.filter(x=>x.actual_finish_date||x.status==='COMPLETED').length,av=m.length?Math.round(m.reduce((z,x)=>z+Number(x.progress_percent||0),0)/m.length):0;return'<div class="card"><h3>'+esc(p.short_name)+'</h3><div class="muted">'+esc(p.project_name)+'</div><p>主要里程碑：<b>'+m.length+'</b>　已完成：<b>'+d+'</b>　平均進度：<b>'+av+'%</b></p><div class="muted">招標前預算基準：'+(p.pre_tender_budget_amount?Number(p.pre_tender_budget_amount).toLocaleString('zh-TW')+' 元':'待確認')+'</div></div>'}).join('');q('alerts').innerHTML=a.map(x=>'<tr><td>'+esc(x.short_name)+'</td><td>'+esc(x.alert_type==='PCM_REVIEW'?'PCM｜'+x.item_name:x.item_name)+'</td><td>'+fmt(x.due_date)+'</td><td>'+(x.days_remaining??'—')+'</td><td>'+pill(x.alert_status)+'</td></tr>').join('')}
+function renderSelectors(){let o=projects.map(p=>'<option value="'+p.id+'">'+esc(p.short_name)+'</option>').join('');q('projectSelect').innerHTML=o;q('reviewProject').innerHTML=o;fillProjectDates();fillReviewMilestones()}function fillProjectDates(){let p=projects.find(x=>x.id===q('projectSelect').value)||projects[0];if(!p)return;q('signDate').value=p.contract_sign_date||'';q('effectiveDate').value=p.contract_effective_date||''}q('projectSelect').onchange=fillProjectDates;q('reviewProject').onchange=fillReviewMilestones;function fillReviewMilestones(){let id=q('reviewProject').value||projects[0]?.id;q('reviewMilestone').innerHTML=milestones.filter(m=>m.project_id===id&&m.review_required).map(m=>'<option value="'+m.id+'">'+esc(m.stage+'｜'+m.milestone_name)+'</option>').join('')}
+function renderMilestones(){let pm=Object.fromEntries(projects.map(p=>[p.id,p.short_name]));q('milestoneEditRows').innerHTML=milestones.map(m=>'<tr><td>'+esc(pm[m.project_id]||'')+'</td><td>'+esc(m.stage+'｜'+m.milestone_name)+'</td><td>'+esc(m.trigger_description||'—')+'</td><td>'+(m.contract_days??'—')+'</td><td>'+fmt(m.contract_due_date)+'</td><td><input type="date" id="sub_'+m.id+'" value="'+(m.actual_submit_date||'')+'"></td><td><input type="date" id="app_'+m.id+'" value="'+(m.approved_date||'')+'"></td><td><input type="date" id="fin_'+m.id+'" value="'+(m.actual_finish_date||'')+'"></td><td>'+(role==='VIEWER'?'唯讀':'<button onclick="window.saveM(\''+m.id+'\')">儲存</button>')+'</td></tr>').join('')}window.saveM=async id=>{if(role==='VIEWER')return;let{error}=await s.from('milestones').update({actual_submit_date:q('sub_'+id).value||null,approved_date:q('app_'+id).value||null,actual_finish_date:q('fin_'+id).value||null}).eq('id',id);if(error)return alert('儲存失敗：'+error.message);await loadAll()};
+q('saveProjectDates').onclick=async()=>{let{error}=await s.from('projects').update({contract_sign_date:q('signDate').value||null,contract_effective_date:q('effectiveDate').value||null}).eq('id',q('projectSelect').value);q('projectDateMsg').className=error?'err':'ok';q('projectDateMsg').textContent=error?'儲存失敗：'+error.message:'已儲存並自動重算後續期限。';if(!error)await loadAll()};q('addReview').onclick=async()=>{if(role==='VIEWER')return;let{error}=await s.from('reviews').insert({project_id:q('reviewProject').value,milestone_id:q('reviewMilestone').value,revision_no:q('revisionNo').value||null,contractor_submit_date:q('contractorSubmitDate').value||null,pcm_receive_date:q('pcmReceiveDate').value||null,review_status:'PCM_REVIEW'});q('reviewMsg').className=error?'err':'ok';q('reviewMsg').textContent=error?'新增失敗：'+error.message:'已新增；PCM管理期限已自動計算。';if(!error)await loadAll()};function renderReviews(){let pm=Object.fromEntries(projects.map(p=>[p.id,p.short_name])),mm=Object.fromEntries(milestones.map(m=>[m.id,m.milestone_name]));q('reviewRows').innerHTML=reviews.map(r=>'<tr><td>'+esc(pm[r.project_id]||'')+'</td><td>'+esc(mm[r.milestone_id]||'')+'</td><td>'+esc(r.revision_no||'—')+'</td><td>'+fmt(r.pcm_receive_date)+'</td><td>'+fmt(r.pcm_target_date)+'</td><td>'+fmt(r.pcm_finish_date)+'</td><td>'+esc(r.review_status)+'</td></tr>').join('')}
+q('forgotBtn').onclick=async()=>{
+  q('loginErr').textContent='';
+  q('recoveryMsg').textContent='';
+  const email=q('email').value.trim();
+  if(!email){q('loginErr').textContent='請先輸入 Email';return;}
+  const {error}=await s.auth.resetPasswordForEmail(email,{redirectTo:SITE_URL});
+  if(error){q('loginErr').textContent='無法寄送重設信：'+error.message;return;}
+  q('recoveryMsg').textContent='密碼重設信已寄出，請使用最新一封信。';
+};
+
+q('resetForm').onsubmit=async e=>{
+  e.preventDefault();
+  q('resetErr').textContent='';q('resetOk').textContent='';
+  const p1=q('newPw1').value,p2=q('newPw2').value;
+  if(p1.length<10){q('resetErr').textContent='新密碼至少10字元。';return;}
+  if(p1!==p2){q('resetErr').textContent='兩次輸入的密碼不一致。';return;}
+  const {error}=await s.auth.updateUser({password:p1});
+  if(error){q('resetErr').textContent='密碼更新失敗：'+error.message;return;}
+  q('resetOk').textContent='新密碼已設定完成，正在進入系統…';
+  history.replaceState({},document.title,location.pathname);
+  setTimeout(()=>boot(),600);
+};
+
+s.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY' && session){
+    q('loginView').classList.add('hide');
+    q('appView').classList.add('hide');
+    q('resetView').classList.remove('hide');
+  }
+});
+
+q('loginForm').onsubmit=async e=>{e.preventDefault();let{error}=await s.auth.signInWithPassword({email:q('email').value.trim(),password:q('pw').value});if(error)q('loginErr').textContent='登入失敗：'+error.message;else boot()};q('out').onclick=async()=>{await s.auth.signOut();q('pw').value='';boot()};boot();
+</script></body></html>

@@ -1,0 +1,13 @@
+{
+  "version":"1.0",
+  "id":"south",
+  "name":"南段",
+  "title":"宜蘭至羅東鐵路高架化計畫南段（宜蘭新站南～冬山站北）土建、軌道工程委託設計及監造技術服務",
+  "milestones":{"awardDate":"2026-09-04","evaluationDate":"","negotiationDate":"","signDate":"2026-10-01"},
+  "settings":{"pcmDays":30,"payWorkdays":30,"forecastMode":"budget","holidays":[]},
+  "budget":{"total":828711915,"serviceTotal":822111915,"survey":9923128,"geo":37581838,"utility":5895711,"land":14271755,"design":278856679,"supervision":475582804,"other":600000,"qa":6000000},
+  "contract":{"survey":9923128,"geo":37581838,"utility":5895711,"land":14271755,"design":278856679,"supervision":475582804},
+  "dates":{"noticeDate":"","pccDate":"","tenderApprovalDate":"","allWorksAwardDate":"","allWorksCloseDate":"","supervisionStart":"","constructionStart":"","constructionEnd":"","constructionClose":""},
+  "rows":{},
+  "notes":"南段已於2026/09/04決標；預定2026/10/01簽約。預算金額為初始估算基準，正式契約分項金額可於介面覆寫。"
+}
