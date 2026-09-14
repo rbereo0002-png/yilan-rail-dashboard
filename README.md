@@ -1,6 +1,12 @@
-# 宜蘭高架履約期程與付款管制 — 整併正式版 v1
+# 宜蘭高架履約期程與付款管制 — Unified Engine v1.2
 
-本分支供審查，尚未合併 main 或部署。保留現有版面、南北段 JSON、契約日數及付款比例。
+目前正式版本：**Unified Engine v1.2**，已正式上線。
+
+- 正式 repository：[rbereo0002-png/yilan-rail-dashboard](https://github.com/rbereo0002-png/yilan-rail-dashboard)
+- 正式網站：[GitHub Pages](https://rbereo0002-png.github.io/yilan-rail-dashboard/)
+- 正式程式基準 commit：`b4c8dcf1208a7967fca8f65f06ba05c505a60838`（後續文件提交不改變此程式基準）。
+- 舊 [lwtlin-sketch/yilan-rail-dashboard](https://github.com/lwtlin-sketch/yilan-rail-dashboard) 不再修改，永久保留作 rollback／歷史基準；舊版 commit：`184dceeb1a56056d90451205b971ffcf92b3a1f6`。
+
 
 ## 啟動與測試
 
@@ -11,7 +17,7 @@ python3 -m http.server 8000
 node --test tests/*.test.js
 ```
 
-透過 HTTP 開啟 `index.html`；不能直接用 file://。`package.json` 僅指定 ESM 與測試指令，不需要 npm install。既有 `test/index.html` 是獨立的 Supabase 頁面，本分支未改動它。
+透過 HTTP 開啟 `index.html`；不能直接用 file://。`package.json` 僅指定 ESM 與測試指令，不需要 npm install。既有 `test/index.html` 是獨立的 Supabase 頁面，本版未改動它。
 
 ## 唯一資料流
 
@@ -28,7 +34,7 @@ node --test tests/*.test.js
 
 ## 日期與資料保存
 
-原 `milestones.signDate` 保留為簽約基準日，可為預定。確認簽約後登錄 `actualSignDate`，才將簽約觸發期限列為契約期限、簽約款列為已達條件。原 JSON 未明確區分預定／實際，系統不猜測。
+原 `milestones.signDate` 保留為簽約基準日，可為預定。`actualSignDate` 必須有值且不晚於使用者裝置當地今日，才將簽約觸發期限列為契約期限、簽約款列為已達條件。原 JSON 未明確區分預定／實際，系統不猜測。
 
 `rows.<節點>_submit` / `rows.<節點>_approval` 保留，避免既有實際日期遺失。工程會等外部日期的上方欄位與成果表使用同一資料；匯入衝突以成果表核定日優先，舊值保留於 `legacyDateConflicts` 並警示。匯出新增 `schemaVersion: 2`，不刪除原監造或其他未識別欄位。
 
@@ -41,3 +47,11 @@ node --test tests/*.test.js
 ## 審查資料
 
 [完整整併說明與測試範圍](docs/unified-engine-v1.md)
+
+## 驗證與版本紀錄
+
+48 項自動測試全數通過。使用者已人工確認：南北段切換不跳回、畫面不跳動、實際簽約日空白／未來／今日／昨日四種情境及付款里程碑列印。這是使用者實機回報，不代表本執行環境完成瀏覽器自動測試。
+
+實際簽約日輸入動態限制 `max=今日`；既存未來值保留並警示，不認列簽約生效，改採簽約基準日作管理預估。日期依裝置當地日期判斷。
+
+詳見 [版本紀錄](CHANGELOG.md)。待辦：獨立 `test/index.html` 的 `SITE_URL` 未定義；本次僅記錄，不修改該頁或正式入口。
