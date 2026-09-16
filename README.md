@@ -2,6 +2,8 @@
 
 目前正式版本：**Unified Engine v1.2**，已正式上線。
 
+本功能分支新增 **v1.3 `.xlsx` 匯出**，尚未合併或發布至正式 Pages。操作與驗證說明見 [docs/xlsx-export-v1.md](docs/xlsx-export-v1.md)。
+
 - 正式 repository：[rbereo0002-png/yilan-rail-dashboard](https://github.com/rbereo0002-png/yilan-rail-dashboard)
 - 正式網站：[GitHub Pages](https://rbereo0002-png.github.io/yilan-rail-dashboard/)
 - 正式程式基準 commit：`b4c8dcf1208a7967fca8f65f06ba05c505a60838`（後續文件提交不改變此程式基準）。
@@ -10,7 +12,7 @@
 
 ## 啟動與測試
 
-這是無建置、無執行期套件依賴的 ES module 靜態網站。
+這是無建置的 ES module 靜態網站；Excel 匯出使用 repository 內固定版本 ExcelJS 4.4.0，無外部 CDN 執行期依賴。
 
 ```sh
 python3 -m http.server 8000
@@ -29,6 +31,7 @@ node --test tests/*.test.js
 - `model.js`：一次計算時程、付款、總覽與統計。
 - `store.js`：資料驗證、舊 JSON 相容、本機保存、標段草稿、非同步競爭控制。
 - `views.js`：Dashboard、時程、甘特圖、關聯、付款與純資料匯出。
+- `excel-export.js`：直接讀取不可變 model，輸出 8 個 `.xlsx` 工作表；`excel-library.js` 延遲載入本機固定版本套件。
 - `app.js`：唯一入口與事件處理。正式入口不載入舊 stage / patch / stable。
 - `supervision-engine.js`：保留監造模擬，正式首頁及目前匯出不執行。
 

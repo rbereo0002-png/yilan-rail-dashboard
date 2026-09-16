@@ -1,7 +1,8 @@
 import {ProjectStore} from './store.js';
 import {calculateModel} from './model.js';
 import {todayLocal, signingState, SIGN_DATE_WARNING} from './dates.js';
-import {renderModel, renderNavigation, exportHTML} from './views.js';
+import {renderModel, renderNavigation} from './views.js';
+import {createExcelExport} from './excel-export.js';
 
 const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
@@ -58,8 +59,9 @@ async function action(name) {
   else if (name === 'json' && !store.readOnly) download(JSON.stringify(store.project,null,2),`${store.project.id}.json`,'application/json;charset=utf-8');
   else if (name === 'import' && !store.readOnly) $('importFile').click();
   else if (name === 'excel') {
-    refresh();
-    download('\ufeff'+exportHTML(model),`宜蘭高架_${store.project.name}_履約付款管制_${model.today}.xls`,'application/vnd.ms-excel;charset=utf-8');
+    const snapshot = model;
+    const file = await createExcelExport(snapshot);
+    download(file.buffer,file.filename,file.mime);
   } else if (name === 'print') {refresh();window.print();}
   else if (name === 'schedule') $('scheduleTable').scrollIntoView({behavior:'smooth'});
   else if (name === 'payment') $('paymentTable').scrollIntoView({behavior:'smooth'});
