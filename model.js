@@ -20,7 +20,7 @@ export function calculateModel(project, today = todayLocal()) {
   const overdue = open.filter(x => x.overdueDays > 0).length;
   const due14 = open.filter(x => {const n = daysBetween(today,x.contractDue); return n >= 0 && n <= 14;}).length;
   const due30 = open.filter(x => {const n = daysBetween(today,x.contractDue); return n >= 0 && n <= 30;}).length;
-  const overall = schedule.signing.status;
+  const overall = !schedule.awardEffective ? '尚未決標／契約尚未生效' : overdue ? '有逾期事項' : '履約管制中';
   const important = deliverables.filter(x => (x.effectiveSubmit && !x.effectiveApproval) || open.includes(x) && daysBetween(today,x.contractDue) <= 30)
     .sort((a,b) => (b.overdueDays - a.overdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999')).slice(0,8);
   const stages = Object.values(deliverables.reduce((acc,item) => {
