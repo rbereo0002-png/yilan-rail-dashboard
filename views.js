@@ -69,6 +69,13 @@ function renderForms(model,readOnly,catalog) {
   for (const key of ['awardDate','evaluationDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
   $('actualSignDate').max=model.today;
   for (const [key,value] of Object.entries(p.dates)) if ($(key)) $(key).value=value || '';
+  if ($('allWorksAwardDate')) {
+    $('allWorksAwardDate').readOnly = model.construction.total > 0;
+    $('allWorksAwardDate').title = model.construction.total > 0 ? '由施工分標實際決標日自動計算' : '';
+  }
+  text('allWorksAwardHint',model.construction.total > 0
+    ? `已建立 ${model.construction.total} 個施工分標；全部決標日由系統自動計算。`
+    : '未建立施工分標清單時可手動登錄；建立後由各分標實際決標日自動判定。');
   $('pcmDays').value=p.settings.pcmDays;
   $('payMode').value=String(p.settings.payWorkdays);
   // Preserve imported nonstandard administrative estimates rather than silently resetting them.
@@ -85,6 +92,25 @@ function renderForms(model,readOnly,catalog) {
     money(p.settings.forecastMode === 'contract' ? p.contract[key] : p.budget[key]),key === 'supervision' ? '保留資料，暫不納入本版管制' : '依原預算／契約基準'
   ])).join('');
   html('noticeInputs',model.schedule.list.filter(x=>x.triggerType === 'externalNotice').map(x=>`<div class="field"><label>${e(x.name)}：甲方通知日<input type="date" data-notice="${e(x.id)}" value="${e(p.notices[x.id] || '')}"></label></div>`).join(''));
+
+  const packageRows = model.construction.packages.map(pkg => tr([
+    readOnly ? e(pkg.code || '—') : `<input type="text" data-package-id="${e(pkg.id)}" data-package-field="code" value="${e(pkg.code)}" aria-label="施工分標標號">`,
+    readOnly ? e(pkg.name || '—') : `<input type="text" data-package-id="${e(pkg.id)}" data-package-field="name" value="${e(pkg.name)}" aria-label="施工分標標名">`,
+    readOnly ? e(pkg.scope || '—') : `<input type="text" data-package-id="${e(pkg.id)}" data-package-field="scope" value="${e(pkg.scope)}" aria-label="施工分標工程範圍">`,
+    readOnly ? fmt(pkg.plannedTenderDate) : `<input type="date" data-package-id="${e(pkg.id)}" data-package-field="plannedTenderDate" value="${e(pkg.plannedTenderDate)}">`,
+    readOnly ? fmt(pkg.actualAwardDate) : `<input type="date" data-package-id="${e(pkg.id)}" data-package-field="actualAwardDate" value="${e(pkg.actualAwardDate)}">`,
+    readOnly ? '' : `<button type="button" class="mini-btn" data-remove-package="${e(pkg.id)}">刪除</button>`
+  ],`data-package-row="${e(pkg.id)}"`));
+  $('packageTable').querySelector('tbody').innerHTML = packageRows.join('') || `<tr><td colspan="6" class="center">尚未建立施工分標；待基本設計採購策略／甲方指示確認後再登錄。</td></tr>`;
+  html('packageSummary',`<div class="note">目前 ${model.construction.total} 標；已決標 ${model.construction.awarded} 標；各分標工程全部決標日：<b>${fmt(model.construction.allWorksAwardDate)}</b></div>`);
+
+  const specialRows = model.specialDeliverables.map(item => tr([
+    e(item.parentName),e(item.name),fmt(item.parentDue),
+    readOnly ? fmt(item.actualSubmitDate) : `<input type="date" data-special-id="${e(item.id)}" data-special-field="actualSubmitDate" value="${e(item.actualSubmitDate || '')}">`,
+    readOnly ? fmt(item.actualApprovalDate) : `<input type="date" data-special-id="${e(item.id)}" data-special-field="actualApprovalDate" value="${e(item.actualApprovalDate || '')}">`,
+    `${e(item.note)}<div class="small">狀態：${e(item.status)}</div>`
+  ]));
+  $('specialDeliverableTable').querySelector('tbody').innerHTML = specialRows.join('') || `<tr><td colspan="6" class="center">目前無標段特有子成果。</td></tr>`;
 }
 
 function renderDashboard(model) {
