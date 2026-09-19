@@ -10,6 +10,11 @@ function freeze(value) {
 }
 export function calculateModel(project, today = todayLocal()) {
   const source = structuredClone(project);
+  const packages = source.constructionPackages || [];
+  const packageAwardDates = packages.map(x => x.actualAwardDate).filter(Boolean);
+  const allPackagesAwarded = packages.length > 0 && packageAwardDates.length === packages.length;
+  const derivedAllWorksAwardDate = allPackagesAwarded ? [...packageAwardDates].sort().at(-1) : null;
+  if (packages.length) source.dates.allWorksAwardDate = derivedAllWorksAwardDate || '';
   const schedule = calculateSchedule(source,today);
   const payments = calculatePayments(source,schedule);
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
@@ -37,5 +42,18 @@ export function calculateModel(project, today = todayLocal()) {
     lastForecast:latest(schedule.list.map(x => x.forecastDue)),affected,
     maxShift:Math.max(0,...schedule.list.map(x => x.forecastShift)),
     warnings:[...(schedule.signing.future ? [SIGN_DATE_WARNING] : []),...(source.migrationWarnings || []),...schedule.list.flatMap(x => x.warnings.map(w => `${x.name}：${w}`))]};
-  return freeze({project:source,today,schedule,payments,dashboard,summary});
+  const construction = {
+    packages,
+    total:packages.length,
+    awarded:packageAwardDates.length,
+    allPackagesAwarded,
+    allWorksAwardDate:source.dates.allWorksAwardDate || null
+  };
+  const specialDeliverables = (source.specialDeliverables || []).map(item => {
+    const parent = schedule.model[item.parentRule] || null;
+    const parentDue = parent?.contractDue || parent?.managementForecast || parent?.targetDue || null;
+    const status = item.actualApprovalDate ? '已核定' : item.actualSubmitDate ? '已提送待核定' : '待辦';
+    return {...item,parentName:parent?.name || item.parentRule,parentDue,status};
+  });
+  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables});
 }
