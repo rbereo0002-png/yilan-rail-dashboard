@@ -402,6 +402,7 @@
           <div class="field">
             <label>各分標工程全部決標日</label>
             <input type="date" id="allWorksAwardDate">
+            <div class="hint" id="allWorksAwardHint">未建立施工分標清單時可手動登錄；建立後由各分標實際決標日自動判定。</div>
           </div>
 
           <div class="field">
@@ -419,6 +420,35 @@
       </div>
     </section>
 
+
+    <section class="card" id="packageControl">
+      <div class="hd"><h2>施工分標與標段特有成果</h2></div>
+      <div class="bd">
+        <div class="timeline-note">
+          <b>分標原則：</b>南、北段施工分標分開管理；標號與數量依基本設計採購策略及甲方後續指示更新。
+          各分標均有實際決標日後，系統自動形成「各分標工程全部決標日」並連動工程設計付款節點。
+        </div>
+        <div class="package-summary" id="packageSummary"></div>
+        <div class="scroll">
+          <table class="tbl package-table" id="packageTable">
+            <thead><tr><th>標號</th><th>標名</th><th>工程範圍</th><th>預定招標日</th><th>實際決標日</th><th class="edit-only">操作</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn edit-only" data-action="add-package">新增施工分標</button>
+
+        <div id="specialDeliverableBlock" style="margin-top:18px">
+          <h3>標段特有子成果</h3>
+          <p class="small">子成果隨所屬主成果期限辦理，不另創造契約期限；實際提送／核定僅作履約檢核。</p>
+          <div class="scroll">
+            <table class="tbl package-table" id="specialDeliverableTable">
+              <thead><tr><th>所屬主成果</th><th>子成果</th><th>隨主成果期限</th><th>實際提送日</th><th>實際核定日</th><th>備註</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section class="card"><div class="hd"><h2>通知與條件式工作</h2></div><div class="bd"><div class="formgrid" id="noticeInputs"></div><label class="condition-toggle"><input id="soilWaterEnabled" type="checkbox"> 啟用水土保持計畫（確認適用時勾選）</label><p class="small">出流管制維持條件式，不自行補入固定期限；水保停用不刪除已登錄資料。</p></div></section>
 
