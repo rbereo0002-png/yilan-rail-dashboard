@@ -53,6 +53,10 @@ async function action(name) {
   }
   if (!store.project) return;
   if (name === 'recalc') refresh();
+  else if (name === 'add-package' && !store.readOnly) store.edit(p=>{
+    const stamp=Date.now().toString(36);
+    p.constructionPackages.push({id:`pkg-${stamp}`,code:'',name:'',scope:'',plannedTenderDate:'',actualAwardDate:''});
+  });
   else if (name === 'save' && !store.readOnly) store.save();
   else if (name === 'reset' && !store.readOnly && confirm('放棄目前標段本機修改並重新載入 GitHub 資料？')) await store.reset();
   else if (name === 'json' && !store.readOnly) download(JSON.stringify(store.project,null,2),`${store.project.id}.json`,'application/json;charset=utf-8');
@@ -73,6 +77,11 @@ async function init() {
   document.addEventListener('click',event=>{
     const project=event.target.closest('[data-project]');
     if (project) {void store.select(project.dataset.project);return;}
+    const removePackage=event.target.closest('[data-remove-package]');
+    if (removePackage && !store.readOnly && !store.loading) {
+      store.edit(p=>{p.constructionPackages=p.constructionPackages.filter(x=>x.id!==removePackage.dataset.removePackage);});
+      return;
+    }
     const button=event.target.closest('[data-action]');
     if (button) void action(button.dataset.action).catch(fail);
   });
@@ -96,7 +105,13 @@ async function init() {
     }
     try {
       store.edit(p=>{
-        if (input.dataset.row) {
+        if (input.dataset.packageId) {
+          const pkg=p.constructionPackages.find(x=>x.id===input.dataset.packageId);
+          if (pkg) pkg[input.dataset.packageField]=input.value;
+        } else if (input.dataset.specialId) {
+          const item=p.specialDeliverables.find(x=>x.id===input.dataset.specialId);
+          if (item) item[input.dataset.specialField]=input.value;
+        } else if (input.dataset.row) {
           const {row,kind}=input.dataset;p.rows[`${row}_${kind}`]=input.value;
           const node=model.schedule.model[row];
           if (kind === 'approval' && node.dateField) p.dates[node.dateField]=input.value;
