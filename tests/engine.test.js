@@ -32,16 +32,16 @@ test('legacy north/south load without losing original fields',()=>{
     assert.equal(model(p).schedule.list.length,id==='south'?23:25);
   }
 });
-test('planned sign date never automatically becomes a payment condition',()=>{
-  const m=model(fixture('south'),'2027-01-01');
+test('award date is the contract-effective start even before signing',()=>{
+  const m=model(fixture('south'),'2026-09-19');
   assert.equal(m.payments.byId['design-sign'].tier,'forecast');
-  assert.equal(m.schedule.model.execPlan.contractDue,null);
-  assert.equal(m.schedule.model.execPlan.managementForecast,'2026-10-31');
-  assert.equal(m.dashboard.overdue,0);
+  assert.equal(m.schedule.awardDate,'2026-09-04');
+  assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-04');
+  assert.equal(m.schedule.model.execPlan.managementForecast,null);
 });
-test('confirmed sign establishes calendar deadline without holiday extension',()=>{
-  const m=model(signed());assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
-  assert.equal(m.schedule.model.execPlan.holiday,true);assert.equal(m.payments.byId['design-sign'].tier,'ready');
+test('signing affects signing payment but not award-based contract deadline',()=>{
+  const m=model(signed(),'2026-10-02');assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-04');
+  assert.equal(m.payments.byId['design-sign'].tier,'ready');
 });
 test('actual approval activates downstream contract deadline with unchanged day count',()=>{
   const p=signed();p.rows.execPlan_approval='2026-11-15';const m=model(p);
@@ -105,7 +105,7 @@ test('rowDrawing stays management-only even after final approval',()=>{
   const p=signed();p.rows.final_approval='2026-11-01';const n=model(p).schedule.model.rowDrawing;
   assert.equal(n.dueType,'management');assert.equal(n.contractDue,null);assert.equal(n.managementForecast,'2026-12-01');
 });
-test('changing PCM days affects estimates but not actual-based contract days',()=>{
+test('changing PCM days affects estimates but not award-based contract days',()=>{
   const p=signed();const before=model(p);p.settings.pcmDays=60;const after=model(p);
   assert.equal(before.schedule.model.execPlan.contractDue,after.schedule.model.execPlan.contractDue);
   assert.equal(daysDiff(before.schedule.model.basic.managementForecast,after.schedule.model.basic.managementForecast),30);
