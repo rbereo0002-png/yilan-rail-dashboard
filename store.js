@@ -12,6 +12,21 @@ export function normalizeProject(input, expectedId) {
     p[key] ||= {};
   }
   p.migrationWarnings = Array.isArray(p.migrationWarnings) ? p.migrationWarnings.filter(x=>typeof x === 'string') : [];
+  p.constructionPackages = Array.isArray(p.constructionPackages) ? p.constructionPackages : [];
+  p.constructionPackages = p.constructionPackages.map((item,index) => {
+    if (!object(item)) throw new Error(`施工分標第 ${index + 1} 筆必須為物件`);
+    const pkg = {
+      id:String(item.id || `pkg-${index + 1}`),
+      code:String(item.code || ''),
+      name:String(item.name || ''),
+      scope:String(item.scope || ''),
+      plannedTenderDate:item.plannedTenderDate || '',
+      actualAwardDate:item.actualAwardDate || ''
+    };
+    if (pkg.plannedTenderDate && !validDate(pkg.plannedTenderDate)) throw new Error(`施工分標預定招標日期格式錯誤：${pkg.code || pkg.id}`);
+    if (pkg.actualAwardDate && !validDate(pkg.actualAwardDate)) throw new Error(`施工分標決標日期格式錯誤：${pkg.code || pkg.id}`);
+    return pkg;
+  });
   const date = (obj,key) => {
     obj[key] ??= '';
     if (obj[key] !== '' && !validDate(obj[key])) throw new Error(`日期格式錯誤：${key}`);
