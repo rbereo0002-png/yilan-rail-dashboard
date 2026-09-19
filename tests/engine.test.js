@@ -84,6 +84,35 @@ test('conflicting legacy dates are preserved and surfaced',()=>{
   const n=normalizeProject(p);assert.equal(n.dates.pccDate,'2026-11-15');
   assert.equal(n.legacyDateConflicts.pccDate,'2026-10-10');assert.equal(n.migrationWarnings.length,1);
 });
+test('construction packages derive all-works award only when every package is awarded',()=>{
+  const p=fixture('south');
+  p.constructionPackages=[
+    {id:'s1',code:'S1',name:'第一標',scope:'',plannedTenderDate:'',actualAwardDate:'2027-01-10'},
+    {id:'s2',code:'S2',name:'第二標',scope:'',plannedTenderDate:'',actualAwardDate:''}
+  ];
+  let m=model(normalizeProject(p),'2027-01-20');
+  assert.equal(m.construction.allPackagesAwarded,false);
+  assert.equal(m.schedule.model.worksAward.actualApproval,null);
+  assert.equal(m.payments.byId['design-award'].tier,'external');
+  p.constructionPackages[1].actualAwardDate='2027-02-05';
+  m=model(normalizeProject(p),'2027-02-06');
+  assert.equal(m.construction.allPackagesAwarded,true);
+  assert.equal(m.construction.allWorksAwardDate,'2027-02-05');
+  assert.equal(m.schedule.model.worksAward.actualApproval,'2027-02-05');
+  assert.equal(m.payments.byId['design-award'].tier,'ready');
+});
+test('north common-platform study inherits basic-design deadline without adding a contract rule',()=>{
+  const p=fixture('north');p.milestones.awardDate='2026-09-14';p.rows.execPlan_approval='2026-10-15';
+  const m=model(normalizeProject(p),'2026-10-20');
+  const item=m.specialDeliverables.find(x=>x.id==='yilan-hsr-transfer-study');
+  assert.ok(item);assert.equal(item.parentRule,'basic');
+  assert.equal(item.parentDue,m.schedule.model.basic.contractDue);
+  assert.equal(m.schedule.list.some(x=>x.id==='yilan-hsr-transfer-study'),false);
+});
+test('south has no north-only common-platform study',()=>{
+  const m=model(fixture('south'));
+  assert.equal(m.specialDeliverables.some(x=>x.id==='yilan-hsr-transfer-study'),false);
+});
 test('external conditions without dates remain undated and excluded from years',()=>{
   const m=model(fixture('south'));const payment=m.payments.byId['design-pcc'];
   assert.equal(payment.tier,'external');assert.equal(payment.year,null);
