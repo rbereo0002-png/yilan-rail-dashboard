@@ -6,7 +6,7 @@ import {renderModel, renderNavigation, exportHTML} from './views.js';
 const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
 const dateKeys = new Set(['noticeDate','pccDate','tenderApprovalDate','allWorksAwardDate','allWorksCloseDate']);
-const milestoneKeys = new Set(['awardDate','evaluationDate','negotiationDate','signDate','actualSignDate']);
+const milestoneKeys = new Set(['awardDate','evaluationDate','signDate','actualSignDate']);
 async function loadJSON(path) {
   const response = await fetch(path,{cache:'no-store'});
   if (!response.ok) throw new Error(`HTTP ${response.status}：${path}`);
