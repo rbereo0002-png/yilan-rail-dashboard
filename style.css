@@ -413,3 +413,5 @@
   }
 
 }
+
+.package-summary{margin:0 0 12px}.package-table{min-width:1050px}.package-table input{width:100%;min-width:120px;border:1px solid #cfd7e3;border-radius:7px;padding:7px 8px}.package-table td:last-child{text-align:center}.package-table .mini-btn{padding:5px 8px}@media print{#packageControl .edit-only{display:none}.package-table input{border:none;padding:0}}
