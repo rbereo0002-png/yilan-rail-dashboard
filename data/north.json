@@ -48,5 +48,15 @@
   },
   "rows": {},
   "notes": "北段於2026/09/07評選；決標日（契約生效日）待登錄；預定2026/10/15簽約。預算書為115/04/22未核章版；評選須知固定價格為1,011,775,491元。",
-  "constructionPackages": []
+  "constructionPackages": [],
+  "specialDeliverables": [
+    {
+      "id": "yilan-hsr-transfer-study",
+      "parentRule": "basic",
+      "name": "宜蘭新站與高鐵站共月台轉乘專案研究報告",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "北段附件A基本設計子成果；期限隨基本設計成果，不另創獨立契約期限。"
+    }
+  ]
 }
