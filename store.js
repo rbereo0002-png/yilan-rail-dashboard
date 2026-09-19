@@ -27,6 +27,22 @@ export function normalizeProject(input, expectedId) {
     if (pkg.actualAwardDate && !validDate(pkg.actualAwardDate)) throw new Error(`施工分標決標日期格式錯誤：${pkg.code || pkg.id}`);
     return pkg;
   });
+  p.specialDeliverables = Array.isArray(p.specialDeliverables) ? p.specialDeliverables : [];
+  p.specialDeliverables = p.specialDeliverables.map((item,index) => {
+    if (!object(item)) throw new Error(`標段特有子成果第 ${index + 1} 筆必須為物件`);
+    const deliverable = {
+      id:String(item.id || `special-${index + 1}`),
+      parentRule:String(item.parentRule || ''),
+      name:String(item.name || ''),
+      actualSubmitDate:item.actualSubmitDate || '',
+      actualApprovalDate:item.actualApprovalDate || '',
+      note:String(item.note || '')
+    };
+    if (!deliverable.parentRule) throw new Error(`標段特有子成果缺少所屬主成果：${deliverable.name || deliverable.id}`);
+    if (deliverable.actualSubmitDate && !validDate(deliverable.actualSubmitDate)) throw new Error(`子成果提送日期格式錯誤：${deliverable.name}`);
+    if (deliverable.actualApprovalDate && !validDate(deliverable.actualApprovalDate)) throw new Error(`子成果核定日期格式錯誤：${deliverable.name}`);
+    return deliverable;
+  });
   const date = (obj,key) => {
     obj[key] ??= '';
     if (obj[key] !== '' && !validDate(obj[key])) throw new Error(`日期格式錯誤：${key}`);
