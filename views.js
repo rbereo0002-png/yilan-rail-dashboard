@@ -66,7 +66,7 @@ function renderForms(model,readOnly,catalog) {
   text('heroTitle',`宜蘭至羅東鐵路高架化計畫｜${p.name}履約＋付款管制`);
   text('heroSub',p.title);
   renderNavigation(catalog,p.id);
-  for (const key of ['awardDate','evaluationDate','negotiationDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
+  for (const key of ['awardDate','evaluationDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
   $('actualSignDate').max=model.today;
   for (const [key,value] of Object.entries(p.dates)) if ($(key)) $(key).value=value || '';
   $('pcmDays').value=p.settings.pcmDays;
@@ -76,7 +76,7 @@ function renderForms(model,readOnly,catalog) {
   $('forecastMode').value=p.settings.forecastMode;
   $('holidays').value=p.settings.holidays.join(', ');
   $('soilWaterEnabled').checked=p.settings.enabledRules.soilWaterPlan === true;
-  const milestones = [['決標',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['議價',p.milestones.negotiationDate],['簽約基準',p.milestones.signDate],[model.schedule.signing.effective ? '實際簽約' : '待確認實際簽約',p.milestones.actualSignDate]];
+  const milestones = [['決標／契約生效',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['簽約預定',p.milestones.signDate],[model.schedule.signing.effective ? '實際簽約' : '待確認實際簽約',p.milestones.actualSignDate]];
   html('badges',milestones.filter(([,d])=>d).map(([label,date])=>`<span class="badge">${label} ${fmt(date)}</span>`).join(''));
   text('budgetNote',`${p.name}預算總額 ${money(p.budget.total)} 元；發包技術服務費 ${money(p.budget.serviceTotal)} 元。${p.notes || ''}`);
   const labels = {survey:'補充測量',geo:'補充地質調查',utility:'管線調查',land:'用地及地上物相關作業',design:'工程設計',supervision:'施工監造'};
@@ -90,7 +90,7 @@ function renderForms(model,readOnly,catalog) {
 function renderDashboard(model) {
   const d=model.dashboard;
   text('overviewToday',fmt(model.today));text('ovProject',model.project.name);
-  text('ovSignDate',fmt(model.schedule.sign));
+  text('ovSignDate',fmt(model.schedule.awardDate));
   text('ovOverallStatus',d.overall);text('ovProgress',`${d.progress}%`);text('ovProgressText',`${d.completed} / ${d.total}`);
   $('ovProgressBar').style.width=`${d.progress}%`;
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'pending',ovCompleted:'completed'})) text(id,d[key]);
@@ -103,7 +103,7 @@ function renderDashboard(model) {
 }
 
 function renderTimeline(model) {
-  text('tlStartDate',fmt(model.schedule.sign));text('tlForecastFinish',fmt(model.summary.lastForecast));
+  text('tlStartDate',fmt(model.schedule.awardDate));text('tlForecastFinish',fmt(model.summary.lastForecast));
   text('tlDelayDays',`${model.summary.maxShift} 日`);text('tlAffectedCount',`${model.summary.affected.length} 項`);
   html('delayImpactBox',model.summary.affected.length ? model.summary.affected.map(x=>`<div class="delay-item"><div><b>${e(x.name)}</b><span>提送逾期 ${x.submitDelay} 日；審查超過管理目標 ${x.reviewDelay} 日</span></div><strong>+${x.forecastShift} 日</strong><small>管理基準 ${fmt(x.baselineDue)} → 目前 ${fmt(x.forecastDue)}</small></div>`).join('') : '<div class="delay-ok">目前沒有已登錄日期造成的基準偏移或審查超時；未提送之契約逾期請見總覽。</div>');
   html('paymentMilestoneStrip',model.payments.list.map(p=>`<div class="pay-node payment-${p.tier}" data-payment-id="${e(p.paymentId)}"><div class="pay-dot"></div><b>${e(p.category)}｜${e(p.name)}</b><span>${percent(p.ratio)}｜${money(p.amount)} 元</span><small>條件：${fmt(p.triggerDate)}<br>付款：${fmt(p.payDate)}</small><em class="payment-tier-strip-tag">${tierNames[p.tier]}</em></div>`).join(''));
