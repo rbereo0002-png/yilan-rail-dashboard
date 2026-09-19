@@ -11,11 +11,17 @@ export function calculateSchedule(project, today = todayLocal()) {
   const hasOccurred = date => !!date && date <= today;
   const signing = signingState(actualSign, today);
   const sign = signing.effective ? actualSign : baselineSign;
+  const awardDate = project.milestones.awardDate || null;
+  const awardEffective = hasOccurred(awardDate);
   const model = {
+    // Signing remains an administrative/payment event; it no longer starts contract-performance deadlines.
     sign: {id:'sign', name:'契約簽訂', baselineDue:baselineSign, baselineApproval:baselineSign,
       forecastDue:sign, forecastApproval:sign, actualApproval:signing.effective ? actualSign : null,
       effectiveApproval:signing.effective ? actualSign : null},
-    award: {id:'award', name:'決標', actualApproval:project.milestones.awardDate || null}
+    // The contracting authority has confirmed that the contract effective date is the award date.
+    award: {id:'award', name:'決標／契約生效', baselineDue:awardDate, baselineApproval:awardDate,
+      forecastDue:awardDate, forecastApproval:awardDate, actualApproval:awardDate,
+      effectiveApproval:awardEffective ? awardDate : null}
   };
   const visiting = new Set();
   function resolve(id) {
@@ -110,7 +116,7 @@ export function calculateSchedule(project, today = todayLocal()) {
     return item;
   }
   const list = rules.map(rule => resolve(rule.id));
-  return {projectId:project.id, today, pcm, sign, actualSign, signing, model, list};
+  return {projectId:project.id, today, pcm, sign, actualSign, signing, awardDate, awardEffective, model, list};
 }
 
 function statusOf(item, today) {
