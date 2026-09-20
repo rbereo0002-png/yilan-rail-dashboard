@@ -93,19 +93,24 @@ export function calculateSchedule(project, today = todayLocal()) {
     const effectiveSubmit = hasOccurred(actualSubmit) ? actualSubmit : null;
     const effectiveApproval = hasOccurred(actualApproval) ? actualApproval : null;
     const forecastDue = actualSubmit || plannedDue;
-    const baselineApproval = rule.contractRule ? addDays(baselineDue, pcm) : baselineDue;
-    const forecastApproval = actualApproval || (rule.contractRule ? addDays(forecastDue, pcm) : forecastDue);
+    const reviewDays = Number.isInteger(rule.pcmReviewDays) ? rule.pcmReviewDays : pcm;
+    const reviewBasis = rule.pcmReviewContract ? 'pcm-contract' : 'management';
+    const needsReviewForecast = rule.contractRule || rule.pcmReviewContract;
+    const baselineApproval = needsReviewForecast ? addDays(baselineDue, reviewDays) : baselineDue;
+    const forecastApproval = actualApproval || (needsReviewForecast ? addDays(forecastDue, reviewDays) : forecastDue);
     const submitDelay = contractDue && effectiveSubmit ? Math.max(0, daysBetween(contractDue, effectiveSubmit)) : 0;
     const forecastShift = baselineDue && forecastDue ? Math.max(0, daysBetween(baselineDue, forecastDue)) : 0;
-    const reviewTarget = effectiveSubmit ? addDays(effectiveSubmit, pcm) : null;
+    const reviewTarget = effectiveSubmit ? addDays(effectiveSubmit, reviewDays) : null;
     const reviewDelay = reviewTarget && effectiveApproval ? Math.max(0, daysBetween(reviewTarget, effectiveApproval)) : 0;
+    const reviewOverdueDays = reviewTarget && !effectiveApproval ? Math.max(0, daysBetween(reviewTarget, today)) : 0;
     const overdueDays = !effectiveSubmit && !effectiveApproval && contractDue
       ? Math.max(0, daysBetween(contractDue, today)) : 0;
     const item = {...rule, baselineStart, baselineDue, baselineApproval, forecastStart,
       contractDue, managementForecast:dueType === 'management' ? plannedDue : null,
       externalCondition:dueType === 'external', dueType, targetDue:plannedDue,
       forecastDue, forecastApproval, actualSubmit, actualApproval, effectiveSubmit, effectiveApproval,
-      submitDelay, forecastShift, reviewTarget, reviewDelay, overdueDays,
+      reviewDays, reviewBasis, reviewTarget, reviewDelay, reviewOverdueDays,
+      submitDelay, forecastShift, overdueDays,
       holiday:isHoliday(contractDue || plannedDue, project.settings.holidays),
       warnings:[]};
     if ((actualSubmit && !effectiveSubmit) || (actualApproval && !effectiveApproval)) item.warnings.push('實際日期在未來，尚不計為完成／達成');
