@@ -260,8 +260,8 @@
     <div class="timeline-note">
       <b>判讀原則：</b>
       契約明定期限、管理預估與外部日期分開顯示。
-      前置成果「核定日」尚未登錄時，暫採上方 PCM 管理預估審查日數推估後續日期，
-      但不視為契約明定審查期限。
+      基本設計、細部設計及草擬招標文件依PCM工作說明書分別採14日、14日、10日諮詢及審查期限；
+      其他成果才採上方PCM管理預估審查日數。PCM審查期限與機關最終核定日分開列管。
     </div>
 
     <div class="timeline-kpis">
@@ -362,9 +362,9 @@
           </div>
 
           <div class="field">
-            <label>PCM 管理預估審查日數（日曆天）</label>
+            <label>其他成果 PCM 管理預估審查日數（日曆天）</label>
             <input type="number" id="pcmDays" value="30">
-            <div class="hint">管理假設，不視為契約明定期限。</div>
+            <div class="hint">基本設計14日、細部設計14日、草擬招標文件10日依PCM工作說明書契約期限；本欄30日僅供其他成果管理預估。</div>
           </div>
 
           <div class="field">
@@ -438,8 +438,8 @@
         <button type="button" class="btn edit-only" data-action="add-package">新增施工分標</button>
 
         <div id="specialDeliverableBlock" style="margin-top:18px">
-          <h3>標段特有子成果</h3>
-          <p class="small">子成果隨所屬主成果期限辦理，不另創造契約期限；實際提送／核定僅作履約檢核。</p>
+          <h3>標段列管子成果</h3>
+          <p class="small">子成果隨所屬主成果期限辦理，不另創造契約期限；各標段依契約／附件A及已確認會議資料列管。</p>
           <div class="scroll">
             <table class="tbl package-table" id="specialDeliverableTable">
               <thead><tr><th>所屬主成果</th><th>子成果</th><th>隨主成果期限</th><th>實際提送日</th><th>實際核定日</th><th>備註</th></tr></thead>
