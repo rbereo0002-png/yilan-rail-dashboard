@@ -26,7 +26,7 @@ export function tableMarkup(model, editable = false) {
     item.days == null ? '—' : `${item.days}日`,fmt(item.contractDue),fmt(item.managementForecast),
     inputDate(item,'submit',editable),inputDate(item,'approval',editable),
     `${statusPill(item)}${item.holiday ? '<div class="small">期限逢假日，不順延</div>' : ''}`,
-    `${e(item.note)}<div class="small">預估核定：${fmt(item.forecastApproval)}</div>`
+    `${e(item.note)}<div class="small">${item.pcmReviewContract ? `PCM契約審查：${item.reviewDays}日；` : `PCM管理預估：${item.reviewDays}日；`}審查目標：${fmt(item.reviewTarget || item.forecastApproval)}</div>`
   ],`data-node-id="${e(item.id)}"`));
   const ruleRows = model.schedule.list.map(item => tr([
     e(item.group),e(item.name),e(pred(item,model)),duePill(item),fmt(item.forecastStart),
@@ -131,7 +131,7 @@ function renderDashboard(model) {
 function renderTimeline(model) {
   text('tlStartDate',fmt(model.schedule.awardDate));text('tlForecastFinish',fmt(model.summary.lastForecast));
   text('tlDelayDays',`${model.summary.maxShift} 日`);text('tlAffectedCount',`${model.summary.affected.length} 項`);
-  html('delayImpactBox',model.summary.affected.length ? model.summary.affected.map(x=>`<div class="delay-item"><div><b>${e(x.name)}</b><span>提送逾期 ${x.submitDelay} 日；審查超過管理目標 ${x.reviewDelay} 日</span></div><strong>+${x.forecastShift} 日</strong><small>管理基準 ${fmt(x.baselineDue)} → 目前 ${fmt(x.forecastDue)}</small></div>`).join('') : '<div class="delay-ok">目前沒有已登錄日期造成的基準偏移或審查超時；未提送之契約逾期請見總覽。</div>');
+  html('delayImpactBox',model.summary.affected.length ? model.summary.affected.map(x=>`<div class="delay-item"><div><b>${e(x.name)}</b><span>提送逾期 ${x.submitDelay} 日；${x.pcmReviewContract ? 'PCM契約審查逾期' : '審查超過管理目標'} ${Math.max(x.reviewDelay,x.reviewOverdueDays || 0)} 日</span></div><strong>+${x.forecastShift} 日</strong><small>管理基準 ${fmt(x.baselineDue)} → 目前 ${fmt(x.forecastDue)}</small></div>`).join('') : '<div class="delay-ok">目前沒有已登錄日期造成的基準偏移或審查超時；未提送之契約逾期請見總覽。</div>');
   html('paymentMilestoneStrip',model.payments.list.map(p=>`<div class="pay-node payment-${p.tier}" data-payment-id="${e(p.paymentId)}"><div class="pay-dot"></div><b>${e(p.category)}｜${e(p.name)}</b><span>${percent(p.ratio)}｜${money(p.amount)} 元</span><small>條件：${fmt(p.triggerDate)}<br>付款：${fmt(p.payDate)}</small><em class="payment-tier-strip-tag">${tierNames[p.tier]}</em></div>`).join(''));
   const items=model.schedule.list.filter(x=>x.baselineDue || x.forecastDue || x.actualApproval);
   const dates=items.flatMap(x=>[x.baselineStart,x.baselineDue,x.forecastStart,x.forecastDue,x.actualApproval]).filter(Boolean).sort();
