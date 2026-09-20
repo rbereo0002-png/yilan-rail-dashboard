@@ -113,6 +113,33 @@ test('south has no north-only common-platform study',()=>{
   const m=model(fixture('south'));
   assert.equal(m.specialDeliverables.some(x=>x.id==='yilan-hsr-transfer-study'),false);
 });
+test('PCM contract review periods override the 30-day management default',()=>{
+  const p=fixture('south');
+  p.rows.basic_submit='2027-01-10';
+  p.rows.final_submit='2027-06-01';
+  p.rows.tender_submit='2027-07-01';
+  const m=model(normalizeProject(p),'2027-07-05');
+  assert.equal(m.schedule.model.basic.reviewDays,14);
+  assert.equal(m.schedule.model.basic.reviewBasis,'pcm-contract');
+  assert.equal(m.schedule.model.basic.reviewTarget,'2027-01-24');
+  assert.equal(m.schedule.model.final.reviewDays,14);
+  assert.equal(m.schedule.model.final.reviewTarget,'2027-06-15');
+  assert.equal(m.schedule.model.tender.reviewDays,10);
+  assert.equal(m.schedule.model.tender.reviewTarget,'2027-07-11');
+});
+test('other deliverables continue to use configurable PCM management estimate',()=>{
+  const p=fixture('south');p.settings.pcmDays=45;p.rows.execPlan_submit='2026-10-04';
+  const n=model(normalizeProject(p),'2026-10-10').schedule.model.execPlan;
+  assert.equal(n.reviewDays,45);assert.equal(n.reviewBasis,'management');assert.equal(n.reviewTarget,'2026-11-18');
+});
+test('south confirmed final-design subdeliverables inherit final-design deadline',()=>{
+  const p=fixture('south');p.rows.basic_approval='2027-01-01';
+  const m=model(normalizeProject(p),'2027-01-02');
+  for (const id of ['south-track-switch-plan','south-bim-model','south-supervision-work-plan','south-supervision-plan']) {
+    const item=m.specialDeliverables.find(x=>x.id===id);
+    assert.ok(item,id);assert.equal(item.parentRule,'final');assert.equal(item.parentDue,m.schedule.model.final.contractDue);
+  }
+});
 test('external conditions without dates remain undated and excluded from years',()=>{
   const m=model(fixture('south'));const payment=m.payments.byId['design-pcc'];
   assert.equal(payment.tier,'external');assert.equal(payment.year,null);
