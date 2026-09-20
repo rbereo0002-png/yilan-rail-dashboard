@@ -49,5 +49,38 @@
   "rows": {},
   "notes": "南段已於2026/09/04決標並自決標日起契約生效；預定2026/10/01簽約。預算金額為初始估算基準，正式契約分項金額可於介面覆寫。",
   "constructionPackages": [],
-  "specialDeliverables": []
+  "specialDeliverables": [
+    {
+      "id": "south-track-switch-plan",
+      "parentRule": "final",
+      "name": "軌道切換計畫書",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；期限隨期末設計主成果。"
+    },
+    {
+      "id": "south-bim-model",
+      "parentRule": "final",
+      "name": "BIM模型",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；期限隨期末設計主成果。"
+    },
+    {
+      "id": "south-supervision-work-plan",
+      "parentRule": "final",
+      "name": "監造服務工作執行計畫書",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；本版僅列設計成果檢核，不啟用施工監造模組。"
+    },
+    {
+      "id": "south-supervision-plan",
+      "parentRule": "final",
+      "name": "計畫監造計畫",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；本版僅列設計成果檢核，不啟用施工監造模組。"
+    }
+  ]
 }
