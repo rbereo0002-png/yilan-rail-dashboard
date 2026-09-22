@@ -1,0 +1,23 @@
+name: v1.3 RC tests
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run unit tests
+        run: npm test
+      - name: Syntax check production modules
+        run: |
+          for f in app.js rules.js dates.js store.js schedule-engine.js payment-engine.js model.js views.js supervision-engine.js; do
+            node --check "$f"
+          done
+      - name: Check whitespace errors
+        run: git diff --check origin/main...HEAD
