@@ -38,16 +38,16 @@ test('award establishes contract effectiveness but signing starts signing-based 
   assert.equal(m.schedule.awardDate,'2026-09-04');
   assert.equal(m.schedule.model.execPlan.contractDue,null);
   assert.equal(m.schedule.model.execPlan.managementForecast,'2026-10-31');
-  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-10-04');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
 });
-test('design-stage risk assessment execution plan is due 30 days after contract-effective award',()=>{
+test('design-stage risk assessment implementation plan is due 60 days after contract-effective award',()=>{
   const south=model(fixture('south'),'2026-09-20').schedule.model.designRiskPlan;
-  assert.equal(south.contractDue,'2026-10-04');
-  assert.equal(south.days,30);
+  assert.equal(south.contractDue,'2026-11-03');
+  assert.equal(south.days,60);
   const north=fixture('north');north.milestones.awardDate='2026-09-14';north.milestones.workStartDate='2026-10-15';
   const n=model(normalizeProject(north),'2026-09-20').schedule.model.designRiskPlan;
-  assert.equal(n.contractDue,'2026-10-14');
-  assert.equal(n.days,30);
+  assert.equal(n.contractDue,'2026-11-13');
+  assert.equal(n.days,60);
 });
 test('work-start date is administrative only and does not shift contract deadlines',()=>{
   const p=signed('south');
@@ -60,7 +60,7 @@ test('work-start date is administrative only and does not shift contract deadlin
 test('signing activates signing-based performance deadlines while award-based risk plan remains unchanged',()=>{
   const m=model(signed(),'2026-10-02');
   assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
-  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-10-04');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
   assert.equal(m.payments.byId['design-sign'].tier,'ready');
 });
 test('actual approval activates downstream contract deadline with unchanged day count',()=>{
