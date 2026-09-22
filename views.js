@@ -24,9 +24,11 @@ export function tableMarkup(model, editable = false) {
   const scheduleRows = model.schedule.list.map(item => tr([
     e(item.group),e(item.name),duePill(item),e(pred(item,model)),
     item.days == null ? '—' : `${item.days}日`,fmt(item.contractDue),fmt(item.managementForecast),
-    inputDate(item,'submit',editable),inputDate(item,'approval',editable),
+    inputDate(item,'submit',editable),
+    `${fmt(item.reviewTarget)}<div class="small">${item.pcmReviewContract ? `PCM契約 ${item.reviewDays}日` : `管理預估 ${item.reviewDays}日`}</div>`,
+    inputDate(item,'approval',editable),
     `${statusPill(item)}${item.holiday ? '<div class="small">期限逢假日，不順延</div>' : ''}`,
-    `${e(item.note)}<div class="small">${item.pcmReviewContract ? `PCM契約審查：${item.reviewDays}日；` : `PCM管理預估：${item.reviewDays}日；`}審查目標：${fmt(item.reviewTarget || item.forecastApproval)}</div>`
+    e(item.note)
   ],`data-node-id="${e(item.id)}"`));
   const ruleRows = model.schedule.list.map(item => tr([
     e(item.group),e(item.name),e(pred(item,model)),duePill(item),fmt(item.forecastStart),
@@ -44,7 +46,7 @@ export function tableMarkup(model, editable = false) {
   ],`data-payment-id="${e(payment.paymentId)}" data-payment-tier="${payment.tier}"`));
   const yearRows = model.payments.years.map(year => tr([`${year.year}（民國${Number(year.year)-1911}年）`,money(year.ready),money(year.forecast),money(year.amount),year.count]));
   return {
-    scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','實際核定日','狀態','說明'],scheduleRows),
+    scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
     contractRuleTable:tableHTML(['類別','工作／成果','前置節點','期限性質','起算日','契約期限','管理預估期限','實際提送','實際核定','狀態','付款連動'],ruleRows),
     dependencyTable:tableHTML(['類別','工作／成果','前置節點','期限性質','契約日數','管理基準日期','目前提送預估／實際','延誤判讀','付款連動'],dependencyRows),
     paymentTable:tableHTML(['類別','付款條件','付款性質','比例','條件日期（實際／預估）','預估付款日','預估金額','設計累計','年度','備註'],paymentRows),
@@ -119,8 +121,8 @@ function renderDashboard(model) {
   text('ovSignDate',fmt(model.schedule.awardDate));
   text('ovOverallStatus',d.overall);text('ovProgress',`${d.progress}%`);text('ovProgressText',`${d.completed} / ${d.total}`);
   $('ovProgressBar').style.width=`${d.progress}%`;
-  for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'pending',ovCompleted:'completed'})) text(id,d[key]);
-  text('overviewSub',`目前階段：${d.phaseLabel}。逾期僅計已依契約事件正式起算之期限；未到起算事件的成果不列逾期。`);
+  for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'underReview',ovCompleted:'completed'})) text(id,d[key]);
+  text('overviewSub',`目前階段：${d.phaseLabel}。廠商提送期限、PCM審查期限／管理目標、甲方實際核定分開列管；未到起算事件的成果不列逾期。`);
   html('ovImportantWorks',d.important.length ? d.important.map(x=>`<div class="work-item"><div class="work-status">${statusPill(x)}</div><div class="work-name"><b>${e(x.name)}</b><span>${dueNames[x.dueType]}</span></div><div class="work-date">契約期限<br>${fmt(x.contractDue)}${x.reviewTarget ? `<br><small>審查目標 ${fmt(x.reviewTarget)}</small>` : ''}</div></div>`).join('') : '<div class="overview-empty">目前無契約逾期、待核定或30日內到期事項</div>');
   html('ovStageList',d.stages.map(x=>`<div class="stage-item"><span>${e(x.name)}</span><b>${x.completed}/${x.total}</b></div>`).join(''));
   document.querySelector('.payment-kpis').innerHTML=Object.entries(model.payments.totals).map(([tier,t])=>`<div class="payment-kpi"><span>${tierNames[tier]}</span><b>${t.count} 項</b><small>${money(t.amount)} 元</small></div>`).join('')+`<div class="payment-kpi"><span>最近預估付款日</span><b>${fmt(model.payments.nextPayDate)}</b></div>`;
