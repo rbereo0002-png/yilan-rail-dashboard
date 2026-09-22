@@ -103,6 +103,11 @@ async function init() {
         fail(new Error(SIGN_DATE_WARNING));return;
       }
     }
+    if (input.dataset.row && ['submit','approval'].includes(input.dataset.kind) && input.value && input.value > todayLocal()) {
+      const message='實際提送日／實際核定日不得晚於今日。';
+      input.setCustomValidity(message);input.reportValidity();input.setCustomValidity('');
+      fail(new Error(message));refresh();return;
+    }
     try {
       store.edit(p=>{
         if (input.dataset.packageId) {
