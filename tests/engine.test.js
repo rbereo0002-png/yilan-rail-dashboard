@@ -90,6 +90,36 @@ test('actual approval activates downstream contract deadline with unchanged day 
   assert.equal(m.payments.byId['design-exec'].tier,'ready');
   assert.equal(m.payments.byId['design-exec'].triggerDate,'2026-11-15');
 });
+test('performance flow separates vendor submission PCM review and owner approval',()=>{
+  const p=signed('south');
+  let m=model(p,'2026-10-20'),n=m.schedule.model.execPlan;
+  assert.equal(n.performanceStage,'awaiting-submit');
+  assert.equal(n.reviewTarget,null);
+  p.rows.execPlan_submit='2026-10-20';
+  m=model(normalizeProject(p),'2026-10-21');n=m.schedule.model.execPlan;
+  assert.equal(n.performanceStage,'under-review');
+  assert.equal(n.reviewTarget,'2026-11-19');
+  assert.equal(n.submitDelay,0);
+  p.rows.execPlan_approval='2026-11-10';
+  m=model(normalizeProject(p),'2026-11-11');n=m.schedule.model.execPlan;
+  assert.equal(n.performanceStage,'approved');
+  assert.equal(n.effectiveApproval,'2026-11-10');
+});
+test('basic design uses PCM contractual 14-day review clock after actual submission',()=>{
+  const p=signed('south');p.rows.execPlan_approval='2026-11-01';p.rows.basic_submit='2027-03-01';
+  const n=model(normalizeProject(p),'2027-03-02').schedule.model.basic;
+  assert.equal(n.reviewBasis,'pcm-contract');
+  assert.equal(n.reviewDays,14);
+  assert.equal(n.reviewTarget,'2027-03-15');
+  assert.equal(n.reviewOverdueDays,0);
+});
+test('review overdue is separate from vendor submission delay',()=>{
+  const p=signed('south');p.rows.execPlan_submit='2026-10-20';
+  const n=model(normalizeProject(p),'2026-11-25').schedule.model.execPlan;
+  assert.equal(n.submitDelay,0);
+  assert.equal(n.reviewOverdueDays,6);
+  assert.match(n.status.text,/審查超過管理目標 6 日/);
+});
 test('normal PCM review is not a contractor delay',()=>{
   const p=signed();p.rows.execPlan_submit='2026-10-31';p.rows.execPlan_approval='2026-11-30';
   const n=model(p).schedule.model.execPlan;
