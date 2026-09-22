@@ -103,6 +103,8 @@ export function calculateSchedule(project, today = todayLocal()) {
     const reviewTarget = effectiveSubmit ? addDays(effectiveSubmit, reviewDays) : null;
     const reviewDelay = reviewTarget && effectiveApproval ? Math.max(0, daysBetween(reviewTarget, effectiveApproval)) : 0;
     const reviewOverdueDays = reviewTarget && !effectiveApproval ? Math.max(0, daysBetween(reviewTarget, today)) : 0;
+    const performanceStage = effectiveApproval ? 'approved' : effectiveSubmit ? 'under-review' : contractDue ? 'awaiting-submit' : 'not-started';
+    const performanceStageLabel = performanceStage === 'approved' ? '已核定' : performanceStage === 'under-review' ? '已提送／審查中' : performanceStage === 'awaiting-submit' ? '待提送' : '尚未起算';
     const overdueDays = !effectiveSubmit && !effectiveApproval && contractDue
       ? Math.max(0, daysBetween(contractDue, today)) : 0;
     const item = {...rule, baselineStart, baselineDue, baselineApproval, forecastStart,
@@ -110,6 +112,7 @@ export function calculateSchedule(project, today = todayLocal()) {
       externalCondition:dueType === 'external', dueType, targetDue:plannedDue,
       forecastDue, forecastApproval, actualSubmit, actualApproval, effectiveSubmit, effectiveApproval,
       reviewDays, reviewBasis, reviewTarget, reviewDelay, reviewOverdueDays,
+      performanceStage, performanceStageLabel,
       submitDelay, forecastShift, overdueDays,
       holiday:isHoliday(contractDue || plannedDue, project.settings.holidays),
       warnings:[]};
@@ -126,7 +129,12 @@ export function calculateSchedule(project, today = todayLocal()) {
 
 function statusOf(item, today) {
   if (item.effectiveApproval) return {text:item.submitDelay ? `已核定；提送逾期 ${item.submitDelay} 日` : '已核定', cls:item.submitDelay ? 'tl-warning' : 'tl-done'};
-  if (item.effectiveSubmit) return {text:item.submitDelay ? `待核定；提送逾期 ${item.submitDelay} 日` : '已提送待核定', cls:'tl-warning'};
+  if (item.effectiveSubmit) {
+    const review = item.reviewOverdueDays > 0
+      ? `${item.pcmReviewContract ? 'PCM契約審查逾期' : '審查超過管理目標'} ${item.reviewOverdueDays} 日`
+      : item.reviewTarget ? `審查中；目標 ${item.reviewTarget}` : '已提送待核定';
+    return {text:item.submitDelay ? `${review}；提送逾期 ${item.submitDelay} 日` : review, cls:item.reviewOverdueDays > 0 ? 'tl-danger' : 'tl-warning'};
+  }
   if (item.conditional) return {text:'條件式／待確認', cls:'tl-external'};
   if (item.dueType === 'external') return {text:'待通知／外部條件', cls:'tl-external'};
   if (item.dueType === 'management') return {text:item.targetDue < today ? '管理預估已過，請更新' : '管理預估', cls:'tl-normal'};
