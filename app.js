@@ -58,7 +58,7 @@ async function action(name) {
     p.constructionPackages.push({id:`pkg-${stamp}`,code:'',name:'',scope:'',plannedTenderDate:'',actualAwardDate:''});
   });
   else if (name === 'save' && !store.readOnly) store.save();
-  else if (name === 'reset' && !store.readOnly && confirm('放棄目前標段本機修改並重新載入 GitHub 資料？')) await store.reset();
+  else if (name === 'reset' && !store.readOnly && confirm('放棄目前標段本機修改並重新載入初始資料？')) await store.reset();
   else if (name === 'json' && !store.readOnly) download(JSON.stringify(store.project,null,2),`${store.project.id}.json`,'application/json;charset=utf-8');
   else if (name === 'import' && !store.readOnly) $('importFile').click();
   else if (name === 'excel') {
