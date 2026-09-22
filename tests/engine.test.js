@@ -101,11 +101,13 @@ test('south switches to actual performance when actual signing is recorded',()=>
   assert.equal(m.dashboard.phaseLabel,'實際履約中');
   assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
 });
-test('north remains pre-award until its actual award date is entered',()=>{
+test('north is awarded on 2026-09-18 but formal performance still awaits signing',()=>{
   const m=model(fixture('north'),'2026-09-22');
-  assert.equal(m.dashboard.phase,'pre-award');
+  assert.equal(m.dashboard.phase,'awaiting-sign');
   assert.equal(m.dashboard.started,0);
   assert.equal(m.dashboard.overdue,0);
+  assert.equal(m.schedule.awardDate,'2026-09-18');
+  assert.equal(m.dashboard.preSignSpecialItems[0].contractDue,'2026-11-17');
 });
 test('award establishes contract effectiveness but signing starts signing-based performance deadlines',()=>{
   const m=model(fixture('south'),'2026-09-19');
