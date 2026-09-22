@@ -14,7 +14,11 @@ export function calculateModel(project, today = todayLocal()) {
   const packageAwardDates = packages.map(x => x.actualAwardDate).filter(Boolean);
   const allPackagesAwarded = packages.length > 0 && packageAwardDates.length === packages.length;
   const derivedAllWorksAwardDate = allPackagesAwarded ? [...packageAwardDates].sort().at(-1) : null;
-  if (packages.length) source.dates.allWorksAwardDate = derivedAllWorksAwardDate || '';
+  if (packages.length) {
+    source.dates.allWorksAwardDate = derivedAllWorksAwardDate || '';
+    source.rows ||= {};
+    source.rows.worksAward_approval = derivedAllWorksAwardDate || '';
+  }
   const schedule = calculateSchedule(source,today);
   const payments = calculatePayments(source,schedule);
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
