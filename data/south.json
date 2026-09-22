@@ -1,13 +1,87 @@
 {
-  "version":"1.0",
-  "id":"south",
-  "name":"南段",
-  "title":"宜蘭至羅東鐵路高架化計畫南段（宜蘭新站南～冬山站北）土建、軌道工程委託設計及監造技術服務",
-  "milestones":{"awardDate":"2026-09-04","evaluationDate":"","negotiationDate":"","signDate":"2026-10-01"},
-  "settings":{"pcmDays":30,"payWorkdays":30,"forecastMode":"budget","holidays":[]},
-  "budget":{"total":828711915,"serviceTotal":822111915,"survey":9923128,"geo":37581838,"utility":5895711,"land":14271755,"design":278856679,"supervision":475582804,"other":600000,"qa":6000000},
-  "contract":{"survey":9923128,"geo":37581838,"utility":5895711,"land":14271755,"design":278856679,"supervision":475582804},
-  "dates":{"noticeDate":"","pccDate":"","tenderApprovalDate":"","allWorksAwardDate":"","allWorksCloseDate":"","supervisionStart":"","constructionStart":"","constructionEnd":"","constructionClose":""},
-  "rows":{},
-  "notes":"南段已於2026/09/04決標；預定2026/10/01簽約。預算金額為初始估算基準，正式契約分項金額可於介面覆寫。"
+  "version": "1.0",
+  "id": "south",
+  "name": "南段",
+  "title": "宜蘭至羅東鐵路高架化計畫南段（宜蘭新站南～冬山站北）土建、軌道工程委託設計及監造技術服務",
+  "milestones": {
+    "awardDate": "2026-09-04",
+    "evaluationDate": "",
+    "negotiationDate": "",
+    "signDate": "2026-10-01",
+    "workStartDate": "2026-10-01"
+  },
+  "settings": {
+    "pcmDays": 30,
+    "payWorkdays": 30,
+    "forecastMode": "budget",
+    "holidays": []
+  },
+  "budget": {
+    "total": 828711915,
+    "serviceTotal": 822111915,
+    "survey": 9923128,
+    "geo": 37581838,
+    "utility": 5895711,
+    "land": 14271755,
+    "design": 278856679,
+    "supervision": 475582804,
+    "other": 600000,
+    "qa": 6000000
+  },
+  "contract": {
+    "survey": 9923128,
+    "geo": 37581838,
+    "utility": 5895711,
+    "land": 14271755,
+    "design": 278856679,
+    "supervision": 475582804
+  },
+  "dates": {
+    "noticeDate": "",
+    "pccDate": "",
+    "tenderApprovalDate": "",
+    "allWorksAwardDate": "",
+    "allWorksCloseDate": "",
+    "supervisionStart": "",
+    "constructionStart": "",
+    "constructionEnd": "",
+    "constructionClose": ""
+  },
+  "rows": {},
+  "notes": "南段已於2026/09/04決標並自決標日起契約生效；工作啟始日及預定簽約日為2026/10/01。設計階段施工風險評估實施計畫書依契約生效日起60日內提送；執行服務計畫書、補充測量、補充地質及管線調查工作計畫書依簽約後30日內提送。",
+  "constructionPackages": [],
+  "specialDeliverables": [
+    {
+      "id": "south-track-switch-plan",
+      "parentRule": "final",
+      "name": "軌道切換計畫書",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；期限隨期末設計主成果。"
+    },
+    {
+      "id": "south-bim-model",
+      "parentRule": "final",
+      "name": "BIM模型",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；期限隨期末設計主成果。"
+    },
+    {
+      "id": "south-supervision-work-plan",
+      "parentRule": "final",
+      "name": "監造服務工作執行計畫書",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；本版僅列設計成果檢核，不啟用施工監造模組。"
+    },
+    {
+      "id": "south-supervision-plan",
+      "parentRule": "final",
+      "name": "計畫監造計畫",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "南段期末設計提送文件列管項目；本版僅列設計成果檢核，不啟用施工監造模組。"
+    }
+  ]
 }

@@ -75,7 +75,7 @@
         </div>
 
         <div class="overview-project-item">
-          <span>簽約日</span>
+          <span>契約生效日（決標日）</span>
           <b id="ovSignDate">-</b>
         </div>
 
@@ -141,19 +141,50 @@
 
           <div class="overview-panel-title">
             <div>
-              <h3>近期重要工作</h3>
-              <span>優先顯示逾期及30日內到期成果</span>
+              <h3>承辦工作台</h3>
+              <span>應辦、催辦與實際履約登錄集中在同一區，不必再翻完整主時程</span>
             </div>
-
-            <button class="mini-btn"
-                    type="button"
-                    data-action="schedule">
-              查看完整時程
-            </button>
+            <button class="mini-btn" type="button" data-action="schedule">查看完整時程</button>
           </div>
 
-          <div id="ovImportantWorks"
-               class="overview-work-list"></div>
+          <div class="pre-sign-special">
+            <div class="overview-panel-title">
+              <div>
+                <h3>簽約前特別列管事項 <span id="preSignSpecialCount">0</span></h3>
+                <span>僅列契約明定以決標／契約生效日起算之特殊事項；不視為一般履約已起算</span>
+              </div>
+            </div>
+            <div id="preSignSpecialWorks"></div>
+          </div>
+
+          <div class="quick-performance workbench">
+            <div class="overview-panel-title">
+              <div>
+                <h3>實際履約工作台 <span id="quickPerformanceCount">0</span></h3>
+                <span>一般履約自實際簽約後開放；可直接登錄提送／核定並同步重算審查、付款與後續成果</span>
+              </div>
+              <button class="mini-btn edit-only" type="button" data-action="save">儲存本機</button>
+            </div>
+
+            <div class="quick-filter-bar" role="group" aria-label="承辦工作台篩選">
+              <button type="button" class="quick-filter active" data-quick-filter="urgent">今日應辦／催辦 <span id="wbUrgentCount">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="due14">14日內 <span id="wb14Count">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="due30">15～30日 <span id="wb30Count">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="review">審查中 <span id="wbReviewCount">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="open">全部未完成 <span id="wbOpenCount">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="completed">已核定 <span id="wbCompletedCount">0</span></button>
+            </div>
+
+            <div class="scroll">
+              <table class="tbl quick-performance-table">
+                <thead>
+                  <tr><th>成果／工作</th><th>契約期限</th><th>實際提送日</th><th>PCM審查期限／目標</th><th>實際核定日</th><th>狀態／修正</th></tr>
+                </thead>
+                <tbody id="quickPerformanceBody"></tbody>
+              </table>
+            </div>
+            <p class="small">「今日應辦／催辦」只列契約逾期、審查催辦及審查中案件；14日及30日到期另以分頁查看。誤登日期可清除後重填；修改完成後請儲存本機。</p>
+          </div>
 
         </div>
 
@@ -260,8 +291,8 @@
     <div class="timeline-note">
       <b>判讀原則：</b>
       契約明定期限、管理預估與外部日期分開顯示。
-      前置成果「核定日」尚未登錄時，暫採上方 PCM 管理預估審查日數推估後續日期，
-      但不視為契約明定審查期限。
+      基本設計、細部設計及草擬招標文件依PCM工作說明書分別採14日、14日、10日諮詢及審查期限；
+      其他成果才採上方PCM管理預估審查日數。PCM審查期限與機關最終核定日分開列管。
     </div>
 
     <div class="timeline-kpis">
@@ -343,7 +374,7 @@
         <div class="formgrid">
 
           <div class="field">
-            <label>決標日</label>
+            <label>決標日（契約生效日）</label>
             <input type="date" id="awardDate">
           </div>
 
@@ -353,23 +384,23 @@
           </div>
 
           <div class="field">
-            <label>議價日</label>
-            <input type="date" id="negotiationDate">
+            <label>工作啟始日（行政紀錄，不作契約起算）</label>
+            <input type="date" id="workStartDate">
           </div>
 
           <div class="field">
-            <label>簽約基準日（可為預定）</label>
+            <label>簽約預定日（行政紀錄）</label>
             <input type="date" id="signDate">
           </div>
           <div class="field">
-            <label>實際簽約日（確認簽約後登錄）</label>
+            <label>實際簽約日（付款／行政紀錄）</label>
             <input type="date" id="actualSignDate">
           </div>
 
           <div class="field">
-            <label>PCM 管理預估審查日數（日曆天）</label>
+            <label>其他成果 PCM 管理預估審查日數（日曆天）</label>
             <input type="number" id="pcmDays" value="30">
-            <div class="hint">管理假設，不視為契約明定期限。</div>
+            <div class="hint">基本設計14日、細部設計14日、草擬招標文件10日依PCM工作說明書契約期限；本欄30日僅供其他成果管理預估。</div>
           </div>
 
           <div class="field">
@@ -407,6 +438,7 @@
           <div class="field">
             <label>各分標工程全部決標日</label>
             <input type="date" id="allWorksAwardDate">
+            <div class="hint" id="allWorksAwardHint">未建立施工分標清單時可手動登錄；建立後由各分標實際決標日自動判定。</div>
           </div>
 
           <div class="field">
@@ -424,6 +456,35 @@
       </div>
     </section>
 
+
+    <section class="card" id="packageControl">
+      <div class="hd"><h2>施工分標與標段特有成果</h2></div>
+      <div class="bd">
+        <div class="timeline-note">
+          <b>分標原則：</b>南、北段施工分標分開管理；標號與數量依基本設計採購策略及甲方後續指示更新。
+          各分標均有實際決標日後，系統自動形成「各分標工程全部決標日」並連動工程設計付款節點。
+        </div>
+        <div class="package-summary" id="packageSummary"></div>
+        <div class="scroll">
+          <table class="tbl package-table" id="packageTable">
+            <thead><tr><th>標號</th><th>標名</th><th>工程範圍</th><th>預定招標日</th><th>實際決標日</th><th class="edit-only">操作</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn edit-only" data-action="add-package">新增施工分標</button>
+
+        <div id="specialDeliverableBlock" style="margin-top:18px">
+          <h3>標段列管子成果</h3>
+          <p class="small">子成果隨所屬主成果期限辦理，不另創造契約期限；各標段依契約／附件A及已確認會議資料列管。</p>
+          <div class="scroll">
+            <table class="tbl package-table" id="specialDeliverableTable">
+              <thead><tr><th>所屬主成果</th><th>子成果</th><th>隨主成果期限</th><th>實際提送日</th><th>實際核定日</th><th>備註</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section class="card"><div class="hd"><h2>通知與條件式工作</h2></div><div class="bd"><div class="formgrid" id="noticeInputs"></div><label class="condition-toggle"><input id="soilWaterEnabled" type="checkbox"> 啟用水土保持計畫（確認適用時勾選）</label><p class="small">出流管制維持條件式，不自行補入固定期限；水保停用不刪除已登錄資料。</p></div></section>
 

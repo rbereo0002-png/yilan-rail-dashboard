@@ -73,3 +73,11 @@ test('legacy conflict warning survives repeated normalization and loading',async
   assert.equal(store.project.migrationWarnings.length,1);store.edit(p=>p.settings.payWorkdays=0);
   assert.equal(store.project.migrationWarnings.length,1);
 });
+
+test('construction packages remain isolated by segment and validate dates',async()=>{
+  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:storage()});
+  await store.select('south');store.edit(p=>p.constructionPackages.push({id:'s1',code:'S1',name:'南段一標',scope:'',plannedTenderDate:'2027-01-01',actualAwardDate:''}));
+  await store.select('north');assert.equal(store.project.constructionPackages.length,0);
+  await store.select('south');assert.equal(store.project.constructionPackages[0].code,'S1');
+  assert.throws(()=>store.edit(p=>p.constructionPackages[0].actualAwardDate='2027-02-30'));
+});

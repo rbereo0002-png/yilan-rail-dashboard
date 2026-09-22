@@ -6,7 +6,7 @@ import {normalizeProject} from '../store.js';
 import {calculateModel} from '../model.js';
 const today='2026-09-13';
 const fixture=()=>normalizeProject(JSON.parse(readFileSync(new URL('../data/south.json',import.meta.url))));
-for (const [date,effective,status] of [['',false,'尚未登錄實際簽約'],['2026-09-12',true,'履約管制中'],[today,true,'履約管制中'],['2026-09-14',false,'實際簽約日尚未生效']]) {
+for (const [date,effective,status] of [['',false,'已決標／待簽約'],['2026-09-12',true,'實際履約中'],[today,true,'實際履約中'],['2026-09-14',false,'已決標／待簽約']]) {
   test(`actual signing ${date || 'blank'} validity`,()=>{
     const p=fixture();p.milestones.actualSignDate=date;
     const m=calculateModel(p,today);
@@ -20,7 +20,9 @@ test('future planned sign with blank actual remains management only',()=>{
   const p=fixture();p.milestones.signDate='2027-01-01';p.milestones.actualSignDate='';
   const m=calculateModel(p,today);
   assert.equal(m.schedule.sign,'2027-01-01');
-  assert.equal(m.summary.counts.contract,0);
+  assert.equal(m.dashboard.started,0);
+  assert.equal(m.dashboard.preSignSpecialItems.length,1);
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
   assert.equal(m.dashboard.overdue,0);
 });
 test('future actual from stored data cannot create ready, deadlines or overdue',()=>{
@@ -28,9 +30,10 @@ test('future actual from stored data cannot create ready, deadlines or overdue',
   const m=calculateModel(normalizeProject(JSON.parse(JSON.stringify(p))),today);
   assert.equal(m.schedule.sign,p.milestones.signDate);
   assert.equal(m.payments.totals.ready.count,0);
-  assert.equal(m.summary.counts.contract,0);
+  assert.equal(m.dashboard.started,0);
   assert.equal(m.dashboard.overdue,0);
-  assert(m.schedule.list.every(n=>!n.contractDue && !n.overdueDays));
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
+  assert(m.schedule.list.filter(n=>n.triggerType==='signDate' && n.contractRule).every(n=>!n.contractDue && !n.overdueDays));
   assert(m.summary.warnings.includes('實際簽約日不可晚於今日；目前仍以簽約基準日作管理預估。'));
   assert.equal(m.project.milestones.actualSignDate,'2026-10-01');
 });

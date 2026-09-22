@@ -11,11 +11,17 @@ export function calculateSchedule(project, today = todayLocal()) {
   const hasOccurred = date => !!date && date <= today;
   const signing = signingState(actualSign, today);
   const sign = signing.effective ? actualSign : baselineSign;
+  const awardDate = project.milestones.awardDate || null;
+  const awardEffective = hasOccurred(awardDate);
   const model = {
+    // Signing remains an administrative/payment event; it no longer starts contract-performance deadlines.
     sign: {id:'sign', name:'契約簽訂', baselineDue:baselineSign, baselineApproval:baselineSign,
       forecastDue:sign, forecastApproval:sign, actualApproval:signing.effective ? actualSign : null,
       effectiveApproval:signing.effective ? actualSign : null},
-    award: {id:'award', name:'決標', actualApproval:project.milestones.awardDate || null}
+    // The contracting authority has confirmed that the contract effective date is the award date.
+    award: {id:'award', name:'決標／契約生效', baselineDue:awardDate, baselineApproval:awardDate,
+      forecastDue:awardDate, forecastApproval:awardDate, actualApproval:awardDate,
+      effectiveApproval:awardEffective ? awardDate : null}
   };
   const visiting = new Set();
   function resolve(id) {
@@ -87,19 +93,27 @@ export function calculateSchedule(project, today = todayLocal()) {
     const effectiveSubmit = hasOccurred(actualSubmit) ? actualSubmit : null;
     const effectiveApproval = hasOccurred(actualApproval) ? actualApproval : null;
     const forecastDue = actualSubmit || plannedDue;
-    const baselineApproval = rule.contractRule ? addDays(baselineDue, pcm) : baselineDue;
-    const forecastApproval = actualApproval || (rule.contractRule ? addDays(forecastDue, pcm) : forecastDue);
+    const reviewDays = Number.isInteger(rule.pcmReviewDays) ? rule.pcmReviewDays : pcm;
+    const reviewBasis = rule.pcmReviewContract ? 'pcm-contract' : 'management';
+    const needsReviewForecast = rule.contractRule || rule.pcmReviewContract;
+    const baselineApproval = needsReviewForecast ? addDays(baselineDue, reviewDays) : baselineDue;
+    const forecastApproval = actualApproval || (needsReviewForecast ? addDays(forecastDue, reviewDays) : forecastDue);
     const submitDelay = contractDue && effectiveSubmit ? Math.max(0, daysBetween(contractDue, effectiveSubmit)) : 0;
     const forecastShift = baselineDue && forecastDue ? Math.max(0, daysBetween(baselineDue, forecastDue)) : 0;
-    const reviewTarget = effectiveSubmit ? addDays(effectiveSubmit, pcm) : null;
+    const reviewTarget = effectiveSubmit ? addDays(effectiveSubmit, reviewDays) : null;
     const reviewDelay = reviewTarget && effectiveApproval ? Math.max(0, daysBetween(reviewTarget, effectiveApproval)) : 0;
+    const reviewOverdueDays = reviewTarget && !effectiveApproval ? Math.max(0, daysBetween(reviewTarget, today)) : 0;
+    const performanceStage = effectiveApproval ? 'approved' : effectiveSubmit ? 'under-review' : contractDue ? 'awaiting-submit' : 'not-started';
+    const performanceStageLabel = performanceStage === 'approved' ? '已核定' : performanceStage === 'under-review' ? '已提送／審查中' : performanceStage === 'awaiting-submit' ? '待提送' : '尚未起算';
     const overdueDays = !effectiveSubmit && !effectiveApproval && contractDue
       ? Math.max(0, daysBetween(contractDue, today)) : 0;
     const item = {...rule, baselineStart, baselineDue, baselineApproval, forecastStart,
       contractDue, managementForecast:dueType === 'management' ? plannedDue : null,
       externalCondition:dueType === 'external', dueType, targetDue:plannedDue,
       forecastDue, forecastApproval, actualSubmit, actualApproval, effectiveSubmit, effectiveApproval,
-      submitDelay, forecastShift, reviewTarget, reviewDelay, overdueDays,
+      reviewDays, reviewBasis, reviewTarget, reviewDelay, reviewOverdueDays,
+      performanceStage, performanceStageLabel,
+      submitDelay, forecastShift, overdueDays,
       holiday:isHoliday(contractDue || plannedDue, project.settings.holidays),
       warnings:[]};
     if ((actualSubmit && !effectiveSubmit) || (actualApproval && !effectiveApproval)) item.warnings.push('實際日期在未來，尚不計為完成／達成');
@@ -110,12 +124,17 @@ export function calculateSchedule(project, today = todayLocal()) {
     return item;
   }
   const list = rules.map(rule => resolve(rule.id));
-  return {projectId:project.id, today, pcm, sign, actualSign, signing, model, list};
+  return {projectId:project.id, today, pcm, sign, actualSign, signing, awardDate, awardEffective, model, list};
 }
 
 function statusOf(item, today) {
   if (item.effectiveApproval) return {text:item.submitDelay ? `已核定；提送逾期 ${item.submitDelay} 日` : '已核定', cls:item.submitDelay ? 'tl-warning' : 'tl-done'};
-  if (item.effectiveSubmit) return {text:item.submitDelay ? `待核定；提送逾期 ${item.submitDelay} 日` : '已提送待核定', cls:'tl-warning'};
+  if (item.effectiveSubmit) {
+    const review = item.reviewOverdueDays > 0
+      ? `${item.pcmReviewContract ? 'PCM契約審查逾期' : '審查超過管理目標'} ${item.reviewOverdueDays} 日`
+      : item.reviewTarget ? `審查中；目標 ${item.reviewTarget}` : '已提送待核定';
+    return {text:item.submitDelay ? `${review}；提送逾期 ${item.submitDelay} 日` : review, cls:item.reviewOverdueDays > 0 ? 'tl-danger' : 'tl-warning'};
+  }
   if (item.conditional) return {text:'條件式／待確認', cls:'tl-external'};
   if (item.dueType === 'external') return {text:'待通知／外部條件', cls:'tl-external'};
   if (item.dueType === 'management') return {text:item.targetDue < today ? '管理預估已過，請更新' : '管理預估', cls:'tl-normal'};

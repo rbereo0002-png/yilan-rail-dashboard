@@ -7,14 +7,28 @@ import {YilanRules,paymentRules} from '../rules.js';
 import {calculateSchedule} from '../schedule-engine.js';
 import {calculateSupervision} from '../supervision-engine.js';
 import {addDays,addWorkdays,validDate} from '../dates.js';
-import {tableMarkup,exportHTML} from '../views.js';
+import {tableMarkup,exportHTML,quickEntryMarkup} from '../views.js';
 const fixture = id => normalizeProject(JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url))));
 const model = (p,today='2026-12-01') => calculateModel(p,today);
 function signed(id='south') {const p=fixture(id);p.milestones.actualSignDate=p.milestones.signDate;return p;}
 
-test('all original contract rules are byte-value equivalent',()=>{
-  const old=JSON.parse(readFileSync(new URL('./fixtures/legacy-business.json',import.meta.url)));
-  for (const [key,value] of Object.entries(old)) assert.deepEqual(YilanRules[key],value,key);
+test('legacy contract rules are preserved except explicitly approved v1.3 overrides',()=>{
+  const legacy=JSON.parse(readFileSync(new URL('./fixtures/legacy-business.json',import.meta.url)));
+  const changed=new Set(['designRiskPlan','basic','final','tender']);
+  const byId=list=>Object.fromEntries(list.map(x=>[x.id,x]));
+  const current=byId(YilanRules.commonRules), old=byId(legacy.commonRules);
+  for (const id of Object.keys(old).filter(id=>!changed.has(id))) assert.deepEqual(current[id],old[id],id);
+  assert.deepEqual(YilanRules.northExtraRules,legacy.northExtraRules);
+  assert.deepEqual(YilanRules.southExtraRules,legacy.southExtraRules);
+  assert.deepEqual(YilanRules.landRules,legacy.landRules);
+  assert.deepEqual(YilanRules.waterRules,legacy.waterRules);
+  assert.deepEqual(YilanRules.supervisionRules,legacy.supervisionRules);
+  assert.equal(current.designRiskPlan.triggerType,'awardDate');
+  assert.equal(current.designRiskPlan.days,60);
+  assert.equal(current.designRiskPlan.predecessor,'award');
+  assert.equal(current.basic.pcmReviewDays,14);
+  assert.equal(current.final.pcmReviewDays,14);
+  assert.equal(current.tender.pcmReviewDays,10);
 });
 test('all 14 payment ratios, categories, triggers and design cumulative values retained',()=>{
   assert.equal(paymentRules.length,14);
@@ -32,16 +46,97 @@ test('legacy north/south load without losing original fields',()=>{
     assert.equal(model(p).schedule.list.length,id==='south'?23:25);
   }
 });
-test('planned sign date never automatically becomes a payment condition',()=>{
-  const m=model(fixture('south'),'2027-01-01');
-  assert.equal(m.payments.byId['design-sign'].tier,'forecast');
+test('south before signing has no formal performance start and tracks award-based risk plan separately',()=>{
+  const m=model(fixture('south'),'2026-09-22');
+  assert.equal(m.dashboard.phase,'awaiting-sign');
+  assert.equal(m.dashboard.phaseLabel,'已決標／待簽約（履約尚未起算）');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
   assert.equal(m.schedule.model.execPlan.contractDue,null);
-  assert.equal(m.schedule.model.execPlan.managementForecast,'2026-10-31');
+  assert.equal(m.dashboard.started,0);
+  assert.equal(m.dashboard.overdue,0);
+  assert.deepEqual(m.dashboard.preSignSpecialItems.map(x=>x.id),['designRiskPlan']);
+});
+test('south pre-sign risk plan is not counted in formal daily queue',()=>{
+  const m=model(fixture('south'),'2026-09-22');
+  assert.equal(m.dashboard.attention.length,0);
+  assert.equal(m.dashboard.workViews.today.length,0);
+  assert.equal(m.dashboard.workViews.due14.length,0);
+  assert.equal(m.dashboard.workViews.due30.length,0);
+  const risk=m.dashboard.preSignSpecialItems[0];
+  assert.equal(risk.contractDue,'2026-11-03');
+  assert.equal(daysBetweenForTest('2026-09-22',risk.contractDue),42);
+});
+test('work views separate immediate action from 14-day and 30-day horizons',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  const m=model(normalizeProject(p),'2026-11-05');
+  assert.ok(m.dashboard.workViews.today.every(x=>x.attentionPriority<=2));
+  assert.ok(m.dashboard.workViews.due14.every(x=>x.attentionPriority===3));
+  assert.ok(m.dashboard.workViews.due30.every(x=>x.attentionPriority===4));
+  const ids=[...m.dashboard.workViews.today,...m.dashboard.workViews.due14,...m.dashboard.workViews.due30].map(x=>x.id);
+  assert.equal(new Set(ids).size,ids.length);
+});
+test('pre-sign risk plan remains in special tracking instead of formal 30-day or 14-day views',()=>{
+  let m=model(fixture('south'),'2026-10-05');
+  assert.equal(m.dashboard.preSignSpecialItems.some(x=>x.id==='designRiskPlan'),true);
+  assert.equal(m.dashboard.workViews.due30.some(x=>x.id==='designRiskPlan'),false);
+  m=model(fixture('south'),'2026-10-20');
+  assert.equal(m.dashboard.preSignSpecialItems.some(x=>x.id==='designRiskPlan'),true);
+  assert.equal(m.dashboard.workViews.due14.some(x=>x.id==='designRiskPlan'),false);
+});
+test('daily queue priority is overdue then review-overdue then review then due14 then due30',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  p.rows.surveyPlan_submit='2026-11-10';
+  const m=model(normalizeProject(p),'2026-11-25');
+  const priorities=m.dashboard.attention.map(x=>x.attentionPriority);
+  assert.deepEqual(priorities,[0,0,0,1,2]);
+  assert.equal(m.dashboard.attention.find(x=>x.id==='execPlan').attentionPriority,1);
+  assert.equal(m.dashboard.attention.find(x=>x.id==='surveyPlan').attentionPriority,2);
+});
+function daysBetweenForTest(a,b){return (Date.parse(b)-Date.parse(a))/86400000;}
+test('south switches to actual performance when actual signing is recorded',()=>{
+  const m=model(signed('south'),'2026-10-02');
+  assert.equal(m.dashboard.phase,'active-performance');
+  assert.equal(m.dashboard.phaseLabel,'實際履約中');
+  assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
+});
+test('north remains pre-award until its actual award date is entered',()=>{
+  const m=model(fixture('north'),'2026-09-22');
+  assert.equal(m.dashboard.phase,'pre-award');
+  assert.equal(m.dashboard.started,0);
   assert.equal(m.dashboard.overdue,0);
 });
-test('confirmed sign establishes calendar deadline without holiday extension',()=>{
-  const m=model(signed());assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
-  assert.equal(m.schedule.model.execPlan.holiday,true);assert.equal(m.payments.byId['design-sign'].tier,'ready');
+test('award establishes contract effectiveness but signing starts signing-based performance deadlines',()=>{
+  const m=model(fixture('south'),'2026-09-19');
+  assert.equal(m.payments.byId['design-sign'].tier,'forecast');
+  assert.equal(m.schedule.awardDate,'2026-09-04');
+  assert.equal(m.schedule.model.execPlan.contractDue,null);
+  assert.equal(m.schedule.model.execPlan.managementForecast,'2026-10-31');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
+});
+test('design-stage risk assessment implementation plan is due 60 days after contract-effective award',()=>{
+  const south=model(fixture('south'),'2026-09-20').schedule.model.designRiskPlan;
+  assert.equal(south.contractDue,'2026-11-03');
+  assert.equal(south.days,60);
+  const north=fixture('north');north.milestones.awardDate='2026-09-14';north.milestones.workStartDate='2026-10-15';
+  const n=model(normalizeProject(north),'2026-09-20').schedule.model.designRiskPlan;
+  assert.equal(n.contractDue,'2026-11-13');
+  assert.equal(n.days,60);
+});
+test('work-start date is administrative only and does not shift contract deadlines',()=>{
+  const p=signed('south');
+  const a=model(p,'2026-10-02');
+  p.milestones.workStartDate='2026-11-01';
+  const b=model(normalizeProject(p),'2026-10-02');
+  assert.equal(a.schedule.model.execPlan.contractDue,b.schedule.model.execPlan.contractDue);
+  assert.equal(a.schedule.model.designRiskPlan.contractDue,b.schedule.model.designRiskPlan.contractDue);
+});
+test('signing activates signing-based performance deadlines while award-based risk plan remains unchanged',()=>{
+  const m=model(signed(),'2026-10-02');
+  assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
+  assert.equal(m.payments.byId['design-sign'].tier,'ready');
 });
 test('actual approval activates downstream contract deadline with unchanged day count',()=>{
   const p=signed();p.rows.execPlan_approval='2026-11-15';const m=model(p);
@@ -49,6 +144,88 @@ test('actual approval activates downstream contract deadline with unchanged day 
   assert.equal(m.schedule.model.basic.dueType,'contract');
   assert.equal(m.payments.byId['design-exec'].tier,'ready');
   assert.equal(m.payments.byId['design-exec'].triggerDate,'2026-11-15');
+});
+test('homepage quick entry opens only after formal signing unless an actual record already exists',()=>{
+  let m=model(fixture('south'),'2026-09-22');
+  assert.deepEqual(m.dashboard.quickEntryItems.map(x=>x.id),[]);
+  let markup=quickEntryMarkup(m,true);
+  assert.doesNotMatch(markup,/data-row="designRiskPlan"/);
+  m=model(signed('south'),'2026-10-02');
+  const ids=m.dashboard.quickEntryItems.map(x=>x.id);
+  for (const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']) assert.ok(ids.includes(id),id);
+});
+test('contractor workbench counts match the same shared schedule model',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  const m=model(normalizeProject(p),'2026-11-05');
+  const c=m.dashboard.workbenchCounts;
+  assert.equal(c.review,m.dashboard.quickEntryItems.filter(x=>x.effectiveSubmit&&!x.effectiveApproval).length);
+  assert.equal(c.completed,m.dashboard.quickEntryItems.filter(x=>x.effectiveApproval).length);
+  assert.equal(c.open,m.dashboard.quickEntryItems.filter(x=>!x.effectiveApproval).length);
+  assert.equal(c.urgent,m.dashboard.quickEntryItems.filter(x=>x.attentionPriority<=2).length);
+});
+test('contractor workbench horizon filters render mutually targeted rows',()=>{
+  const p=signed('south');
+  let m=model(normalizeProject(p),'2026-10-20');
+  const due14=quickEntryMarkup(m,true,'due14');
+  const due30=quickEntryMarkup(m,true,'due30');
+  for (const item of m.dashboard.quickEntryItems.filter(x=>x.attentionPriority===3)) assert.match(due14,new RegExp(`data-row="${item.id}"`));
+  for (const item of m.dashboard.quickEntryItems.filter(x=>x.attentionPriority===4)) assert.match(due30,new RegExp(`data-row="${item.id}"`));
+});
+test('quick entry filters open review and completed states without creating another data model',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  p.rows.surveyPlan_submit='2026-10-20';
+  p.rows.surveyPlan_approval='2026-10-25';
+  const m=model(normalizeProject(p),'2026-10-26');
+  const open=quickEntryMarkup(m,true,'open');
+  const review=quickEntryMarkup(m,true,'review');
+  const completed=quickEntryMarkup(m,true,'completed');
+  assert.match(open,/data-row="execPlan"/);
+  assert.doesNotMatch(open,/data-row="surveyPlan"/);
+  assert.match(review,/data-row="execPlan"/);
+  assert.doesNotMatch(review,/data-row="surveyPlan"/);
+  assert.match(completed,/data-row="surveyPlan"/);
+  assert.match(completed,/data-clear-row="surveyPlan"/);
+});
+test('quick entry immediately reflects submission and approval through the shared schedule model',()=>{
+  const p=signed('south');p.rows.execPlan_submit='2026-10-20';
+  let m=model(normalizeProject(p),'2026-10-21');
+  assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='execPlan').performanceStage,'under-review');
+  assert.equal(m.schedule.model.execPlan.reviewTarget,'2026-11-19');
+  p.rows.execPlan_approval='2026-11-10';
+  m=model(normalizeProject(p),'2026-11-11');
+  assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='execPlan').performanceStage,'approved');
+});
+test('performance flow separates vendor submission PCM review and owner approval',()=>{
+  const p=signed('south');
+  let m=model(p,'2026-10-20'),n=m.schedule.model.execPlan;
+  assert.equal(n.performanceStage,'awaiting-submit');
+  assert.equal(n.reviewTarget,null);
+  p.rows.execPlan_submit='2026-10-20';
+  m=model(normalizeProject(p),'2026-10-21');n=m.schedule.model.execPlan;
+  assert.equal(n.performanceStage,'under-review');
+  assert.equal(n.reviewTarget,'2026-11-19');
+  assert.equal(n.submitDelay,0);
+  p.rows.execPlan_approval='2026-11-10';
+  m=model(normalizeProject(p),'2026-11-11');n=m.schedule.model.execPlan;
+  assert.equal(n.performanceStage,'approved');
+  assert.equal(n.effectiveApproval,'2026-11-10');
+});
+test('basic design uses PCM contractual 14-day review clock after actual submission',()=>{
+  const p=signed('south');p.rows.execPlan_approval='2026-11-01';p.rows.basic_submit='2027-03-01';
+  const n=model(normalizeProject(p),'2027-03-02').schedule.model.basic;
+  assert.equal(n.reviewBasis,'pcm-contract');
+  assert.equal(n.reviewDays,14);
+  assert.equal(n.reviewTarget,'2027-03-15');
+  assert.equal(n.reviewOverdueDays,0);
+});
+test('review overdue is separate from vendor submission delay',()=>{
+  const p=signed('south');p.rows.execPlan_submit='2026-10-20';
+  const n=model(normalizeProject(p),'2026-11-25').schedule.model.execPlan;
+  assert.equal(n.submitDelay,0);
+  assert.equal(n.reviewOverdueDays,6);
+  assert.match(n.status.text,/審查超過管理目標 6 日/);
 });
 test('normal PCM review is not a contractor delay',()=>{
   const p=signed();p.rows.execPlan_submit='2026-10-31';p.rows.execPlan_approval='2026-11-30';
@@ -84,6 +261,62 @@ test('conflicting legacy dates are preserved and surfaced',()=>{
   const n=normalizeProject(p);assert.equal(n.dates.pccDate,'2026-11-15');
   assert.equal(n.legacyDateConflicts.pccDate,'2026-10-10');assert.equal(n.migrationWarnings.length,1);
 });
+test('construction packages derive all-works award only when every package is awarded',()=>{
+  const p=fixture('south');
+  p.constructionPackages=[
+    {id:'s1',code:'S1',name:'第一標',scope:'',plannedTenderDate:'',actualAwardDate:'2027-01-10'},
+    {id:'s2',code:'S2',name:'第二標',scope:'',plannedTenderDate:'',actualAwardDate:''}
+  ];
+  let m=model(normalizeProject(p),'2027-01-20');
+  assert.equal(m.construction.allPackagesAwarded,false);
+  assert.equal(m.schedule.model.worksAward.actualApproval,null);
+  assert.equal(m.payments.byId['design-award'].tier,'external');
+  p.constructionPackages[1].actualAwardDate='2027-02-05';
+  m=model(normalizeProject(p),'2027-02-06');
+  assert.equal(m.construction.allPackagesAwarded,true);
+  assert.equal(m.construction.allWorksAwardDate,'2027-02-05');
+  assert.equal(m.schedule.model.worksAward.actualApproval,'2027-02-05');
+  assert.equal(m.payments.byId['design-award'].tier,'ready');
+});
+test('north common-platform study inherits basic-design deadline without adding a contract rule',()=>{
+  const p=fixture('north');p.milestones.awardDate='2026-09-14';p.rows.execPlan_approval='2026-10-15';
+  const m=model(normalizeProject(p),'2026-10-20');
+  const item=m.specialDeliverables.find(x=>x.id==='yilan-hsr-transfer-study');
+  assert.ok(item);assert.equal(item.parentRule,'basic');
+  assert.equal(item.parentDue,m.schedule.model.basic.contractDue);
+  assert.equal(m.schedule.list.some(x=>x.id==='yilan-hsr-transfer-study'),false);
+});
+test('south has no north-only common-platform study',()=>{
+  const m=model(fixture('south'));
+  assert.equal(m.specialDeliverables.some(x=>x.id==='yilan-hsr-transfer-study'),false);
+});
+test('PCM contract review periods override the 30-day management default',()=>{
+  const p=fixture('south');
+  p.rows.basic_submit='2027-01-10';
+  p.rows.final_submit='2027-06-01';
+  p.rows.tender_submit='2027-07-01';
+  const m=model(normalizeProject(p),'2027-07-05');
+  assert.equal(m.schedule.model.basic.reviewDays,14);
+  assert.equal(m.schedule.model.basic.reviewBasis,'pcm-contract');
+  assert.equal(m.schedule.model.basic.reviewTarget,'2027-01-24');
+  assert.equal(m.schedule.model.final.reviewDays,14);
+  assert.equal(m.schedule.model.final.reviewTarget,'2027-06-15');
+  assert.equal(m.schedule.model.tender.reviewDays,10);
+  assert.equal(m.schedule.model.tender.reviewTarget,'2027-07-11');
+});
+test('other deliverables continue to use configurable PCM management estimate',()=>{
+  const p=fixture('south');p.settings.pcmDays=45;p.rows.execPlan_submit='2026-10-04';
+  const n=model(normalizeProject(p),'2026-10-10').schedule.model.execPlan;
+  assert.equal(n.reviewDays,45);assert.equal(n.reviewBasis,'management');assert.equal(n.reviewTarget,'2026-11-18');
+});
+test('south confirmed final-design subdeliverables inherit final-design deadline',()=>{
+  const p=fixture('south');p.rows.basic_approval='2027-01-01';
+  const m=model(normalizeProject(p),'2027-01-02');
+  for (const id of ['south-track-switch-plan','south-bim-model','south-supervision-work-plan','south-supervision-plan']) {
+    const item=m.specialDeliverables.find(x=>x.id===id);
+    assert.ok(item,id);assert.equal(item.parentRule,'final');assert.equal(item.parentDue,m.schedule.model.final.contractDue);
+  }
+});
 test('external conditions without dates remain undated and excluded from years',()=>{
   const m=model(fixture('south'));const payment=m.payments.byId['design-pcc'];
   assert.equal(payment.tier,'external');assert.equal(payment.year,null);
@@ -105,7 +338,7 @@ test('rowDrawing stays management-only even after final approval',()=>{
   const p=signed();p.rows.final_approval='2026-11-01';const n=model(p).schedule.model.rowDrawing;
   assert.equal(n.dueType,'management');assert.equal(n.contractDue,null);assert.equal(n.managementForecast,'2026-12-01');
 });
-test('changing PCM days affects estimates but not actual-based contract days',()=>{
+test('changing PCM days affects estimates but not contract days',()=>{
   const p=signed();const before=model(p);p.settings.pcmDays=60;const after=model(p);
   assert.equal(before.schedule.model.execPlan.contractDue,after.schedule.model.execPlan.contractDue);
   assert.equal(daysDiff(before.schedule.model.basic.managementForecast,after.schedule.model.basic.managementForecast),30);

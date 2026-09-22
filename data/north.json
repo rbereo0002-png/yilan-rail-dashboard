@@ -1,13 +1,63 @@
 {
-  "version":"1.0",
-  "id":"north",
-  "name":"北段",
-  "title":"宜蘭至羅東鐵路高架化計畫北段（四城站～宜蘭新站）土建、軌道工程委託設計及施工監造技術服務",
-  "milestones":{"awardDate":"","evaluationDate":"2026-09-07","negotiationDate":"2026-09-14","signDate":"2026-10-15"},
-  "settings":{"pcmDays":30,"payWorkdays":30,"forecastMode":"budget","holidays":[]},
-  "budget":{"total":1018375491,"serviceTotal":1011775491,"survey":8047995,"geo":34671105,"utility":5895711,"land":25978864,"design":348412667,"supervision":588769149,"other":600000,"qa":6000000},
-  "contract":{"survey":8047995,"geo":34671105,"utility":5895711,"land":25978864,"design":348412667,"supervision":588769149},
-  "dates":{"noticeDate":"","pccDate":"","tenderApprovalDate":"","allWorksAwardDate":"","allWorksCloseDate":"","supervisionStart":"","constructionStart":"","constructionEnd":"","constructionClose":""},
-  "rows":{},
-  "notes":"北段預定2026/09/07評選、2026/09/14議價、2026/10/15簽約。預算書為115/04/22未核章版；評選須知固定價格為1,011,775,491元。"
+  "version": "1.0",
+  "id": "north",
+  "name": "北段",
+  "title": "宜蘭至羅東鐵路高架化計畫北段（四城站～宜蘭新站）土建、軌道工程委託設計及施工監造技術服務",
+  "milestones": {
+    "awardDate": "",
+    "evaluationDate": "2026-09-07",
+    "negotiationDate": "",
+    "signDate": "2026-10-15",
+    "workStartDate": ""
+  },
+  "settings": {
+    "pcmDays": 30,
+    "payWorkdays": 30,
+    "forecastMode": "budget",
+    "holidays": []
+  },
+  "budget": {
+    "total": 1018375491,
+    "serviceTotal": 1011775491,
+    "survey": 8047995,
+    "geo": 34671105,
+    "utility": 5895711,
+    "land": 25978864,
+    "design": 348412667,
+    "supervision": 588769149,
+    "other": 600000,
+    "qa": 6000000
+  },
+  "contract": {
+    "survey": 8047995,
+    "geo": 34671105,
+    "utility": 5895711,
+    "land": 25978864,
+    "design": 348412667,
+    "supervision": 588769149
+  },
+  "dates": {
+    "noticeDate": "",
+    "pccDate": "",
+    "tenderApprovalDate": "",
+    "allWorksAwardDate": "",
+    "allWorksCloseDate": "",
+    "supervisionStart": "",
+    "constructionStart": "",
+    "constructionEnd": "",
+    "constructionClose": ""
+  },
+  "rows": {},
+  "notes": "北段決標日即契約生效日，待實際決標後登錄；設計階段施工風險評估實施計畫書自契約生效日起60日內提送。執行服務計畫書、補充測量、補充地質及管線調查工作計畫書則自簽約日起30日內提送；工作啟始日另行紀錄。",
+  "constructionPackages": [],
+  "specialDeliverables": [
+    {
+      "id": "yilan-hsr-transfer-study",
+      "parentRule": "basic",
+      "name": "宜蘭新站與高鐵站共月台轉乘專案研究報告",
+      "actualSubmitDate": "",
+      "actualApprovalDate": "",
+      "note": "北段附件A基本設計子成果；期限隨基本設計成果，不另創獨立契約期限。"
+    }
+  ]
 }

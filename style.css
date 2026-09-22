@@ -413,3 +413,33 @@
   }
 
 }
+
+.package-summary{margin:0 0 12px}.package-table{min-width:1050px}.package-table input{width:100%;min-width:120px;border:1px solid #cfd7e3;border-radius:7px;padding:7px 8px}.package-table td:last-child{text-align:center}.package-table .mini-btn{padding:5px 8px}@media print{#packageControl .edit-only{display:none}.package-table input{border:none;padding:0}}
+
+.attention-0{background:#fde8e8;color:#9b1c1c}.attention-1{background:#fff1d6;color:#8a4b08}.attention-2{background:#e8f0fe;color:#2456a6}.attention-3{background:#fff7d6;color:#735c00}.attention-4{background:#eef2f7;color:#425466}
+
+.work-view-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.work-view-panel{border:1px solid #dfe5ec;border-radius:10px;padding:12px;background:#fff}
+.work-view-panel h4{margin:0 0 10px;font-size:14px}.work-view-panel h4 span{display:inline-block;min-width:22px;text-align:center;border-radius:12px;background:#eef2f7;padding:2px 7px;margin-left:4px}
+.work-view-row{display:grid;grid-template-columns:auto 1fr auto;gap:5px 8px;align-items:center;padding:8px 0;border-top:1px solid #edf0f4}
+.work-view-row:first-child{border-top:0}.work-view-row b{font-size:13px}.work-view-row small{grid-column:2;font-size:11px;opacity:.7}.work-view-row time{grid-column:3;grid-row:1/3;font-size:12px;font-weight:600}
+@media(max-width:1000px){.work-view-grid{grid-template-columns:1fr}}
+@media print{.work-view-grid{grid-template-columns:repeat(3,1fr)}}
+
+.quick-performance{margin-top:16px;padding-top:14px;border-top:1px solid #e4e9ef}
+.quick-performance-table{min-width:980px}.quick-performance-table input{min-width:135px;width:100%;padding:7px 8px;border:1px solid #cfd7e3;border-radius:7px}
+.quick-performance h3 span{display:inline-block;min-width:22px;text-align:center;border-radius:12px;background:#eef2f7;padding:2px 7px;margin-left:4px;font-size:12px}
+@media print{.quick-performance-table input{border:none;padding:0}}
+
+.pre-sign-special{margin-top:14px;padding:12px;border:1px dashed #c8d1dc;border-radius:10px;background:#fafbfd}
+.pre-sign-special .overview-panel-title{margin-bottom:8px}
+.pre-sign-special h3 span{display:inline-block;min-width:22px;text-align:center;border-radius:12px;background:#eef2f7;padding:2px 7px;margin-left:4px;font-size:12px}
+
+.quick-filter-bar{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}
+.quick-filter{border:1px solid #d4dbe5;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.quick-filter.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.quick-clear{display:block;margin-top:6px;border:0;background:transparent;color:var(--red);font-size:11px;text-decoration:underline;cursor:pointer;padding:0}
+
+.workbench .quick-filter span{display:inline-block;min-width:20px;margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(15,23,42,.08);font-size:11px}
+.workbench .quick-filter.active span{background:rgba(255,255,255,.2)}
+.workbench .quick-performance-table{min-width:1020px}
