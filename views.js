@@ -124,6 +124,13 @@ function renderDashboard(model) {
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'underReview',ovCompleted:'completed'})) text(id,d[key]);
   text('overviewSub',`目前階段：${d.phaseLabel}。廠商提送期限、PCM審查期限／管理目標、甲方實際核定分開列管；未到起算事件的成果不列逾期。`);
   html('ovImportantWorks',d.important.length ? d.important.map(x=>`<div class="work-item"><div class="work-status"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span></div><div class="work-name"><b>${e(x.name)}</b><span>${e(x.attentionReason)}</span></div><div class="work-date">${x.effectiveSubmit && !x.effectiveApproval ? 'PCM審查期限／目標' : '契約期限'}<br>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</div></div>`).join('') : '<div class="overview-empty">目前無契約逾期、審查催辦或30日內到期事項</div>');
+  const workViewMarkup = items => items.length ? items.slice(0,6).map(x=>`<div class="work-view-row"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span><b>${e(x.name)}</b><small>${e(x.attentionReason)}</small><time>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無列管事項</div>';
+  html('ovTodayWorks',workViewMarkup(d.workViews.today));
+  html('ov14Works',workViewMarkup(d.workViews.due14));
+  html('ov30Works',workViewMarkup(d.workViews.due30));
+  text('ovTodayCount',d.workViews.today.length);
+  text('ov14Count',d.workViews.due14.length);
+  text('ov30Count',d.workViews.due30.length);
   html('ovStageList',d.stages.map(x=>`<div class="stage-item"><span>${e(x.name)}</span><b>${x.completed}/${x.total}</b></div>`).join(''));
   document.querySelector('.payment-kpis').innerHTML=Object.entries(model.payments.totals).map(([tier,t])=>`<div class="payment-kpi"><span>${tierNames[tier]}</span><b>${t.count} 項</b><small>${money(t.amount)} 元</small></div>`).join('')+`<div class="payment-kpi"><span>最近預估付款日</span><b>${fmt(model.payments.nextPayDate)}</b></div>`;
   const c=model.summary.counts;
