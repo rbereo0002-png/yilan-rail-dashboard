@@ -33,7 +33,10 @@ export function calculateModel(project, today = todayLocal()) {
   const reviewOverdue = deliverables.filter(x => x.effectiveSubmit && !x.effectiveApproval && x.reviewOverdueDays > 0).length;
   const overall = !schedule.awardEffective ? '尚未決標／契約尚未生效' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : signedEffective ? '實際履約中' : '契約已生效／待簽約';
   const important = deliverables.filter(x => (x.effectiveSubmit && !x.effectiveApproval) || open.includes(x) && daysBetween(today,x.contractDue) <= 30)
-    .sort((a,b) => (b.overdueDays - a.overdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999')).slice(0,8);
+    .sort((a,b) => {
+      const rank = x => x.overdueDays > 0 ? 0 : x.reviewOverdueDays > 0 ? 1 : x.effectiveSubmit && !x.effectiveApproval ? 2 : 3;
+      return rank(a)-rank(b) || (b.overdueDays-a.overdueDays) || (b.reviewOverdueDays-a.reviewOverdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999');
+    }).slice(0,8);
   const stages = Object.values(deliverables.reduce((acc,item) => {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
