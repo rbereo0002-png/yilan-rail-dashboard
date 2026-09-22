@@ -141,19 +141,12 @@
 
           <div class="overview-panel-title">
             <div>
-              <h3>近期應辦／催辦事項</h3>
-              <span>優先顯示逾期及30日內到期成果</span>
+              <h3>承辦工作台</h3>
+              <span>應辦、催辦與實際履約登錄集中在同一區，不必再翻完整主時程</span>
             </div>
-
-            <button class="mini-btn"
-                    type="button"
-                    data-action="schedule">
-              查看完整時程
-            </button>
+            <button class="mini-btn" type="button" data-action="schedule">查看完整時程</button>
           </div>
 
-          <div id="ovImportantWorks"
-               class="overview-work-list"></div>
           <div class="pre-sign-special">
             <div class="overview-panel-title">
               <div>
@@ -164,43 +157,33 @@
             <div id="preSignSpecialWorks"></div>
           </div>
 
-          <div class="work-view-grid">
-            <section class="work-view-panel">
-              <h4>今日應辦／催辦 <span id="ovTodayCount">0</span></h4>
-              <div id="ovTodayWorks"></div>
-            </section>
-            <section class="work-view-panel">
-              <h4>14日內到期 <span id="ov14Count">0</span></h4>
-              <div id="ov14Works"></div>
-            </section>
-            <section class="work-view-panel">
-              <h4>15～30日內到期 <span id="ov30Count">0</span></h4>
-              <div id="ov30Works"></div>
-            </section>
-          </div>
-
-          <div class="quick-performance">
+          <div class="quick-performance workbench">
             <div class="overview-panel-title">
               <div>
-                <h3>快速履約登錄 <span id="quickPerformanceCount">0</span></h3>
-                <span>一般履約自實際簽約後開放；直接登錄實際提送日／實際核定日，與完整履約主時程同步</span>
+                <h3>實際履約工作台 <span id="quickPerformanceCount">0</span></h3>
+                <span>一般履約自實際簽約後開放；可直接登錄提送／核定並同步重算審查、付款與後續成果</span>
               </div>
-              <button class="mini-btn" type="button" data-action="save">儲存本機</button>
+              <button class="mini-btn edit-only" type="button" data-action="save">儲存本機</button>
             </div>
-            <div class="quick-filter-bar" role="group" aria-label="快速履約登錄篩選">
-              <button type="button" class="quick-filter active" data-quick-filter="open">待辦／進行中</button>
-              <button type="button" class="quick-filter" data-quick-filter="review">審查中</button>
-              <button type="button" class="quick-filter" data-quick-filter="completed">已核定</button>
+
+            <div class="quick-filter-bar" role="group" aria-label="承辦工作台篩選">
+              <button type="button" class="quick-filter active" data-quick-filter="urgent">今日應辦／催辦 <span id="wbUrgentCount">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="due14">14日內 <span id="wb14Count">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="due30">15～30日 <span id="wb30Count">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="review">審查中 <span id="wbReviewCount">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="open">全部未完成 <span id="wbOpenCount">0</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="completed">已核定 <span id="wbCompletedCount">0</span></button>
             </div>
+
             <div class="scroll">
               <table class="tbl quick-performance-table">
                 <thead>
-                  <tr><th>成果／工作</th><th>契約期限</th><th>實際提送日</th><th>PCM審查期限／目標</th><th>實際核定日</th><th>狀態</th></tr>
+                  <tr><th>成果／工作</th><th>契約期限</th><th>實際提送日</th><th>PCM審查期限／目標</th><th>實際核定日</th><th>狀態／修正</th></tr>
                 </thead>
                 <tbody id="quickPerformanceBody"></tbody>
               </table>
             </div>
-            <p class="small">實際日期僅供已發生事件登錄；輸入後立即重算審查期限、付款與後續成果。誤登時可按「清除實績」後重新輸入；修改仍須按「儲存本機」。</p>
+            <p class="small">「今日應辦／催辦」只列契約逾期、審查催辦及審查中案件；14日及30日到期另以分頁查看。誤登日期可清除後重填；修改完成後請儲存本機。</p>
           </div>
 
         </div>
