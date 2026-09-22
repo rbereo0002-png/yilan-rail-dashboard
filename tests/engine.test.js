@@ -47,6 +47,22 @@ test('south current daily queue contains the active award-triggered risk plan on
   assert.equal(risk.contractDue,'2026-11-03');
   assert.equal(daysBetweenForTest('2026-09-22',risk.contractDue),42);
 });
+test('work views separate immediate action from 14-day and 30-day horizons',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  const m=model(normalizeProject(p),'2026-11-05');
+  assert.ok(m.dashboard.workViews.today.every(x=>x.attentionPriority<=2));
+  assert.ok(m.dashboard.workViews.due14.every(x=>x.attentionPriority===3));
+  assert.ok(m.dashboard.workViews.due30.every(x=>x.attentionPriority===4));
+  const ids=[...m.dashboard.workViews.today,...m.dashboard.workViews.due14,...m.dashboard.workViews.due30].map(x=>x.id);
+  assert.equal(new Set(ids).size,ids.length);
+});
+test('south risk plan enters 30-day then 14-day view automatically',()=>{
+  let m=model(fixture('south'),'2026-10-05');
+  assert.equal(m.dashboard.workViews.due30.some(x=>x.id==='designRiskPlan'),true);
+  m=model(fixture('south'),'2026-10-20');
+  assert.equal(m.dashboard.workViews.due14.some(x=>x.id==='designRiskPlan'),true);
+});
 test('daily queue priority is overdue then review-overdue then review then due14 then due30',()=>{
   const p=signed('south');
   p.rows.execPlan_submit='2026-10-20';
