@@ -25,14 +25,20 @@ export function calculateModel(project, today = todayLocal()) {
   const overdue = open.filter(x => x.overdueDays > 0).length;
   const due14 = open.filter(x => {const n = daysBetween(today,x.contractDue); return n >= 0 && n <= 14;}).length;
   const due30 = open.filter(x => {const n = daysBetween(today,x.contractDue); return n >= 0 && n <= 30;}).length;
-  const overall = !schedule.awardEffective ? '尚未決標／契約尚未生效' : overdue ? '有逾期事項' : '履約管制中';
+  const signedEffective = schedule.signing.effective;
+  const phase = !schedule.awardEffective ? 'pre-award' : signedEffective ? 'active-performance' : 'effective-pre-sign';
+  const phaseLabel = phase === 'pre-award' ? '尚未決標' : phase === 'effective-pre-sign' ? '契約已生效／待簽約' : '實際履約中';
+  const started = deliverables.filter(x => x.contractDue).length;
+  const notStarted = deliverables.length - started;
+  const reviewOverdue = deliverables.filter(x => x.effectiveSubmit && !x.effectiveApproval && x.reviewOverdueDays > 0).length;
+  const overall = !schedule.awardEffective ? '尚未決標／契約尚未生效' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : signedEffective ? '實際履約中' : '契約已生效／待簽約';
   const important = deliverables.filter(x => (x.effectiveSubmit && !x.effectiveApproval) || open.includes(x) && daysBetween(today,x.contractDue) <= 30)
     .sort((a,b) => (b.overdueDays - a.overdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999')).slice(0,8);
   const stages = Object.values(deliverables.reduce((acc,item) => {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
-  const dashboard = {completed,pending,overdue,due14,due30,overall,total:deliverables.length,
+  const dashboard = {completed,pending,overdue,due14,due30,reviewOverdue,started,notStarted,phase,phaseLabel,overall,total:deliverables.length,
     progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
