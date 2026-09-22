@@ -140,6 +140,22 @@ test('homepage quick entry opens only after formal signing unless an actual reco
   const ids=m.dashboard.quickEntryItems.map(x=>x.id);
   for (const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']) assert.ok(ids.includes(id),id);
 });
+test('quick entry filters open review and completed states without creating another data model',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  p.rows.surveyPlan_submit='2026-10-20';
+  p.rows.surveyPlan_approval='2026-10-25';
+  const m=model(normalizeProject(p),'2026-10-26');
+  const open=quickEntryMarkup(m,true,'open');
+  const review=quickEntryMarkup(m,true,'review');
+  const completed=quickEntryMarkup(m,true,'completed');
+  assert.match(open,/data-row="execPlan"/);
+  assert.doesNotMatch(open,/data-row="surveyPlan"/);
+  assert.match(review,/data-row="execPlan"/);
+  assert.doesNotMatch(review,/data-row="surveyPlan"/);
+  assert.match(completed,/data-row="surveyPlan"/);
+  assert.match(completed,/data-clear-row="surveyPlan"/);
+});
 test('quick entry immediately reflects submission and approval through the shared schedule model',()=>{
   const p=signed('south');p.rows.execPlan_submit='2026-10-20';
   let m=model(normalizeProject(p),'2026-10-21');
