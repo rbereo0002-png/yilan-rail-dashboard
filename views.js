@@ -120,12 +120,12 @@ function renderDashboard(model) {
   text('ovOverallStatus',d.overall);text('ovProgress',`${d.progress}%`);text('ovProgressText',`${d.completed} / ${d.total}`);
   $('ovProgressBar').style.width=`${d.progress}%`;
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'pending',ovCompleted:'completed'})) text(id,d[key]);
-  text('overviewSub','逾期僅計已起算契約期限；完成度以固定契約成果項目計算。');
-  html('ovImportantWorks',d.important.length ? d.important.map(x=>`<div class="work-item"><div class="work-status">${statusPill(x)}</div><div class="work-name"><b>${e(x.name)}</b><span>${dueNames[x.dueType]}</span></div><div class="work-date">契約期限<br>${fmt(x.contractDue)}</div></div>`).join('') : '<div class="overview-empty">目前無契約逾期、待核定或30日內到期事項</div>');
+  text('overviewSub',`目前階段：${d.phaseLabel}。逾期僅計已依契約事件正式起算之期限；未到起算事件的成果不列逾期。`);
+  html('ovImportantWorks',d.important.length ? d.important.map(x=>`<div class="work-item"><div class="work-status">${statusPill(x)}</div><div class="work-name"><b>${e(x.name)}</b><span>${dueNames[x.dueType]}</span></div><div class="work-date">契約期限<br>${fmt(x.contractDue)}${x.reviewTarget ? `<br><small>審查目標 ${fmt(x.reviewTarget)}</small>` : ''}</div></div>`).join('') : '<div class="overview-empty">目前無契約逾期、待核定或30日內到期事項</div>');
   html('ovStageList',d.stages.map(x=>`<div class="stage-item"><span>${e(x.name)}</span><b>${x.completed}/${x.total}</b></div>`).join(''));
   document.querySelector('.payment-kpis').innerHTML=Object.entries(model.payments.totals).map(([tier,t])=>`<div class="payment-kpi"><span>${tierNames[tier]}</span><b>${t.count} 項</b><small>${money(t.amount)} 元</small></div>`).join('')+`<div class="payment-kpi"><span>最近預估付款日</span><b>${fmt(model.payments.nextPayDate)}</b></div>`;
   const c=model.summary.counts;
-  document.querySelector('#contractRuleControl .timeline-kpis').innerHTML=[['目前標段',e(model.project.name)],['已起算契約期限節點',`${c.contract} 項`],['管理預估節點',`${c.management} 項`],['外部／條件式節點',`${c.external} 項`],['目前已起算之最末契約期限',fmt(model.summary.lastContract)]].map(([label,value])=>`<div><span>${label}</span><b>${value}</b></div>`).join('');
+  document.querySelector('#contractRuleControl .timeline-kpis').innerHTML=[['目前標段',e(model.project.name)],['履約階段',e(d.phaseLabel)],['已正式起算成果',`${d.started} 項`],['尚待起算成果',`${d.notStarted} 項`],['已起算契約期限節點',`${c.contract} 項`],['管理預估節點',`${c.management} 項`],['外部／條件式節點',`${c.external} 項`],['目前已起算之最末契約期限',fmt(model.summary.lastContract)]].map(([label,value])=>`<div><span>${label}</span><b>${value}</b></div>`).join('');
 }
 
 function renderTimeline(model) {
