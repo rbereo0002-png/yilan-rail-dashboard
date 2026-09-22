@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>宜蘭高架｜履約期程與付款管制</title>
-  <link rel="stylesheet" href="style.css?v=1.3.1">
+  <link rel="stylesheet" href="style.css?v=1.3.2">
   <link rel="stylesheet" href="timeline.css">
   <link rel="stylesheet" href="unified.css">
 </head>
@@ -307,7 +307,7 @@
       <div id="ganttChart" class="gantt-chart"></div>
     </div>
 
-    <div class="timeline-block">
+    <div class="timeline-block print-duplicate" id="dependencyPrintBlock">
       <div class="timeline-title"><h3>二、前後置關聯與延誤傳遞</h3><span>不自行補填契約未訂固定日數之節點</span></div>
       <div class="scroll">
         <table class="tbl dependency-table" id="dependencyTable">
@@ -322,7 +322,7 @@
       <div id="delayImpactBox" class="delay-impact"></div>
     </div>
 
-    <div class="timeline-block">
+    <div class="timeline-block print-duplicate" id="paymentMilestonePrintBlock">
       <div class="timeline-title"><h3>四、付款里程碑</h3><span>直接與「付款預測與年度資金需求」表同步</span></div>
       <div id="paymentMilestoneStrip" class="payment-strip"></div>
     </div>
