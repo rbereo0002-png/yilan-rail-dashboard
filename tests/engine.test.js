@@ -12,9 +12,23 @@ const fixture = id => normalizeProject(JSON.parse(readFileSync(new URL(`../data/
 const model = (p,today='2026-12-01') => calculateModel(p,today);
 function signed(id='south') {const p=fixture(id);p.milestones.actualSignDate=p.milestones.signDate;return p;}
 
-test('all original contract rules are byte-value equivalent',()=>{
-  const old=JSON.parse(readFileSync(new URL('./fixtures/legacy-business.json',import.meta.url)));
-  for (const [key,value] of Object.entries(old)) assert.deepEqual(YilanRules[key],value,key);
+test('legacy contract rules are preserved except explicitly approved v1.3 overrides',()=>{
+  const legacy=JSON.parse(readFileSync(new URL('./fixtures/legacy-business.json',import.meta.url)));
+  const changed=new Set(['designRiskPlan','basic','final','tender']);
+  const byId=list=>Object.fromEntries(list.map(x=>[x.id,x]));
+  const current=byId(YilanRules.commonRules), old=byId(legacy.commonRules);
+  for (const id of Object.keys(old).filter(id=>!changed.has(id))) assert.deepEqual(current[id],old[id],id);
+  assert.deepEqual(YilanRules.northExtraRules,legacy.northExtraRules);
+  assert.deepEqual(YilanRules.southExtraRules,legacy.southExtraRules);
+  assert.deepEqual(YilanRules.landRules,legacy.landRules);
+  assert.deepEqual(YilanRules.waterRules,legacy.waterRules);
+  assert.deepEqual(YilanRules.supervisionRules,legacy.supervisionRules);
+  assert.equal(current.designRiskPlan.triggerType,'awardDate');
+  assert.equal(current.designRiskPlan.days,60);
+  assert.equal(current.designRiskPlan.predecessor,'award');
+  assert.equal(current.basic.pcmReviewDays,14);
+  assert.equal(current.final.pcmReviewDays,14);
+  assert.equal(current.tender.pcmReviewDays,10);
 });
 test('all 14 payment ratios, categories, triggers and design cumulative values retained',()=>{
   assert.equal(paymentRules.length,14);
