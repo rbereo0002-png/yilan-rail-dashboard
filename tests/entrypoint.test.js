@@ -23,3 +23,13 @@ test('all literal DOM ids referenced by production views/controller exist in hom
   const html=read('index.html'),ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]));
   for(const file of ['app.js','views.js'])for(const [,id]of read(file).matchAll(/\$\('([^']+)'\)/g))assert.ok(ids.has(id),`${file}: ${id}`);
 });
+
+
+test('milestone assignments tolerate cached HTML without new field',()=>{
+  const views=readFileSync(new URL('../views.js',import.meta.url),'utf8');
+  assert.match(views,/const el=\$\(key\);\s*if \(el\) el\.value=/);
+});
+test('production entrypoint cache-busts v1.3 assets',()=>{
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  assert.match(html,/app\.js\?v=1\.3\.1/);
+});
