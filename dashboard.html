@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>宜蘭高架｜長官儀表板</title>
+  <link rel="stylesheet" href="dashboard.css?v=1.4">
+</head>
+<body>
+  <main class="exec-shell">
+    <header class="exec-header">
+      <div>
+        <h1>宜蘭至羅東鐵路高架化計畫｜長官儀表板</h1>
+        <p>南、北段整體履約狀況與重要管制事項</p>
+      </div>
+      <div class="header-actions">
+        <span id="dashboardDate">—</span>
+        <a class="workbench-link" href="./">承辦工作台</a>
+      </div>
+    </header>
+
+    <section class="top-kpis" aria-label="整體摘要">
+      <button class="top-kpi danger" data-view="attention"><span>重大異常</span><b id="kpiOverdue">0</b></button>
+      <button class="top-kpi warning" data-view="attention"><span>14日內重要事項</span><b id="kpiDue14">0</b></button>
+      <button class="top-kpi info" data-view="review"><span>審查中</span><b id="kpiReview">0</b></button>
+      <button class="top-kpi neutral" data-view="overview"><span>已核定成果</span><b id="kpiCompleted">0</b></button>
+    </section>
+
+    <nav class="exec-nav" aria-label="儀表板大項">
+      <button class="nav-btn active" data-view="overview">總覽</button>
+      <button class="nav-btn" data-view="progress">設計進度</button>
+      <button class="nav-btn" data-view="attention">重要待辦</button>
+      <button class="nav-btn" data-view="review">審查狀況</button>
+      <button class="nav-btn" data-view="payment">經費／付款</button>
+    </nav>
+
+    <section class="view-frame">
+      <div class="view-title">
+        <div>
+          <button id="backButton" class="back-btn" type="button" hidden>← 回總覽</button>
+          <h2 id="viewTitle">南北段總覽</h2>
+        </div>
+        <span id="viewHint">點選上方大項查看細項，內容於本區切換。</span>
+      </div>
+      <div id="viewBody" class="view-body"></div>
+    </section>
+
+    <footer class="exec-footer">
+      <span>長官版僅供檢視；資料來源與承辦工作台共用同一套 GitHub JSON、時程及付款引擎。</span>
+      <span id="dashboardStatus">載入中…</span>
+    </footer>
+  </main>
+  <script type="module" src="dashboard.js?v=1.4"></script>
+</body>
+</html>
