@@ -32,6 +32,26 @@ test('legacy north/south load without losing original fields',()=>{
     assert.equal(model(p).schedule.list.length,id==='south'?23:25);
   }
 });
+test('south is contract-effective before signing and only award-triggered work is formally started',()=>{
+  const m=model(fixture('south'),'2026-09-22');
+  assert.equal(m.dashboard.phase,'effective-pre-sign');
+  assert.equal(m.dashboard.phaseLabel,'契約已生效／待簽約');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
+  assert.equal(m.schedule.model.execPlan.contractDue,null);
+  assert.equal(m.dashboard.overdue,0);
+});
+test('south switches to actual performance when actual signing is recorded',()=>{
+  const m=model(signed('south'),'2026-10-02');
+  assert.equal(m.dashboard.phase,'active-performance');
+  assert.equal(m.dashboard.phaseLabel,'實際履約中');
+  assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
+});
+test('north remains pre-award until its actual award date is entered',()=>{
+  const m=model(fixture('north'),'2026-09-22');
+  assert.equal(m.dashboard.phase,'pre-award');
+  assert.equal(m.dashboard.started,0);
+  assert.equal(m.dashboard.overdue,0);
+});
 test('award establishes contract effectiveness but signing starts signing-based performance deadlines',()=>{
   const m=model(fixture('south'),'2026-09-19');
   assert.equal(m.payments.byId['design-sign'].tier,'forecast');
