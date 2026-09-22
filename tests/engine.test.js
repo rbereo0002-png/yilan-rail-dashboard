@@ -40,6 +40,24 @@ test('south is contract-effective before signing and only award-triggered work i
   assert.equal(m.schedule.model.execPlan.contractDue,null);
   assert.equal(m.dashboard.overdue,0);
 });
+test('south current daily queue contains the active award-triggered risk plan only',()=>{
+  const m=model(fixture('south'),'2026-09-22');
+  assert.equal(m.dashboard.attention.length,0);
+  const risk=m.schedule.model.designRiskPlan;
+  assert.equal(risk.contractDue,'2026-11-03');
+  assert.equal(daysBetweenForTest('2026-09-22',risk.contractDue),42);
+});
+test('daily queue priority is overdue then review-overdue then review then due14 then due30',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  p.rows.surveyPlan_submit='2026-11-10';
+  const m=model(normalizeProject(p),'2026-11-25');
+  const priorities=m.dashboard.attention.map(x=>x.attentionPriority);
+  assert.deepEqual(priorities,[0,0,0,1,2]);
+  assert.equal(m.dashboard.attention.find(x=>x.id==='execPlan').attentionPriority,1);
+  assert.equal(m.dashboard.attention.find(x=>x.id==='surveyPlan').attentionPriority,2);
+});
+function daysBetweenForTest(a,b){return (Date.parse(b)-Date.parse(a))/86400000;}
 test('south switches to actual performance when actual signing is recorded',()=>{
   const m=model(signed('south'),'2026-10-02');
   assert.equal(m.dashboard.phase,'active-performance');
