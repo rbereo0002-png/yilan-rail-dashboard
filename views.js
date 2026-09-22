@@ -19,14 +19,19 @@ const inputDate = (item,kind,editable) => {
 const tableHTML = (headers,rows) => `<thead><tr>${headers.map(x=>`<th>${e(x)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody>`;
 const tr = (cells,attrs='') => `<tr ${attrs}>${cells.map(x=>`<td>${x}</td>`).join('')}</tr>`;
 
-export function quickEntryMarkup(model, editable = false) {
-  const rows = model.dashboard.quickEntryItems.map(item => tr([
+export function quickEntryMarkup(model, editable = false, filter = 'open') {
+  const source = filter === 'review'
+    ? model.dashboard.quickEntryItems.filter(x => x.effectiveSubmit && !x.effectiveApproval)
+    : filter === 'completed'
+      ? model.dashboard.quickEntryItems.filter(x => x.effectiveApproval)
+      : model.dashboard.quickEntryItems.filter(x => !x.effectiveApproval);
+  const rows = source.map(item => tr([
     `<b>${e(item.name)}</b><div class="small">${e(item.group)}</div>`,
     fmt(item.contractDue),
     editable ? `<input type="date" data-row="${e(item.id)}" data-kind="submit" value="${e(item.actualSubmit || '')}" max="${e(model.today)}" aria-label="${e(item.name)}快速登錄實際提送日">` : fmt(item.actualSubmit),
     `${fmt(item.reviewTarget)}<div class="small">${item.effectiveSubmit ? (item.pcmReviewContract ? `PCM契約 ${item.reviewDays}日` : `管理預估 ${item.reviewDays}日`) : '提送後自動計算'}</div>`,
     editable ? `<input type="date" data-row="${e(item.id)}" data-kind="approval" value="${e(item.actualApproval || '')}" max="${e(model.today)}" aria-label="${e(item.name)}快速登錄實際核定日">` : fmt(item.actualApproval),
-    statusPill(item)
+    `${statusPill(item)}${editable && (item.actualSubmit || item.actualApproval) ? `<button type="button" class="quick-clear" data-clear-row="${e(item.id)}">清除實績</button>` : ''}`
   ],`data-quick-node-id="${e(item.id)}"`));
   return rows.join('') || '<tr><td colspan="6" class="center">目前尚無已正式起算或已登錄實績之成果。</td></tr>';
 }
@@ -145,8 +150,9 @@ function renderDashboard(model) {
   text('ovTodayCount',d.workViews.today.length);
   text('ov14Count',d.workViews.due14.length);
   text('ov30Count',d.workViews.due30.length);
-  html('quickPerformanceBody',quickEntryMarkup(model,!document.body.classList.contains('view-mode')));
-  text('quickPerformanceCount',d.quickEntryItems.length);
+  const activeQuickFilter = document.querySelector('[data-quick-filter].active')?.dataset.quickFilter || 'open';
+  html('quickPerformanceBody',quickEntryMarkup(model,!document.body.classList.contains('view-mode'),activeQuickFilter));
+  text('quickPerformanceCount',d.quickEntryItems.filter(x=>!x.effectiveApproval).length);
   html('ovStageList',d.stages.map(x=>`<div class="stage-item"><span>${e(x.name)}</span><b>${x.completed}/${x.total}</b></div>`).join(''));
   document.querySelector('.payment-kpis').innerHTML=Object.entries(model.payments.totals).map(([tier,t])=>`<div class="payment-kpi"><span>${tierNames[tier]}</span><b>${t.count} 項</b><small>${money(t.amount)} 元</small></div>`).join('')+`<div class="payment-kpi"><span>最近預估付款日</span><b>${fmt(model.payments.nextPayDate)}</b></div>`;
   const c=model.summary.counts;
