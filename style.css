@@ -443,3 +443,93 @@
 .workbench .quick-filter span{display:inline-block;min-width:20px;margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(15,23,42,.08);font-size:11px}
 .workbench .quick-filter.active span{background:rgba(255,255,255,.2)}
 .workbench .quick-performance-table{min-width:1020px}
+
+
+/* =========================================================
+   v1.3.2 Print/PDF consolidation
+   Screen layout is intentionally unchanged.
+   ========================================================= */
+@media print {
+  @page { size:A4 landscape; margin:8mm; }
+
+  html,body{font-size:9.5px;line-height:1.28}
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .grid{display:block}
+  .hero{padding:10px 14px;margin:0 0 5mm;border-radius:0}
+  .hero h1{font-size:20px;margin-bottom:2px}
+  .hero p,.badge{font-size:9px}
+  .overview{margin:0 0 4mm}
+  .overview-head{margin-bottom:2mm}
+  .overview-head h2{font-size:17px}
+  .overview-project,.overview-kpis{gap:2mm;margin-bottom:2mm}
+  .overview-project-item,.kpi{padding:2.5mm 3mm;border-radius:6px}
+  .kpi strong{font-size:20px}
+  .overview-columns{grid-template-columns:1fr 1fr;gap:2mm;margin-bottom:2mm}
+  .overview-panel{padding:3mm;border-radius:6px}
+  .overview-panel-title{margin-bottom:2mm}
+  .overview-panel-title h3{font-size:13px}
+  .overview-payment{margin-bottom:0}
+  .payment-kpis{gap:2mm}
+  .payment-kpi{padding:2mm}
+  .stage-item{padding:2px 0;font-size:9px}
+  .progress-row{margin-bottom:2mm}
+  .progress-track{height:7px}
+  .pre-sign-special{margin-top:2mm;padding:2mm}
+  .work-view-row{padding:3px 0}
+  .work-view-row b{font-size:9px}
+  .work-view-row small,.work-view-row time{font-size:8px}
+
+  /* The quick-entry table duplicates the full schedule in a printed report. */
+  .quick-performance{display:none !important}
+
+  /* Duplicates of tables printed later in dedicated sections. */
+  .print-duplicate,.print-omit{display:none !important}
+
+  .card{margin:0 0 4mm;border-radius:5px;box-shadow:none;overflow:visible;break-inside:auto}
+  .hd{padding:2.5mm 3mm}
+  .hd h2{font-size:13px}
+  .bd{padding:3mm}
+  .timeline-note,.note{padding:2mm 2.5mm;font-size:8.5px}
+  .timeline-kpis{gap:2mm;margin:2mm 0}
+  .timeline-kpis>div{padding:2mm}
+  .timeline-block{margin-top:3mm}
+  .timeline-title{margin-bottom:1.5mm}
+  .timeline-title h3{font-size:11px}
+  .gantt-row,.gantt-axis{min-height:0}
+  .gantt-label{padding:2px 4px}
+  .gantt-label b{font-size:8.5px}
+  .gantt-label small,.gantt-label span{font-size:7px}
+
+  .formgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2mm}
+  .field label,.hint,.small{font-size:8px}
+  .field input,.field select,.field textarea{font-size:8.5px;min-height:0}
+  .field textarea{height:12mm;min-height:12mm}
+  .condition-toggle{display:none!important}
+
+  .tbl{font-size:7.6px;line-height:1.18;min-width:0!important;width:100%;table-layout:fixed}
+  .tbl th,.tbl td{padding:1.25mm 1mm;vertical-align:top;overflow-wrap:anywhere}
+  .tbl th{font-size:7.4px}
+  .tbl input[type="date"],.tbl input[type="text"],.tbl input[type="number"]{
+    font-size:7.5px;min-width:0!important;width:100%;padding:0;border:0;background:transparent
+  }
+  .timeline-pill,.payment-tier-pill{font-size:7px;padding:1px 3px}
+  .package-table{min-width:0!important}
+  .package-summary{margin-bottom:2mm}
+
+  /* Keep table headings with the first rows while allowing long tables to span pages. */
+  thead{display:table-header-group}
+  tfoot{display:table-footer-group}
+  tr{break-inside:avoid;page-break-inside:avoid}
+  #contractRuleControl,#scheduleControl{break-before:page}
+  #contractRuleControl .card,#scheduleControl .card{break-inside:auto}
+  #contractRuleControl .timeline-kpis{grid-template-columns:repeat(4,1fr)}
+  #contractRuleTable,#scheduleTable,#paymentTable,#yearSummary{break-inside:auto}
+
+  /* Base data/package/budget stay compact and can share pages. */
+  #packageControl{break-inside:auto}
+  #specialDeliverableBlock{break-inside:auto}
+
+  /* Avoid blank trailing page from the web-only data-persistence section. */
+  #publicDataSection{display:none!important}
+}
