@@ -1,9 +1,9 @@
 export const YilanRules = {
   commonRules: [
-    {id:'execPlan',group:'啟動',name:'執行服務計畫書',triggerType:'awardDate',days:30,dayType:'calendar',predecessor:'award',contractRule:true,deadlineClass:'contract',conditional:false,payment:'工程設計10%（累計20%）',note:'契約生效（決標）後30日內提送'},
-    {id:'surveyPlan',group:'調查',name:'補充測量工作計畫書',triggerType:'awardDate',days:30,dayType:'calendar',predecessor:'award',contractRule:true,deadlineClass:'contract',conditional:false,note:'契約生效（決標）後30日內提送'},
-    {id:'geoPlan',group:'調查',name:'補充地質調查工作計畫書',triggerType:'awardDate',days:30,dayType:'calendar',predecessor:'award',contractRule:true,deadlineClass:'contract',conditional:false,note:'契約生效（決標）後30日內提送'},
-    {id:'utilityPlan',group:'調查',name:'管線調查工作計畫書',triggerType:'awardDate',days:30,dayType:'calendar',predecessor:'award',contractRule:true,deadlineClass:'contract',conditional:false,note:'契約生效（決標）後30日內提送'},
+    {id:'execPlan',group:'啟動',name:'執行服務計畫書',triggerType:'signDate',days:30,dayType:'calendar',predecessor:'sign',contractRule:true,deadlineClass:'contract',conditional:false,payment:'工程設計10%（累計20%）',note:'簽約後30日內提送'},
+    {id:'surveyPlan',group:'調查',name:'補充測量工作計畫書',triggerType:'signDate',days:30,dayType:'calendar',predecessor:'sign',contractRule:true,deadlineClass:'contract',conditional:false,note:'簽約後30日內提送'},
+    {id:'geoPlan',group:'調查',name:'補充地質調查工作計畫書',triggerType:'signDate',days:30,dayType:'calendar',predecessor:'sign',contractRule:true,deadlineClass:'contract',conditional:false,note:'簽約後30日內提送'},
+    {id:'utilityPlan',group:'調查',name:'管線調查工作計畫書',triggerType:'signDate',days:30,dayType:'calendar',predecessor:'sign',contractRule:true,deadlineClass:'contract',conditional:false,note:'簽約後30日內提送'},
     {id:'surveyResult',group:'調查',name:'補充測量成果報告',triggerType:'approvalOf',triggerRef:'surveyPlan',days:120,dayType:'calendar',predecessor:'surveyPlan',contractRule:true,deadlineClass:'dynamic',conditional:false,note:'補充測量工作計畫核定後120日內'},
     {id:'geoResult',group:'調查',name:'補充地質調查成果報告',triggerType:'approvalOf',triggerRef:'geoPlan',days:120,dayType:'calendar',predecessor:'geoPlan',contractRule:true,deadlineClass:'dynamic',conditional:false,note:'補充地質調查工作計畫核定後120日內'},
     {id:'utilityResult',group:'調查',name:'管線調查成果報告',triggerType:'approvalOf',triggerRef:'utilityPlan',days:120,dayType:'calendar',predecessor:'utilityPlan',contractRule:true,deadlineClass:'dynamic',conditional:false,note:'管線調查工作計畫核定後120日內'},
