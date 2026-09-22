@@ -32,12 +32,13 @@ test('legacy north/south load without losing original fields',()=>{
     assert.equal(model(p).schedule.list.length,id==='south'?23:25);
   }
 });
-test('award date is the contract-effective start even before signing',()=>{
+test('award establishes contract effectiveness but signing starts signing-based performance deadlines',()=>{
   const m=model(fixture('south'),'2026-09-19');
   assert.equal(m.payments.byId['design-sign'].tier,'forecast');
   assert.equal(m.schedule.awardDate,'2026-09-04');
-  assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-04');
-  assert.equal(m.schedule.model.execPlan.managementForecast,null);
+  assert.equal(m.schedule.model.execPlan.contractDue,null);
+  assert.equal(m.schedule.model.execPlan.managementForecast,'2026-10-31');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-10-04');
 });
 test('design-stage risk assessment execution plan is due 30 days after contract-effective award',()=>{
   const south=model(fixture('south'),'2026-09-20').schedule.model.designRiskPlan;
@@ -48,16 +49,18 @@ test('design-stage risk assessment execution plan is due 30 days after contract-
   assert.equal(n.contractDue,'2026-10-14');
   assert.equal(n.days,30);
 });
-test('work-start date is administrative only and does not shift award-based contract deadlines',()=>{
-  const p=fixture('south');
-  const a=model(p,'2026-09-20');
+test('work-start date is administrative only and does not shift contract deadlines',()=>{
+  const p=signed('south');
+  const a=model(p,'2026-10-02');
   p.milestones.workStartDate='2026-11-01';
-  const b=model(normalizeProject(p),'2026-09-20');
+  const b=model(normalizeProject(p),'2026-10-02');
   assert.equal(a.schedule.model.execPlan.contractDue,b.schedule.model.execPlan.contractDue);
   assert.equal(a.schedule.model.designRiskPlan.contractDue,b.schedule.model.designRiskPlan.contractDue);
 });
-test('signing affects signing payment but not award-based contract deadline',()=>{
-  const m=model(signed(),'2026-10-02');assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-04');
+test('signing activates signing-based performance deadlines while award-based risk plan remains unchanged',()=>{
+  const m=model(signed(),'2026-10-02');
+  assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-31');
+  assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-10-04');
   assert.equal(m.payments.byId['design-sign'].tier,'ready');
 });
 test('actual approval activates downstream contract deadline with unchanged day count',()=>{
@@ -178,7 +181,7 @@ test('rowDrawing stays management-only even after final approval',()=>{
   const p=signed();p.rows.final_approval='2026-11-01';const n=model(p).schedule.model.rowDrawing;
   assert.equal(n.dueType,'management');assert.equal(n.contractDue,null);assert.equal(n.managementForecast,'2026-12-01');
 });
-test('changing PCM days affects estimates but not award-based contract days',()=>{
+test('changing PCM days affects estimates but not contract days',()=>{
   const p=signed();const before=model(p);p.settings.pcmDays=60;const after=model(p);
   assert.equal(before.schedule.model.execPlan.contractDue,after.schedule.model.execPlan.contractDue);
   assert.equal(daysDiff(before.schedule.model.basic.managementForecast,after.schedule.model.basic.managementForecast),30);
