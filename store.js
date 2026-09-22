@@ -47,7 +47,7 @@ export function normalizeProject(input, expectedId) {
     obj[key] ??= '';
     if (obj[key] !== '' && !validDate(obj[key])) throw new Error(`日期格式錯誤：${key}`);
   };
-  for (const key of ['signDate','actualSignDate','awardDate','evaluationDate','negotiationDate']) date(p.milestones,key);
+  for (const key of ['signDate','actualSignDate','workStartDate','awardDate','evaluationDate','negotiationDate']) date(p.milestones,key);
   for (const key of dateFields) date(p.dates,key);
   for (const key of Object.keys(p.rows)) if (/_submit$|_approval$/.test(key)) date(p.rows,key);
   for (const key of Object.keys(p.notices)) date(p.notices,key);
