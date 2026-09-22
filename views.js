@@ -134,9 +134,11 @@ function renderDashboard(model) {
   text('ovOverallStatus',d.overall);text('ovProgress',`${d.progress}%`);text('ovProgressText',`${d.completed} / ${d.total}`);
   $('ovProgressBar').style.width=`${d.progress}%`;
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'underReview',ovCompleted:'completed'})) text(id,d[key]);
-  text('overviewSub',`目前階段：${d.phaseLabel}。廠商提送期限、PCM審查期限／管理目標、甲方實際核定分開列管；未到起算事件的成果不列逾期。`);
+  text('overviewSub',`目前階段：${d.phaseLabel}。一般履約自實際簽約日起算；決標日起算之特殊事項另列，不計入簽約前正式履約項目。`);
   html('ovImportantWorks',d.important.length ? d.important.map(x=>`<div class="work-item"><div class="work-status"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span></div><div class="work-name"><b>${e(x.name)}</b><span>${e(x.attentionReason)}</span></div><div class="work-date">${x.effectiveSubmit && !x.effectiveApproval ? 'PCM審查期限／目標' : '契約期限'}<br>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</div></div>`).join('') : '<div class="overview-empty">目前無契約逾期、審查催辦或30日內到期事項</div>');
   const workViewMarkup = items => items.length ? items.slice(0,6).map(x=>`<div class="work-view-row"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span><b>${e(x.name)}</b><small>${e(x.attentionReason)}</small><time>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無列管事項</div>';
+  html('preSignSpecialWorks',d.preSignSpecialItems.length ? d.preSignSpecialItems.map(x=>`<div class="work-view-row"><span class="timeline-pill tl-external">簽約前特別列管</span><b>${e(x.name)}</b><small>${e(x.note)}</small><time>${fmt(x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無簽約前特別列管事項</div>');
+  text('preSignSpecialCount',d.preSignSpecialItems.length);
   html('ovTodayWorks',workViewMarkup(d.workViews.today));
   html('ov14Works',workViewMarkup(d.workViews.due14));
   html('ov30Works',workViewMarkup(d.workViews.due30));
