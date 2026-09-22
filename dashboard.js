@@ -1,6 +1,6 @@
 import {normalizeProject} from './store.js';
 import {calculateModel} from './model.js';
-import {formatDate as fmt,todayLocal} from './dates.js';
+import {formatDate as fmt,todayLocal,daysBetween} from './dates.js';
 
 const $=id=>document.getElementById(id);
 const money=n=>Number(n||0).toLocaleString('zh-TW',{maximumFractionDigits:0});
@@ -55,13 +55,58 @@ function renderOverview(){
   $('viewHint').textContent='點選上方大項查看細項，內容於本區切換。';
   $('viewBody').innerHTML=`<div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>`;
 }
+function varianceClass(diff){
+  if(diff == null) return 'variance-none';
+  if(diff > 0) return 'variance-late';
+  if(diff < 0) return 'variance-early';
+  return 'variance-on';
+}
+function varianceLabel(diff){
+  if(diff == null) return '尚無實際';
+  if(diff > 0) return `+${diff}日`;
+  if(diff < 0) return `${diff}日`;
+  return '0日';
+}
+function progressComparison(m){
+  const preferred=['designRiskPlan','execPlan','basic','final','tender','worksAward'];
+  const rows=preferred.map(id=>m.schedule.model[id]).filter(Boolean)
+    .map(x=>({
+      id:x.id,name:x.name,
+      planned:x.contractDue || x.managementForecast || null,
+      actual:x.effectiveApproval || null
+    }))
+    .filter(x=>x.planned || x.actual);
+  if(!rows.length) return '<div class="empty">目前尚無可比較之預定／實際日期。</div>';
+  const base=m.project.milestones.awardDate || m.project.milestones.signDate || m.today;
+  const endDates=rows.flatMap(x=>[x.planned,x.actual]).filter(Boolean).sort();
+  const maxDays=Math.max(1,daysBetween(base,endDates.at(-1)) || 1);
+  const width=date=>date ? Math.max(2,Math.min(100,(daysBetween(base,date)||0)/maxDays*100)) : 0;
+  const chart=rows.map(x=>{
+    const diff=x.planned&&x.actual ? daysBetween(x.planned,x.actual) : null;
+    return `<div class="variance-row">
+      <div class="variance-label"><b>${esc(x.name)}</b><small>預定 ${fmt(x.planned)}｜實際 ${fmt(x.actual)}</small></div>
+      <div class="variance-bars">
+        <div class="variance-track"><span class="variance-bar planned" style="width:${width(x.planned)}%"></span></div>
+        <div class="variance-track"><span class="variance-bar actual" style="width:${width(x.actual)}%"></span></div>
+      </div>
+      <div class="variance-diff ${varianceClass(diff)}">${varianceLabel(diff)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="variance-legend"><span><i class="planned-dot"></i>預定</span><span><i class="actual-dot"></i>實際</span><span>差異＝實際－預定；正值表示較預定晚</span></div><div class="variance-chart">${chart}</div>`;
+}
 function renderProgress(){
-  $('viewTitle').textContent='設計進度';
-  $('viewHint').textContent='各段依契約成果群組彙整；點「回總覽」返回主畫面。';
+  $('viewTitle').textContent='設計進度｜預定・實際・差異';
+  $('viewHint').textContent='以主要里程碑比較預定與實際完成日期；差異正值＝較預定晚，負值＝較預定早。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
-    const rows=m.dashboard.stages.map(s=>`<div class="stage-row"><span>${esc(s.name)}</span><div class="stage-track"><div class="stage-fill" style="width:${pct(s.completed,s.total)}%"></div></div><b>${s.completed}/${s.total}</b></div>`).join('');
-    return `<section class="detail-card"><h3>${m.project.name}｜${esc(m.dashboard.phaseLabel)}</h3>${rows}</section>`;
+    const stages=m.dashboard.stages.map(s=>`<div class="stage-row"><span>${esc(s.name)}</span><div class="stage-track"><div class="stage-fill" style="width:${pct(s.completed,s.total)}%"></div></div><b>${s.completed}/${s.total}</b></div>`).join('');
+    return `<section class="detail-card progress-detail-card">
+      <h3>${m.project.name}｜${esc(m.dashboard.phaseLabel)}</h3>
+      <div class="progress-split">
+        <div class="stage-block"><h4>成果完成度</h4>${stages}</div>
+        <div class="variance-block"><h4>主要里程碑預定／實際差異</h4>${progressComparison(m)}</div>
+      </div>
+    </section>`;
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
