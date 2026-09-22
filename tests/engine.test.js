@@ -32,18 +32,23 @@ test('legacy north/south load without losing original fields',()=>{
     assert.equal(model(p).schedule.list.length,id==='south'?23:25);
   }
 });
-test('south is contract-effective before signing and only award-triggered work is formally started',()=>{
+test('south before signing has no formal performance start and tracks award-based risk plan separately',()=>{
   const m=model(fixture('south'),'2026-09-22');
-  assert.equal(m.dashboard.phase,'effective-pre-sign');
-  assert.equal(m.dashboard.phaseLabel,'契約已生效／待簽約');
+  assert.equal(m.dashboard.phase,'awaiting-sign');
+  assert.equal(m.dashboard.phaseLabel,'已決標／待簽約（履約尚未起算）');
   assert.equal(m.schedule.model.designRiskPlan.contractDue,'2026-11-03');
   assert.equal(m.schedule.model.execPlan.contractDue,null);
+  assert.equal(m.dashboard.started,0);
   assert.equal(m.dashboard.overdue,0);
+  assert.deepEqual(m.dashboard.preSignSpecialItems.map(x=>x.id),['designRiskPlan']);
 });
-test('south current daily queue contains the active award-triggered risk plan only',()=>{
+test('south pre-sign risk plan is not counted in formal daily queue',()=>{
   const m=model(fixture('south'),'2026-09-22');
   assert.equal(m.dashboard.attention.length,0);
-  const risk=m.schedule.model.designRiskPlan;
+  assert.equal(m.dashboard.workViews.today.length,0);
+  assert.equal(m.dashboard.workViews.due14.length,0);
+  assert.equal(m.dashboard.workViews.due30.length,0);
+  const risk=m.dashboard.preSignSpecialItems[0];
   assert.equal(risk.contractDue,'2026-11-03');
   assert.equal(daysBetweenForTest('2026-09-22',risk.contractDue),42);
 });
@@ -57,11 +62,13 @@ test('work views separate immediate action from 14-day and 30-day horizons',()=>
   const ids=[...m.dashboard.workViews.today,...m.dashboard.workViews.due14,...m.dashboard.workViews.due30].map(x=>x.id);
   assert.equal(new Set(ids).size,ids.length);
 });
-test('south risk plan enters 30-day then 14-day view automatically',()=>{
+test('pre-sign risk plan remains in special tracking instead of formal 30-day or 14-day views',()=>{
   let m=model(fixture('south'),'2026-10-05');
-  assert.equal(m.dashboard.workViews.due30.some(x=>x.id==='designRiskPlan'),true);
+  assert.equal(m.dashboard.preSignSpecialItems.some(x=>x.id==='designRiskPlan'),true);
+  assert.equal(m.dashboard.workViews.due30.some(x=>x.id==='designRiskPlan'),false);
   m=model(fixture('south'),'2026-10-20');
-  assert.equal(m.dashboard.workViews.due14.some(x=>x.id==='designRiskPlan'),true);
+  assert.equal(m.dashboard.preSignSpecialItems.some(x=>x.id==='designRiskPlan'),true);
+  assert.equal(m.dashboard.workViews.due14.some(x=>x.id==='designRiskPlan'),false);
 });
 test('daily queue priority is overdue then review-overdue then review then due14 then due30',()=>{
   const p=signed('south');
@@ -124,13 +131,11 @@ test('actual approval activates downstream contract deadline with unchanged day 
   assert.equal(m.payments.byId['design-exec'].tier,'ready');
   assert.equal(m.payments.byId['design-exec'].triggerDate,'2026-11-15');
 });
-test('homepage quick entry uses same model rows and only shows formally started or recorded deliverables',()=>{
+test('homepage quick entry opens only after formal signing unless an actual record already exists',()=>{
   let m=model(fixture('south'),'2026-09-22');
-  assert.deepEqual(m.dashboard.quickEntryItems.map(x=>x.id),['designRiskPlan']);
+  assert.deepEqual(m.dashboard.quickEntryItems.map(x=>x.id),[]);
   let markup=quickEntryMarkup(m,true);
-  assert.match(markup,/data-row="designRiskPlan"/);
-  assert.match(markup,/data-kind="submit"/);
-  assert.match(markup,/max="2026-09-22"/);
+  assert.doesNotMatch(markup,/data-row="designRiskPlan"/);
   m=model(signed('south'),'2026-10-02');
   const ids=m.dashboard.quickEntryItems.map(x=>x.id);
   for (const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']) assert.ok(ids.includes(id),id);
