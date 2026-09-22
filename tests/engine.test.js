@@ -39,6 +39,23 @@ test('award date is the contract-effective start even before signing',()=>{
   assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-04');
   assert.equal(m.schedule.model.execPlan.managementForecast,null);
 });
+test('design-stage risk assessment execution plan is due 30 days after contract-effective award',()=>{
+  const south=model(fixture('south'),'2026-09-20').schedule.model.designRiskPlan;
+  assert.equal(south.contractDue,'2026-10-04');
+  assert.equal(south.days,30);
+  const north=fixture('north');north.milestones.awardDate='2026-09-14';north.milestones.workStartDate='2026-10-15';
+  const n=model(normalizeProject(north),'2026-09-20').schedule.model.designRiskPlan;
+  assert.equal(n.contractDue,'2026-10-14');
+  assert.equal(n.days,30);
+});
+test('work-start date is administrative only and does not shift award-based contract deadlines',()=>{
+  const p=fixture('south');
+  const a=model(p,'2026-09-20');
+  p.milestones.workStartDate='2026-11-01';
+  const b=model(normalizeProject(p),'2026-09-20');
+  assert.equal(a.schedule.model.execPlan.contractDue,b.schedule.model.execPlan.contractDue);
+  assert.equal(a.schedule.model.designRiskPlan.contractDue,b.schedule.model.designRiskPlan.contractDue);
+});
 test('signing affects signing payment but not award-based contract deadline',()=>{
   const m=model(signed(),'2026-10-02');assert.equal(m.schedule.model.execPlan.contractDue,'2026-10-04');
   assert.equal(m.payments.byId['design-sign'].tier,'ready');
