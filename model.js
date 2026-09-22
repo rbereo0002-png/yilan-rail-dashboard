@@ -56,8 +56,15 @@ export function calculateModel(project, today = todayLocal()) {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
+  const quickEntryItems = deliverables
+    .filter(x => x.contractDue || x.effectiveSubmit || x.effectiveApproval)
+    .sort((a,b) => {
+      const ar = a.attentionPriority ?? 99, br = b.attentionPriority ?? 99;
+      return ar-br || (a.contractDue || '9999').localeCompare(b.contractDue || '9999');
+    })
+    .slice(0,10);
   const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,total:deliverables.length,
-    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, stages};
+    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
   const latest = values => values.filter(Boolean).sort().at(-1) || null;
