@@ -35,17 +35,24 @@ export function calculateModel(project, today = todayLocal()) {
   const reviewOverdue = reviewOverdueItems.length;
   const underReview = underReviewItems.length;
   const overall = !schedule.awardEffective ? '尚未決標／契約尚未生效' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : signedEffective ? '實際履約中' : '契約已生效／待簽約';
-  const important = deliverables.filter(x => (x.effectiveSubmit && !x.effectiveApproval) || open.includes(x) && daysBetween(today,x.contractDue) <= 30)
-    .sort((a,b) => {
-      const rank = x => x.overdueDays > 0 ? 0 : x.reviewOverdueDays > 0 ? 1 : x.effectiveSubmit && !x.effectiveApproval ? 2 : 3;
-      return rank(a)-rank(b) || (b.overdueDays-a.overdueDays) || (b.reviewOverdueDays-a.reviewOverdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999');
-    }).slice(0,8);
+  const attention = deliverables.map(x => {
+    const remaining = x.contractDue ? daysBetween(today,x.contractDue) : null;
+    let priority = 99, priorityLabel = '', reason = '';
+    if (x.overdueDays > 0) {priority=0;priorityLabel='立即處理';reason=`尚未提送，契約逾期 ${x.overdueDays} 日`;}
+    else if (x.reviewOverdueDays > 0) {priority=1;priorityLabel='審查催辦';reason=`${x.pcmReviewContract ? 'PCM契約審查' : '審查管理目標'}逾期 ${x.reviewOverdueDays} 日`;}
+    else if (x.effectiveSubmit && !x.effectiveApproval) {priority=2;priorityLabel='審查中';reason=x.reviewTarget ? `審查期限／目標 ${x.reviewTarget}` : '已提送待核定';}
+    else if (remaining != null && remaining >= 0 && remaining <= 14) {priority=3;priorityLabel='14日內到期';reason=`距契約期限 ${remaining} 日`;}
+    else if (remaining != null && remaining > 14 && remaining <= 30) {priority=4;priorityLabel='30日內到期';reason=`距契約期限 ${remaining} 日`;}
+    return {...x,attentionPriority:priority,attentionLabel:priorityLabel,attentionReason:reason,remainingDays:remaining};
+  }).filter(x=>x.attentionPriority<99)
+    .sort((a,b)=>a.attentionPriority-b.attentionPriority || (b.overdueDays-a.overdueDays) || (b.reviewOverdueDays-a.reviewOverdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999'));
+  const important = attention.slice(0,8);
   const stages = Object.values(deliverables.reduce((acc,item) => {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
   const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,total:deliverables.length,
-    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, stages};
+    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
   const latest = values => values.filter(Boolean).sort().at(-1) || null;
