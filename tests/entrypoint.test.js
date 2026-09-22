@@ -38,3 +38,16 @@ test('production entrypoint cache-busts v1.3 assets',()=>{
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
   assert.match(html,/app\.js\?v=1\.3\.1/);
 });
+
+
+test('v1.3.2 print layout keeps screen logic untouched and marks duplicate print blocks',()=>{
+  const html=read('index.html'),css=read('style.css');
+  assert.match(html,/style\.css\?v=1\.3\.2/);
+  assert.match(html,/id="dependencyPrintBlock"/);
+  assert.match(html,/id="paymentMilestonePrintBlock"/);
+  assert.match(html,/id="publicDataSection"/);
+  assert.match(css,/v1\.3\.2 Print\/PDF consolidation/);
+  assert.match(css,/@page \{ size:A4 landscape;/);
+  assert.match(css,/\.quick-performance\{display:none !important\}/);
+  assert.match(css,/\.print-duplicate,\.print-omit\{display:none !important\}/);
+});
