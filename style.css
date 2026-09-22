@@ -439,3 +439,7 @@
 .quick-filter{border:1px solid #d4dbe5;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
 .quick-filter.active{background:var(--blue);border-color:var(--blue);color:#fff}
 .quick-clear{display:block;margin-top:6px;border:0;background:transparent;color:var(--red);font-size:11px;text-decoration:underline;cursor:pointer;padding:0}
+
+.workbench .quick-filter span{display:inline-block;min-width:20px;margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(15,23,42,.08);font-size:11px}
+.workbench .quick-filter.active span{background:rgba(255,255,255,.2)}
+.workbench .quick-performance-table{min-width:1020px}
