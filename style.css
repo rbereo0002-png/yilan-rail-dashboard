@@ -434,3 +434,8 @@
 .pre-sign-special{margin-top:14px;padding:12px;border:1px dashed #c8d1dc;border-radius:10px;background:#fafbfd}
 .pre-sign-special .overview-panel-title{margin-bottom:8px}
 .pre-sign-special h3 span{display:inline-block;min-width:22px;text-align:center;border-radius:12px;background:#eef2f7;padding:2px 7px;margin-left:4px;font-size:12px}
+
+.quick-filter-bar{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}
+.quick-filter{border:1px solid #d4dbe5;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.quick-filter.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.quick-clear{display:block;margin-top:6px;border:0;background:transparent;color:var(--red);font-size:11px;text-decoration:underline;cursor:pointer;padding:0}
