@@ -140,6 +140,24 @@ test('homepage quick entry opens only after formal signing unless an actual reco
   const ids=m.dashboard.quickEntryItems.map(x=>x.id);
   for (const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']) assert.ok(ids.includes(id),id);
 });
+test('contractor workbench counts match the same shared schedule model',()=>{
+  const p=signed('south');
+  p.rows.execPlan_submit='2026-10-20';
+  const m=model(normalizeProject(p),'2026-11-05');
+  const c=m.dashboard.workbenchCounts;
+  assert.equal(c.review,m.dashboard.quickEntryItems.filter(x=>x.effectiveSubmit&&!x.effectiveApproval).length);
+  assert.equal(c.completed,m.dashboard.quickEntryItems.filter(x=>x.effectiveApproval).length);
+  assert.equal(c.open,m.dashboard.quickEntryItems.filter(x=>!x.effectiveApproval).length);
+  assert.equal(c.urgent,m.dashboard.quickEntryItems.filter(x=>x.attentionPriority<=2).length);
+});
+test('contractor workbench horizon filters render mutually targeted rows',()=>{
+  const p=signed('south');
+  let m=model(normalizeProject(p),'2026-10-20');
+  const due14=quickEntryMarkup(m,true,'due14');
+  const due30=quickEntryMarkup(m,true,'due30');
+  for (const item of m.dashboard.quickEntryItems.filter(x=>x.attentionPriority===3)) assert.match(due14,new RegExp(`data-row="${item.id}"`));
+  for (const item of m.dashboard.quickEntryItems.filter(x=>x.attentionPriority===4)) assert.match(due30,new RegExp(`data-row="${item.id}"`));
+});
 test('quick entry filters open review and completed states without creating another data model',()=>{
   const p=signed('south');
   p.rows.execPlan_submit='2026-10-20';
