@@ -187,6 +187,11 @@
               </div>
               <button class="mini-btn" type="button" data-action="save">儲存本機</button>
             </div>
+            <div class="quick-filter-bar" role="group" aria-label="快速履約登錄篩選">
+              <button type="button" class="quick-filter active" data-quick-filter="open">待辦／進行中</button>
+              <button type="button" class="quick-filter" data-quick-filter="review">審查中</button>
+              <button type="button" class="quick-filter" data-quick-filter="completed">已核定</button>
+            </div>
             <div class="scroll">
               <table class="tbl quick-performance-table">
                 <thead>
@@ -195,7 +200,7 @@
                 <tbody id="quickPerformanceBody"></tbody>
               </table>
             </div>
-            <p class="small">實際日期僅供已發生事件登錄；輸入後系統立即重算審查期限、付款與後續成果，並標示為尚未儲存修改。</p>
+            <p class="small">實際日期僅供已發生事件登錄；輸入後立即重算審查期限、付款與後續成果。誤登時可按「清除實績」後重新輸入；修改仍須按「儲存本機」。</p>
           </div>
 
         </div>
