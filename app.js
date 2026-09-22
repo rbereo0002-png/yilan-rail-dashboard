@@ -77,6 +77,19 @@ async function init() {
   document.addEventListener('click',event=>{
     const project=event.target.closest('[data-project]');
     if (project) {void store.select(project.dataset.project);return;}
+    const quickFilter=event.target.closest('[data-quick-filter]');
+    if (quickFilter) {
+      document.querySelectorAll('[data-quick-filter]').forEach(x=>x.classList.toggle('active',x===quickFilter));
+      refresh();return;
+    }
+    const clearRow=event.target.closest('[data-clear-row]');
+    if (clearRow && !store.readOnly && !store.loading) {
+      const row=clearRow.dataset.clearRow;
+      if (confirm('清除這項成果的實際提送日與實際核定日？')) {
+        store.edit(p=>{p.rows[`${row}_submit`]='';p.rows[`${row}_approval`]='';});
+      }
+      return;
+    }
     const removePackage=event.target.closest('[data-remove-package]');
     if (removePackage && !store.readOnly && !store.loading) {
       store.edit(p=>{p.constructionPackages=p.constructionPackages.filter(x=>x.id!==removePackage.dataset.removePackage);});
