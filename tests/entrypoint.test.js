@@ -4,10 +4,15 @@ import {readFileSync,existsSync} from 'node:fs';
 const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 test('homepage has one module entrypoint, local assets exist and legacy handlers are absent',()=>{
   const html=read('index.html');
-  assert.deepEqual([...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map(x=>x[1]),['app.js']);
-  assert.match(html,/<script type="module" src="app.js"/);
+  const scripts=[...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map(x=>x[1]);
+  assert.equal(scripts.length,1);
+  assert.equal(scripts[0].split('?')[0],'app.js');
+  assert.match(html,/<script type="module" src="app\.js(?:\?[^"]*)?"/);
   assert.doesNotMatch(html,/\bon(?:click|change)=/);
-  for(const [,path] of html.matchAll(/(?:src|href)="([^"]+\.(?:js|css))"/g))assert.ok(existsSync(new URL(`../${path}`,import.meta.url)),path);
+  for(const [,asset] of html.matchAll(/(?:src|href)="([^"]+\.(?:js|css)(?:\?[^"]*)?)"/g)){
+    const path=asset.split('?')[0];
+    assert.ok(existsSync(new URL(`../${path}`,import.meta.url)),asset);
+  }
   const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);assert.equal(ids.length,new Set(ids).size);
 });
 test('all production modules resolve and contain no observer/timer patch or global state',()=>{
@@ -22,4 +27,14 @@ test('all production modules resolve and contain no observer/timer patch or glob
 test('all literal DOM ids referenced by production views/controller exist in homepage',()=>{
   const html=read('index.html'),ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]));
   for(const file of ['app.js','views.js'])for(const [,id]of read(file).matchAll(/\$\('([^']+)'\)/g))assert.ok(ids.has(id),`${file}: ${id}`);
+});
+
+
+test('milestone assignments tolerate cached HTML without new field',()=>{
+  const views=readFileSync(new URL('../views.js',import.meta.url),'utf8');
+  assert.match(views,/const el=\$\(key\);\s*if \(el\) el\.value=/);
+});
+test('production entrypoint cache-busts v1.3 assets',()=>{
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  assert.match(html,/app\.js\?v=1\.3\.1/);
 });
