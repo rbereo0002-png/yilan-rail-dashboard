@@ -19,12 +19,19 @@ const inputDate = (item,kind,editable) => {
 const tableHTML = (headers,rows) => `<thead><tr>${headers.map(x=>`<th>${e(x)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody>`;
 const tr = (cells,attrs='') => `<tr ${attrs}>${cells.map(x=>`<td>${x}</td>`).join('')}</tr>`;
 
-export function quickEntryMarkup(model, editable = false, filter = 'open') {
-  const source = filter === 'review'
-    ? model.dashboard.quickEntryItems.filter(x => x.effectiveSubmit && !x.effectiveApproval)
-    : filter === 'completed'
-      ? model.dashboard.quickEntryItems.filter(x => x.effectiveApproval)
-      : model.dashboard.quickEntryItems.filter(x => !x.effectiveApproval);
+export function quickEntryMarkup(model, editable = false, filter = 'urgent') {
+  const items = model.dashboard.quickEntryItems;
+  const source = filter === 'urgent'
+    ? items.filter(x => x.attentionPriority <= 2)
+    : filter === 'due14'
+      ? items.filter(x => x.attentionPriority === 3)
+      : filter === 'due30'
+        ? items.filter(x => x.attentionPriority === 4)
+        : filter === 'review'
+          ? items.filter(x => x.effectiveSubmit && !x.effectiveApproval)
+          : filter === 'completed'
+            ? items.filter(x => x.effectiveApproval)
+            : items.filter(x => !x.effectiveApproval);
   const rows = source.map(item => tr([
     `<b>${e(item.name)}</b><div class="small">${e(item.group)}</div>`,
     fmt(item.contractDue),
@@ -140,7 +147,6 @@ function renderDashboard(model) {
   $('ovProgressBar').style.width=`${d.progress}%`;
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'underReview',ovCompleted:'completed'})) text(id,d[key]);
   text('overviewSub',`目前階段：${d.phaseLabel}。一般履約自實際簽約日起算；決標日起算之特殊事項另列，不計入簽約前正式履約項目。`);
-  html('ovImportantWorks',d.important.length ? d.important.map(x=>`<div class="work-item"><div class="work-status"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span></div><div class="work-name"><b>${e(x.name)}</b><span>${e(x.attentionReason)}</span></div><div class="work-date">${x.effectiveSubmit && !x.effectiveApproval ? 'PCM審查期限／目標' : '契約期限'}<br>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</div></div>`).join('') : '<div class="overview-empty">目前無契約逾期、審查催辦或30日內到期事項</div>');
   const workViewMarkup = items => items.length ? items.slice(0,6).map(x=>`<div class="work-view-row"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span><b>${e(x.name)}</b><small>${e(x.attentionReason)}</small><time>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無列管事項</div>';
   html('preSignSpecialWorks',d.preSignSpecialItems.length ? d.preSignSpecialItems.map(x=>`<div class="work-view-row"><span class="timeline-pill tl-external">簽約前特別列管</span><b>${e(x.name)}</b><small>${e(x.note)}</small><time>${fmt(x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無簽約前特別列管事項</div>');
   text('preSignSpecialCount',d.preSignSpecialItems.length);
@@ -150,9 +156,15 @@ function renderDashboard(model) {
   text('ovTodayCount',d.workViews.today.length);
   text('ov14Count',d.workViews.due14.length);
   text('ov30Count',d.workViews.due30.length);
-  const activeQuickFilter = document.querySelector('[data-quick-filter].active')?.dataset.quickFilter || 'open';
+  const activeQuickFilter = document.querySelector('[data-quick-filter].active')?.dataset.quickFilter || 'urgent';
   html('quickPerformanceBody',quickEntryMarkup(model,!document.body.classList.contains('view-mode'),activeQuickFilter));
-  text('quickPerformanceCount',d.quickEntryItems.filter(x=>!x.effectiveApproval).length);
+  text('quickPerformanceCount',d.workbenchCounts.open);
+  text('wbUrgentCount',d.workbenchCounts.urgent);
+  text('wb14Count',d.workbenchCounts.due14);
+  text('wb30Count',d.workbenchCounts.due30);
+  text('wbReviewCount',d.workbenchCounts.review);
+  text('wbOpenCount',d.workbenchCounts.open);
+  text('wbCompletedCount',d.workbenchCounts.completed);
   html('ovStageList',d.stages.map(x=>`<div class="stage-item"><span>${e(x.name)}</span><b>${x.completed}/${x.total}</b></div>`).join(''));
   document.querySelector('.payment-kpis').innerHTML=Object.entries(model.payments.totals).map(([tier,t])=>`<div class="payment-kpi"><span>${tierNames[tier]}</span><b>${t.count} 項</b><small>${money(t.amount)} 元</small></div>`).join('')+`<div class="payment-kpi"><span>最近預估付款日</span><b>${fmt(model.payments.nextPayDate)}</b></div>`;
   const c=model.summary.counts;
