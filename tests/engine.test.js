@@ -7,7 +7,7 @@ import {YilanRules,paymentRules} from '../rules.js';
 import {calculateSchedule} from '../schedule-engine.js';
 import {calculateSupervision} from '../supervision-engine.js';
 import {addDays,addWorkdays,validDate} from '../dates.js';
-import {tableMarkup,exportHTML} from '../views.js';
+import {tableMarkup,exportHTML,quickEntryMarkup} from '../views.js';
 const fixture = id => normalizeProject(JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url))));
 const model = (p,today='2026-12-01') => calculateModel(p,today);
 function signed(id='south') {const p=fixture(id);p.milestones.actualSignDate=p.milestones.signDate;return p;}
@@ -123,6 +123,26 @@ test('actual approval activates downstream contract deadline with unchanged day 
   assert.equal(m.schedule.model.basic.dueType,'contract');
   assert.equal(m.payments.byId['design-exec'].tier,'ready');
   assert.equal(m.payments.byId['design-exec'].triggerDate,'2026-11-15');
+});
+test('homepage quick entry uses same model rows and only shows formally started or recorded deliverables',()=>{
+  let m=model(fixture('south'),'2026-09-22');
+  assert.deepEqual(m.dashboard.quickEntryItems.map(x=>x.id),['designRiskPlan']);
+  let markup=quickEntryMarkup(m,true);
+  assert.match(markup,/data-row="designRiskPlan"/);
+  assert.match(markup,/data-kind="submit"/);
+  assert.match(markup,/max="2026-09-22"/);
+  m=model(signed('south'),'2026-10-02');
+  const ids=m.dashboard.quickEntryItems.map(x=>x.id);
+  for (const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']) assert.ok(ids.includes(id),id);
+});
+test('quick entry immediately reflects submission and approval through the shared schedule model',()=>{
+  const p=signed('south');p.rows.execPlan_submit='2026-10-20';
+  let m=model(normalizeProject(p),'2026-10-21');
+  assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='execPlan').performanceStage,'under-review');
+  assert.equal(m.schedule.model.execPlan.reviewTarget,'2026-11-19');
+  p.rows.execPlan_approval='2026-11-10';
+  m=model(normalizeProject(p),'2026-11-11');
+  assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='execPlan').performanceStage,'approved');
 });
 test('performance flow separates vendor submission PCM review and owner approval',()=>{
   const p=signed('south');
