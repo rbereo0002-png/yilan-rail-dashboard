@@ -30,7 +30,10 @@ export function calculateModel(project, today = todayLocal()) {
   const phaseLabel = phase === 'pre-award' ? '尚未決標' : phase === 'effective-pre-sign' ? '契約已生效／待簽約' : '實際履約中';
   const started = deliverables.filter(x => x.contractDue).length;
   const notStarted = deliverables.length - started;
-  const reviewOverdue = deliverables.filter(x => x.effectiveSubmit && !x.effectiveApproval && x.reviewOverdueDays > 0).length;
+  const underReviewItems = deliverables.filter(x => x.effectiveSubmit && !x.effectiveApproval);
+  const reviewOverdueItems = underReviewItems.filter(x => x.reviewOverdueDays > 0);
+  const reviewOverdue = reviewOverdueItems.length;
+  const underReview = underReviewItems.length;
   const overall = !schedule.awardEffective ? '尚未決標／契約尚未生效' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : signedEffective ? '實際履約中' : '契約已生效／待簽約';
   const important = deliverables.filter(x => (x.effectiveSubmit && !x.effectiveApproval) || open.includes(x) && daysBetween(today,x.contractDue) <= 30)
     .sort((a,b) => {
@@ -41,7 +44,7 @@ export function calculateModel(project, today = todayLocal()) {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
-  const dashboard = {completed,pending,overdue,due14,due30,reviewOverdue,started,notStarted,phase,phaseLabel,overall,total:deliverables.length,
+  const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,total:deliverables.length,
     progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
