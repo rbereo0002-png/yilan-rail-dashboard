@@ -65,10 +65,17 @@ export function calculateModel(project, today = todayLocal()) {
     .sort((a,b) => {
       const ar = a.attentionPriority ?? 99, br = b.attentionPriority ?? 99;
       return ar-br || (a.contractDue || '9999').localeCompare(b.contractDue || '9999');
-    })
-    .slice(0,10);
+    });
+  const workbenchCounts = {
+    urgent: quickEntryItems.filter(x => x.attentionPriority <= 2).length,
+    due14: quickEntryItems.filter(x => x.attentionPriority === 3).length,
+    due30: quickEntryItems.filter(x => x.attentionPriority === 4).length,
+    review: quickEntryItems.filter(x => x.effectiveSubmit && !x.effectiveApproval).length,
+    open: quickEntryItems.filter(x => !x.effectiveApproval).length,
+    completed: quickEntryItems.filter(x => x.effectiveApproval).length
+  };
   const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
-    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, stages};
+    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
   const latest = values => values.filter(Boolean).sort().at(-1) || null;
