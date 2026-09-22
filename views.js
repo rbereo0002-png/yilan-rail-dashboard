@@ -66,7 +66,7 @@ function renderForms(model,readOnly,catalog) {
   text('heroTitle',`宜蘭至羅東鐵路高架化計畫｜${p.name}履約＋付款管制`);
   text('heroSub',p.title);
   renderNavigation(catalog,p.id);
-  for (const key of ['awardDate','evaluationDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
+  for (const key of ['awardDate','evaluationDate','workStartDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
   $('actualSignDate').max=model.today;
   for (const [key,value] of Object.entries(p.dates)) if ($(key)) $(key).value=value || '';
   if ($('allWorksAwardDate')) {
@@ -83,7 +83,7 @@ function renderForms(model,readOnly,catalog) {
   $('forecastMode').value=p.settings.forecastMode;
   $('holidays').value=p.settings.holidays.join(', ');
   $('soilWaterEnabled').checked=p.settings.enabledRules.soilWaterPlan === true;
-  const milestones = [['決標／契約生效',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['簽約預定',p.milestones.signDate],[model.schedule.signing.effective ? '實際簽約' : '待確認實際簽約',p.milestones.actualSignDate]];
+  const milestones = [['決標／契約生效',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['工作啟始',p.milestones.workStartDate],['簽約預定',p.milestones.signDate],[model.schedule.signing.effective ? '實際簽約' : '待確認實際簽約',p.milestones.actualSignDate]];
   html('badges',milestones.filter(([,d])=>d).map(([label,date])=>`<span class="badge">${label} ${fmt(date)}</span>`).join(''));
   text('budgetNote',`${p.name}預算總額 ${money(p.budget.total)} 元；發包技術服務費 ${money(p.budget.serviceTotal)} 元。${p.notes || ''}`);
   const labels = {survey:'補充測量',geo:'補充地質調查',utility:'管線調查',land:'用地及地上物相關作業',design:'工程設計',supervision:'施工監造'};
