@@ -47,12 +47,17 @@ export function calculateModel(project, today = todayLocal()) {
   }).filter(x=>x.attentionPriority<99)
     .sort((a,b)=>a.attentionPriority-b.attentionPriority || (b.overdueDays-a.overdueDays) || (b.reviewOverdueDays-a.reviewOverdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999'));
   const important = attention.slice(0,8);
+  const workViews = {
+    today: attention.filter(x => x.attentionPriority <= 2),
+    due14: attention.filter(x => x.attentionPriority === 3),
+    due30: attention.filter(x => x.attentionPriority === 4)
+  };
   const stages = Object.values(deliverables.reduce((acc,item) => {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
   const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,total:deliverables.length,
-    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, stages};
+    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
   const latest = values => values.filter(Boolean).sort().at(-1) || null;
