@@ -430,3 +430,7 @@
 .quick-performance-table{min-width:980px}.quick-performance-table input{min-width:135px;width:100%;padding:7px 8px;border:1px solid #cfd7e3;border-radius:7px}
 .quick-performance h3 span{display:inline-block;min-width:22px;text-align:center;border-radius:12px;background:#eef2f7;padding:2px 7px;margin-left:4px;font-size:12px}
 @media print{.quick-performance-table input{border:none;padding:0}}
+
+.pre-sign-special{margin-top:14px;padding:12px;border:1px dashed #c8d1dc;border-radius:10px;background:#fafbfd}
+.pre-sign-special .overview-panel-title{margin-bottom:8px}
+.pre-sign-special h3 span{display:inline-block;min-width:22px;text-align:center;border-radius:12px;background:#eef2f7;padding:2px 7px;margin-left:4px;font-size:12px}
