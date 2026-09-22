@@ -92,8 +92,11 @@ function renderForms(model,readOnly,catalog) {
   text('heroTitle',`宜蘭至羅東鐵路高架化計畫｜${p.name}履約＋付款管制`);
   text('heroSub',p.title);
   renderNavigation(catalog,p.id);
-  for (const key of ['awardDate','evaluationDate','workStartDate','signDate','actualSignDate']) $(key).value=p.milestones[key] || '';
-  $('actualSignDate').max=model.today;
+  for (const key of ['awardDate','evaluationDate','workStartDate','signDate','actualSignDate']) {
+    const el=$(key);
+    if (el) el.value=p.milestones[key] || '';
+  }
+  if ($('actualSignDate')) $('actualSignDate').max=model.today;
   for (const [key,value] of Object.entries(p.dates)) if ($(key)) $(key).value=value || '';
   if ($('allWorksAwardDate')) {
     $('allWorksAwardDate').readOnly = model.construction.total > 0;
