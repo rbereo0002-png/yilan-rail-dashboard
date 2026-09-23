@@ -187,3 +187,12 @@ body.font-large .brief-status span,body.font-large .brief-segment span,body.font
 body.font-large .brief-status b,body.font-large .brief-segment b,body.font-xlarge .brief-status b,body.font-xlarge .brief-segment b{font-size:calc(15px * var(--exec-text-scale))}
 body.font-large .brief-status small,body.font-large .brief-segment small,body.font-xlarge .brief-status small,body.font-xlarge .brief-segment small{font-size:calc(11px * var(--exec-text-scale))}
 @media(max-width:1180px){.management-brief{grid-template-columns:1fr}.brief-status,.brief-segment{padding:11px 13px}}
+
+
+/* v1.4.7 executive brief drill-down */
+.brief-action{position:relative;width:100%;text-align:left;font:inherit;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.brief-action:hover,.brief-action:focus-visible{transform:translateY(-1px);box-shadow:var(--shadow);border-color:#b9cbe2;outline:none}
+.brief-action em{display:block;margin-top:5px;font-style:normal;font-size:10px;font-weight:900;color:var(--blue)}
+.brief-status.brief-danger em{color:var(--red)}.brief-status.brief-warning em{color:var(--orange)}.brief-status.brief-ok em{color:var(--green)}
+body.font-large .brief-action em,body.font-xlarge .brief-action em{font-size:calc(10px * var(--exec-text-scale))}
+@media(max-width:700px){.brief-action{min-height:86px}.brief-action em{font-size:12px}}
