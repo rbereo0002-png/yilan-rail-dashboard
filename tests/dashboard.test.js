@@ -6,11 +6,11 @@ import {calculateModel} from '../model.js';
 
 const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
-test('executive dashboard is a separate read-only entrypoint linked to the workbench',()=>{
+test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.3/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.3/);
-  assert.match(dashboard,/href="\.\/">[\s\S]*?承辦工作台[\s\S]*?<\/a>/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.4/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.4/);
+  assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
 });
@@ -83,4 +83,23 @@ test('v1.4.3 overview shows compact cross-segment milestone snapshot with drill-
   assert.match(css,/\.overview-milestone-grid/);
   assert.match(css,/\.overview-milestone-row/);
   assert.match(css,/\.milestone-diff\.late/);
+});
+
+
+test('v1.4.4 executive timeline uses start-to-due ranges so award-triggered work visibly starts earlier',()=>{
+  const js=read('dashboard.js'),css=read('dashboard.css');
+  assert.match(js,/start:x\.forecastStart \|\| x\.baselineStart/);
+  assert.match(js,/起算 \$\{fmt\(x\.start\)\}/);
+  assert.match(js,/variance-range planned/);
+  assert.match(js,/left:\$\{startPos\}%/);
+  assert.match(css,/\.variance-range/);
+  assert.match(css,/\.range-bars \.variance-track/);
+});
+test('v1.4.4 executive dashboard has larger accessible typography and tablet phone layouts',()=>{
+  const css=read('dashboard.css');
+  assert.match(css,/body\{font-size:16px\}/);
+  assert.match(css,/\.exec-header h1\{font-size:30px\}/);
+  assert.match(css,/\.top-kpi span\{font-size:15px\}/);
+  assert.match(css,/@media\(max-width:1180px\)/);
+  assert.match(css,/@media\(max-width:700px\)/);
 });
