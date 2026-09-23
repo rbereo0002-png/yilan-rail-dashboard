@@ -27,7 +27,7 @@ function projectFocus(m){
 
 function segmentCard(m){
   const p=m.project,d=m.dashboard;
-  return `<article class="segment-card">
+  return `<article class="segment-card segment-${esc(p.id)}">
     <div class="segment-head"><div><h3>${esc(p.name)}</h3><small>${esc(p.title)}</small></div><span class="phase">${esc(d.phaseLabel)}</span></div>
     <div class="key-dates">
       <div class="date-box"><span>決標／契約生效</span><b>${fmt(p.milestones.awardDate)}</b></div>
@@ -157,7 +157,7 @@ function setView(view){
 }
 function updateTop(){
   const ms=Object.values(models);
-  $('dashboardDate').textContent=`資料日 ${fmt(todayLocal())}`;
+  $('dashboardDate').textContent=fmt(todayLocal());
   $('kpiOverdue').textContent=ms.reduce((n,m)=>n+m.dashboard.overdue,0);
   $('kpiDue14').textContent=ms.reduce((n,m)=>n+m.dashboard.due14,0);
   $('kpiReview').textContent=ms.reduce((n,m)=>n+m.dashboard.underReview,0);
