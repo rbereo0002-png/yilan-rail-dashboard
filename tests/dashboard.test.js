@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.5/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.5/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.6/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.6/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -120,4 +120,17 @@ test('v1.4.5 executive tablet navigation stays reachable while scrolling',()=>{
   const css=read('dashboard.css');
   assert.match(css,/@media\(max-width:1180px\)/);
   assert.match(css,/\.exec-nav\{position:sticky;top:0;z-index:20/);
+});
+
+
+test('v1.4.6 executive overview includes deterministic management brief and next milestones',()=>{
+  const js=read('dashboard.js'),css=read('dashboard.css');
+  assert.match(js,/function nextMilestone\(m\)/);
+  assert.match(js,/function managementBrief\(\)/);
+  assert.match(js,/主管摘要/);
+  assert.match(js,/下一關鍵/);
+  assert.match(js,/距今 \$\{days\} 日/);
+  assert.match(css,/\.management-brief/);
+  assert.match(css,/\.brief-status\.brief-ok/);
+  assert.match(css,/\.brief-status\.brief-danger/);
 });
