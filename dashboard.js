@@ -8,6 +8,19 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 
 let models={}, currentView='overview';
+const FONT_KEY='yilan-executive-font-size';
+function applyFontSize(size='standard'){
+  const value=['standard','large','xlarge'].includes(size)?size:'standard';
+  document.body.classList.toggle('font-large',value==='large');
+  document.body.classList.toggle('font-xlarge',value==='xlarge');
+  document.querySelectorAll('[data-font-size]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.fontSize===value)));
+  try{localStorage.setItem(FONT_KEY,value);}catch{}
+}
+function restoreFontSize(){
+  let size='standard';
+  try{size=localStorage.getItem(FONT_KEY)||'standard';}catch{}
+  applyFontSize(size);
+}
 
 async function loadJSON(path){
   const r=await fetch(path,{cache:'no-store'});
@@ -200,9 +213,12 @@ async function init(){
     const data=normalizeProject(await loadJSON(p.data),p.id);
     models[p.id]=calculateModel(data,today);
   }
+  restoreFontSize();
   updateTop();setView('overview');
   $('dashboardStatus').textContent='資料已更新';
   document.addEventListener('click',e=>{
+    const font=e.target.closest('[data-font-size]');
+    if(font){applyFontSize(font.dataset.fontSize);return;}
     const btn=e.target.closest('[data-view]');
     if(btn){setView(btn.dataset.view);return;}
     if(e.target.closest('#backButton')) setView('overview');

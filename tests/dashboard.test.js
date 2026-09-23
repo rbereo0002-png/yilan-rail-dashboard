@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.4/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.4/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.5/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.5/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -102,4 +102,22 @@ test('v1.4.4 executive dashboard has larger accessible typography and tablet pho
   assert.match(css,/\.top-kpi span\{font-size:15px\}/);
   assert.match(css,/@media\(max-width:1180px\)/);
   assert.match(css,/@media\(max-width:700px\)/);
+});
+
+
+test('v1.4.5 executive font controls persist large-text preference',()=>{
+  const html=read('dashboard.html'),js=read('dashboard.js'),css=read('dashboard.css');
+  assert.match(html,/data-font-size="standard"/);
+  assert.match(html,/data-font-size="large"/);
+  assert.match(html,/data-font-size="xlarge"/);
+  assert.match(js,/FONT_KEY='yilan-executive-font-size'/);
+  assert.match(js,/function applyFontSize\(size='standard'\)/);
+  assert.match(js,/localStorage\.setItem\(FONT_KEY,value\)/);
+  assert.match(css,/body\.font-large/);
+  assert.match(css,/body\.font-xlarge/);
+});
+test('v1.4.5 executive tablet navigation stays reachable while scrolling',()=>{
+  const css=read('dashboard.css');
+  assert.match(css,/@media\(max-width:1180px\)/);
+  assert.match(css,/\.exec-nav\{position:sticky;top:0;z-index:20/);
 });

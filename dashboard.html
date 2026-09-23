@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>宜蘭高架｜長官儀表板</title>
-  <link rel="stylesheet" href="dashboard.css?v=1.4.4">
+  <link rel="stylesheet" href="dashboard.css?v=1.4.5">
 </head>
 <body>
   <main class="exec-shell">
@@ -15,6 +15,11 @@
         <p>長官儀表板｜南、北段整體履約狀況與重要管制事項</p>
       </div>
       <div class="header-actions">
+        <div class="font-controls" role="group" aria-label="文字大小">
+          <button type="button" data-font-size="standard" aria-pressed="true">標準</button>
+          <button type="button" data-font-size="large" aria-pressed="false">大字</button>
+          <button type="button" data-font-size="xlarge" aria-pressed="false">特大</button>
+        </div>
         <div class="date-chip"><span>資料日期</span><b id="dashboardDate">—</b></div>
       </div>
     </header>
@@ -50,6 +55,6 @@
       <span id="dashboardStatus">載入中…</span>
     </footer>
   </main>
-  <script type="module" src="dashboard.js?v=1.4.4"></script>
+  <script type="module" src="dashboard.js?v=1.4.5"></script>
 </body>
 </html>

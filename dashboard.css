@@ -130,3 +130,44 @@ body{font-size:16px}
   .variance-row{grid-template-columns:1fr 48px;gap:5px}.variance-label{grid-column:1/3}.variance-bars{grid-column:1}.variance-diff{grid-column:2}
   .exec-footer{flex-direction:column;gap:3px}
 }
+
+
+/* v1.4.5 executive readability controls */
+.font-controls{display:flex;align-items:center;gap:4px;padding:4px;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.10)}
+.font-controls button{min-width:48px;min-height:34px;border:0;border-radius:8px;background:transparent;color:#e7efff;font-weight:800;font-size:12px;cursor:pointer}
+.font-controls button[aria-pressed="true"]{background:#fff;color:#173a78;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+body{--exec-text-scale:1}
+body.font-large{--exec-text-scale:1.12}
+body.font-xlarge{--exec-text-scale:1.25}
+body.font-large .exec-header h1,body.font-xlarge .exec-header h1{font-size:calc(30px * var(--exec-text-scale))}
+body.font-large .exec-header p,body.font-xlarge .exec-header p{font-size:calc(15px * var(--exec-text-scale))}
+body.font-large .brand-kicker,body.font-xlarge .brand-kicker{font-size:calc(11px * var(--exec-text-scale))}
+body.font-large .top-kpi span,body.font-xlarge .top-kpi span{font-size:calc(15px * var(--exec-text-scale))}
+body.font-large .top-kpi b,body.font-xlarge .top-kpi b{font-size:calc(34px * var(--exec-text-scale))}
+body.font-large .nav-btn,body.font-large .back-btn,body.font-xlarge .nav-btn,body.font-xlarge .back-btn{font-size:calc(15px * var(--exec-text-scale))}
+body.font-large .view-title h2,body.font-xlarge .view-title h2{font-size:calc(21px * var(--exec-text-scale))}
+body.font-large .view-title>span,body.font-xlarge .view-title>span{font-size:calc(13px * var(--exec-text-scale))}
+body.font-large .segment-head h3,body.font-xlarge .segment-head h3{font-size:calc(24px * var(--exec-text-scale))}
+body.font-large .segment-head small,body.font-xlarge .segment-head small{font-size:calc(12px * var(--exec-text-scale))}
+body.font-large .phase,body.font-xlarge .phase{font-size:calc(13px * var(--exec-text-scale))}
+body.font-large .date-box span,body.font-xlarge .date-box span{font-size:calc(12px * var(--exec-text-scale))}
+body.font-large .date-box b,body.font-xlarge .date-box b{font-size:calc(16px * var(--exec-text-scale))}
+body.font-large .stat-box span,body.font-xlarge .stat-box span{font-size:calc(12px * var(--exec-text-scale))}
+body.font-large .stat-box b,body.font-xlarge .stat-box b{font-size:calc(23px * var(--exec-text-scale))}
+body.font-large .focus-box p,body.font-xlarge .focus-box p{font-size:calc(14px * var(--exec-text-scale))}
+body.font-large .list-row b,body.font-xlarge .list-row b{font-size:calc(15px * var(--exec-text-scale))}
+body.font-large .list-row small,body.font-xlarge .list-row small{font-size:calc(12px * var(--exec-text-scale))}
+body.font-large .list-row time,body.font-xlarge .list-row time{font-size:calc(13px * var(--exec-text-scale))}
+body.font-large .variance-label b,body.font-xlarge .variance-label b{font-size:calc(13px * var(--exec-text-scale))}
+body.font-large .variance-label small,body.font-xlarge .variance-label small{font-size:calc(10.5px * var(--exec-text-scale))}
+body.font-large .milestone-name b,body.font-xlarge .milestone-name b{font-size:calc(12px * var(--exec-text-scale))}
+body.font-large .milestone-dates span,body.font-xlarge .milestone-dates span{font-size:calc(10px * var(--exec-text-scale))}
+
+@media(max-width:1180px){
+  .exec-nav{position:sticky;top:0;z-index:20;background:rgba(238,243,249,.96);backdrop-filter:blur(8px);padding:7px 2px}
+}
+@media(max-width:700px){
+  .header-actions{gap:6px}.font-controls{order:2;width:100%;justify-content:flex-end}.font-controls button{min-height:40px;min-width:56px;font-size:13px}
+  body.font-xlarge{--exec-text-scale:1.14}
+  body.font-large{--exec-text-scale:1.08}
+}
