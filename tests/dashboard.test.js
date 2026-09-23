@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate read-only entrypoint linked to the workbench',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.1/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.1/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.2/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.2/);
   assert.match(dashboard,/href="\.\/">承辦工作台<\/a>/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -57,4 +57,18 @@ test('executive progress view contains planned actual variance bars and signed d
   assert.match(css,/\.variance-bar\.actual/);
   assert.match(css,/\.variance-late/);
   assert.match(css,/\.variance-early/);
+});
+
+
+test('v1.4.2 executive visual hierarchy is presentation-oriented without changing data inputs',()=>{
+  const html=read('dashboard.html'),css=read('dashboard.css'),js=read('dashboard.js');
+  assert.match(html,/YILAN–LUODONG RAIL ELEVATION PROGRAM/);
+  assert.match(html,/class="brand-block"/);
+  assert.match(html,/class="date-chip"/);
+  assert.match(css,/\.segment-south:before/);
+  assert.match(css,/\.segment-north:before/);
+  assert.match(css,/radial-gradient/);
+  assert.match(css,/\.view-frame/);
+  assert.match(js,/segment-\$\{esc\(p\.id\)\}/);
+  assert.doesNotMatch(html,/<input\b|<textarea\b|<select\b/);
 });
