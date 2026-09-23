@@ -94,31 +94,38 @@ function progressComparison(m){
   const rows=preferred.map(id=>m.schedule.model[id]).filter(Boolean)
     .map(x=>({
       id:x.id,name:x.name,
-      planned:x.contractDue || x.managementForecast || null,
+      start:x.forecastStart || x.baselineStart || null,
+      planned:x.contractDue || x.managementForecast || x.forecastDue || null,
       actual:x.effectiveApproval || null
     }))
-    .filter(x=>x.planned || x.actual);
+    .filter(x=>x.start || x.planned || x.actual);
   if(!rows.length) return '<div class="empty">目前尚無可比較之預定／實際日期。</div>';
-  const base=m.project.milestones.awardDate || m.project.milestones.signDate || m.today;
-  const endDates=rows.flatMap(x=>[x.planned,x.actual]).filter(Boolean).sort();
-  const maxDays=Math.max(1,daysBetween(base,endDates.at(-1)) || 1);
-  const width=date=>date ? Math.max(2,Math.min(100,(daysBetween(base,date)||0)/maxDays*100)) : 0;
+  const allDates=rows.flatMap(x=>[x.start,x.planned,x.actual]).filter(Boolean).sort();
+  const base=allDates[0] || m.today;
+  const end=allDates.at(-1) || base;
+  const maxDays=Math.max(1,daysBetween(base,end) || 1);
+  const pos=date=>date ? Math.max(0,Math.min(100,(daysBetween(base,date)||0)/maxDays*100)) : 0;
   const chart=rows.map(x=>{
     const diff=x.planned&&x.actual ? daysBetween(x.planned,x.actual) : null;
+    const startPos=pos(x.start || x.planned);
+    const plannedPos=pos(x.planned);
+    const actualPos=pos(x.actual);
+    const plannedWidth=x.planned ? Math.max(2,plannedPos-startPos) : 0;
+    const actualWidth=x.actual ? Math.max(2,actualPos-startPos) : 0;
     return `<div class="variance-row">
-      <div class="variance-label"><b>${esc(x.name)}</b><small>預定 ${fmt(x.planned)}｜實際 ${fmt(x.actual)}</small></div>
-      <div class="variance-bars">
-        <div class="variance-track"><span class="variance-bar planned" style="width:${width(x.planned)}%"></span></div>
-        <div class="variance-track"><span class="variance-bar actual" style="width:${width(x.actual)}%"></span></div>
+      <div class="variance-label"><b>${esc(x.name)}</b><small>起算 ${fmt(x.start)}｜預定 ${fmt(x.planned)}｜實際 ${fmt(x.actual)}</small></div>
+      <div class="variance-bars range-bars">
+        <div class="variance-track"><span class="variance-range planned" style="left:${startPos}%;width:${plannedWidth}%"></span></div>
+        <div class="variance-track"><span class="variance-range actual" style="left:${startPos}%;width:${actualWidth}%"></span></div>
       </div>
       <div class="variance-diff ${varianceClass(diff)}">${varianceLabel(diff)}</div>
     </div>`;
   }).join('');
-  return `<div class="variance-legend"><span><i class="planned-dot"></i>預定</span><span><i class="actual-dot"></i>實際</span><span>差異＝實際－預定；正值表示較預定晚</span></div><div class="variance-chart">${chart}</div>`;
+  return `<div class="variance-legend"><span><i class="start-dot"></i>起算</span><span><i class="planned-dot"></i>預定區間</span><span><i class="actual-dot"></i>實際完成</span><span>差異＝實際－預定</span></div><div class="variance-chart">${chart}</div>`;
 }
 function renderProgress(){
   $('viewTitle').textContent='設計進度｜預定・實際・差異';
-  $('viewHint').textContent='以主要里程碑比較預定與實際完成日期；差異正值＝較預定晚，負值＝較預定早。';
+  $('viewHint').textContent='以「起算日→預定完成」呈現預定區間，再比較實際完成與差異；可直接看出各工作起算先後。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
     const stages=m.dashboard.stages.map(s=>`<div class="stage-row"><span>${esc(s.name)}</span><div class="stage-track"><div class="stage-fill" style="width:${pct(s.completed,s.total)}%"></div></div><b>${s.completed}/${s.total}</b></div>`).join('');
