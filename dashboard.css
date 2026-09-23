@@ -171,3 +171,19 @@ body.font-large .milestone-dates span,body.font-xlarge .milestone-dates span{fon
   body.font-xlarge{--exec-text-scale:1.14}
   body.font-large{--exec-text-scale:1.08}
 }
+
+
+/* v1.4.6 management brief */
+.overview-dashboard{grid-template-rows:auto minmax(0,1fr) auto}
+.management-brief{display:grid;grid-template-columns:1.08fr 1fr 1fr;gap:9px}
+.brief-status,.brief-segment{min-width:0;border:1px solid var(--line);border-radius:12px;background:#fff;padding:9px 11px;box-shadow:var(--shadow-soft)}
+.brief-status{border-left-width:4px}.brief-status.brief-ok{border-left-color:var(--green);background:linear-gradient(90deg,#f2fbf6,#fff)}
+.brief-status.brief-warning{border-left-color:var(--orange);background:linear-gradient(90deg,#fff8ee,#fff)}
+.brief-status.brief-danger{border-left-color:var(--red);background:linear-gradient(90deg,#fff3f2,#fff)}
+.brief-status span,.brief-segment span{display:block;font-size:11px;color:var(--muted);font-weight:800}
+.brief-status b,.brief-segment b{display:block;font-size:15px;line-height:1.25;margin-top:2px;color:#223653}
+.brief-status small,.brief-segment small{display:block;font-size:11px;color:#68758a;margin-top:2px;line-height:1.35}
+body.font-large .brief-status span,body.font-large .brief-segment span,body.font-xlarge .brief-status span,body.font-xlarge .brief-segment span{font-size:calc(11px * var(--exec-text-scale))}
+body.font-large .brief-status b,body.font-large .brief-segment b,body.font-xlarge .brief-status b,body.font-xlarge .brief-segment b{font-size:calc(15px * var(--exec-text-scale))}
+body.font-large .brief-status small,body.font-large .brief-segment small,body.font-xlarge .brief-status small,body.font-xlarge .brief-segment small{font-size:calc(11px * var(--exec-text-scale))}
+@media(max-width:1180px){.management-brief{grid-template-columns:1fr}.brief-status,.brief-segment{padding:11px 13px}}
