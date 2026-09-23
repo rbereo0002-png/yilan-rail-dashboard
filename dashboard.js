@@ -63,6 +63,38 @@ function row(label,desc,date,tag='',tagClass='tag-info'){
 function projectListCard(title,m,items){
   return `<section class="detail-card"><h3>${esc(m.project.name)}｜${esc(title)}</h3><div class="list">${items.length?items.join(''):'<div class="empty">目前無列管事項</div>'}</div></section>`;
 }
+function nextMilestone(m){
+  const candidates=[
+    ...m.dashboard.preSignSpecialItems,
+    ...m.schedule.list.filter(x=>!x.effectiveApproval && (x.contractDue || x.managementForecast || x.forecastDue))
+  ].map(x=>({
+    id:x.id,name:x.name,
+    date:x.contractDue || x.managementForecast || x.forecastDue || null
+  })).filter(x=>x.date && x.date>=m.today)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  return candidates[0] || null;
+}
+function managementBrief(){
+  const ms=[models.south,models.north];
+  const overdue=ms.reduce((n,m)=>n+m.dashboard.overdue,0);
+  const reviewOverdue=ms.reduce((n,m)=>n+m.dashboard.reviewOverdue,0);
+  const overall=overdue>0
+    ? {label:'有逾期事項',cls:'brief-danger',desc:`目前共有 ${overdue} 項契約逾期，請優先處理。`}
+    : reviewOverdue>0
+      ? {label:'審查需催辦',cls:'brief-warning',desc:`目前共有 ${reviewOverdue} 項審查超過期限／管理目標。`}
+      : {label:'目前無重大逾期',cls:'brief-ok',desc:'南、北段目前無契約逾期事項；請持續注意近期關鍵節點。'};
+  const segment=(m)=>{
+    const next=nextMilestone(m);
+    if(!next) return `<div class="brief-segment"><span>${esc(m.project.name)}</span><b>目前無近期關鍵節點</b><small>${esc(m.dashboard.phaseLabel)}</small></div>`;
+    const days=daysBetween(m.today,next.date);
+    return `<div class="brief-segment"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small></div>`;
+  };
+  return `<section class="management-brief">
+    <div class="brief-status ${overall.cls}"><span>主管摘要</span><b>${overall.label}</b><small>${overall.desc}</small></div>
+    ${segment(models.south)}
+    ${segment(models.north)}
+  </section>`;
+}
 function overviewMilestones(m){
   const ids=['designRiskPlan','execPlan','basic','final'];
   const items=ids.map(id=>m.schedule.model[id]).filter(Boolean).map(x=>{
@@ -86,6 +118,7 @@ function renderOverview(){
   $('viewTitle').textContent='南北段總覽';
   $('viewHint').textContent='先看整體狀態與關鍵里程碑；點選上方大項或「看完整進度」查看細項。';
   $('viewBody').innerHTML=`<div class="overview-dashboard">
+    ${managementBrief()}
     <div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>
     <div class="overview-milestone-grid">${overviewMilestones(models.south)}${overviewMilestones(models.north)}</div>
   </div>`;
