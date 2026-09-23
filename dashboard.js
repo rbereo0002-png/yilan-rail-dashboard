@@ -79,18 +79,18 @@ function managementBrief(){
   const overdue=ms.reduce((n,m)=>n+m.dashboard.overdue,0);
   const reviewOverdue=ms.reduce((n,m)=>n+m.dashboard.reviewOverdue,0);
   const overall=overdue>0
-    ? {label:'有逾期事項',cls:'brief-danger',desc:`目前共有 ${overdue} 項契約逾期，請優先處理。`}
+    ? {label:'有逾期事項',cls:'brief-danger',desc:`目前共有 ${overdue} 項契約逾期，請優先處理。`,view:'attention'}
     : reviewOverdue>0
-      ? {label:'審查需催辦',cls:'brief-warning',desc:`目前共有 ${reviewOverdue} 項審查超過期限／管理目標。`}
-      : {label:'目前無重大逾期',cls:'brief-ok',desc:'南、北段目前無契約逾期事項；請持續注意近期關鍵節點。'};
+      ? {label:'審查需催辦',cls:'brief-warning',desc:`目前共有 ${reviewOverdue} 項審查超過期限／管理目標。`,view:'review'}
+      : {label:'目前無重大逾期',cls:'brief-ok',desc:'南、北段目前無契約逾期事項；請持續注意近期關鍵節點。',view:'overview'};
   const segment=(m)=>{
     const next=nextMilestone(m);
-    if(!next) return `<div class="brief-segment"><span>${esc(m.project.name)}</span><b>目前無近期關鍵節點</b><small>${esc(m.dashboard.phaseLabel)}</small></div>`;
+    if(!next) return `<button type="button" class="brief-segment brief-action" data-view="progress"><span>${esc(m.project.name)}</span><b>目前無近期關鍵節點</b><small>${esc(m.dashboard.phaseLabel)}</small><em>查看進度 →</em></button>`;
     const days=daysBetween(m.today,next.date);
-    return `<div class="brief-segment"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small></div>`;
+    return `<button type="button" class="brief-segment brief-action" data-view="progress"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small><em>查看進度 →</em></button>`;
   };
   return `<section class="management-brief">
-    <div class="brief-status ${overall.cls}"><span>主管摘要</span><b>${overall.label}</b><small>${overall.desc}</small></div>
+    <button type="button" class="brief-status brief-action ${overall.cls}" data-view="${overall.view}"><span>主管摘要</span><b>${overall.label}</b><small>${overall.desc}</small><em>${overall.view==='review'?'查看審查':'查看待辦'} →</em></button>
     ${segment(models.south)}
     ${segment(models.north)}
   </section>`;
