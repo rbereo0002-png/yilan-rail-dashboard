@@ -50,10 +50,32 @@ function row(label,desc,date,tag='',tagClass='tag-info'){
 function projectListCard(title,m,items){
   return `<section class="detail-card"><h3>${esc(m.project.name)}｜${esc(title)}</h3><div class="list">${items.length?items.join(''):'<div class="empty">目前無列管事項</div>'}</div></section>`;
 }
+function overviewMilestones(m){
+  const ids=['designRiskPlan','execPlan','basic','final'];
+  const items=ids.map(id=>m.schedule.model[id]).filter(Boolean).map(x=>{
+    const planned=x.contractDue || x.managementForecast || null;
+    const actual=x.effectiveApproval || null;
+    const diff=planned&&actual ? daysBetween(planned,actual) : null;
+    const status=actual ? (diff>0?'較預定晚':diff<0?'較預定早':'符合預定') : planned ? '待完成' : '尚未起算';
+    const cls=actual ? (diff>0?'late':diff<0?'early':'on') : planned ? 'pending' : 'idle';
+    return `<div class="overview-milestone-row">
+      <div class="milestone-name"><b>${esc(x.name)}</b><small>${status}</small></div>
+      <div class="milestone-dates"><span>預定 ${fmt(planned)}</span><span>實際 ${fmt(actual)}</span></div>
+      <div class="milestone-diff ${cls}">${varianceLabel(diff)}</div>
+    </div>`;
+  }).join('');
+  return `<section class="overview-milestones segment-${esc(m.project.id)}">
+    <div class="overview-milestone-head"><div><b>${esc(m.project.name)}｜關鍵里程碑</b><small>${esc(m.dashboard.phaseLabel)}</small></div><button type="button" class="mini-link" data-view="progress">看完整進度 →</button></div>
+    <div class="overview-milestone-list">${items || '<div class="empty">目前尚無關鍵里程碑資料</div>'}</div>
+  </section>`;
+}
 function renderOverview(){
   $('viewTitle').textContent='南北段總覽';
-  $('viewHint').textContent='點選上方大項查看細項，內容於本區切換。';
-  $('viewBody').innerHTML=`<div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>`;
+  $('viewHint').textContent='先看整體狀態與關鍵里程碑；點選上方大項或「看完整進度」查看細項。';
+  $('viewBody').innerHTML=`<div class="overview-dashboard">
+    <div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>
+    <div class="overview-milestone-grid">${overviewMilestones(models.south)}${overviewMilestones(models.north)}</div>
+  </div>`;
 }
 function varianceClass(diff){
   if(diff == null) return 'variance-none';
