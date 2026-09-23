@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate read-only entrypoint linked to the workbench',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.2/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.2/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.3/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.3/);
   assert.match(dashboard,/href="\.\/">[\s\S]*?承辦工作台[\s\S]*?<\/a>/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -71,4 +71,16 @@ test('v1.4.2 executive visual hierarchy is presentation-oriented without changin
   assert.match(css,/\.view-frame/);
   assert.match(js,/segment-\$\{esc\(p\.id\)\}/);
   assert.doesNotMatch(html,/<input\b|<textarea\b|<select\b/);
+});
+
+
+test('v1.4.3 overview shows compact cross-segment milestone snapshot with drill-through',()=>{
+  const js=read('dashboard.js'),css=read('dashboard.css');
+  assert.match(js,/function overviewMilestones\(m\)/);
+  assert.match(js,/關鍵里程碑/);
+  assert.match(js,/data-view="progress"/);
+  assert.match(js,/designRiskPlan','execPlan','basic','final/);
+  assert.match(css,/\.overview-milestone-grid/);
+  assert.match(css,/\.overview-milestone-row/);
+  assert.match(css,/\.milestone-diff\.late/);
 });
