@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.6/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.6/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.7/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.7/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -133,4 +133,16 @@ test('v1.4.6 executive overview includes deterministic management brief and next
   assert.match(css,/\.management-brief/);
   assert.match(css,/\.brief-status\.brief-ok/);
   assert.match(css,/\.brief-status\.brief-danger/);
+});
+
+
+test('v1.4.7 management brief cards drill down without leaving executive page',()=>{
+  const js=read('dashboard.js'),css=read('dashboard.css');
+  assert.match(js,/class="brief-status brief-action/);
+  assert.match(js,/class="brief-segment brief-action"/);
+  assert.match(js,/data-view="progress"/);
+  assert.match(js,/view:'attention'/);
+  assert.match(js,/view:'review'/);
+  assert.match(css,/\.brief-action/);
+  assert.match(css,/\.brief-action:hover/);
 });
