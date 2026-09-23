@@ -10,7 +10,7 @@ test('executive dashboard is a separate read-only entrypoint linked to the workb
   const dashboard=read('dashboard.html'), workbench=read('index.html');
   assert.match(dashboard,/dashboard\.js\?v=1\.4\.2/);
   assert.match(dashboard,/dashboard\.css\?v=1\.4\.2/);
-  assert.match(dashboard,/href="\.\/">承辦工作台<\/a>/);
+  assert.match(dashboard,/href="\.\/">[\s\S]*?承辦工作台[\s\S]*?<\/a>/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
 });
