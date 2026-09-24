@@ -196,3 +196,15 @@ body.font-large .brief-status small,body.font-large .brief-segment small,body.fo
 .brief-status.brief-danger em{color:var(--red)}.brief-status.brief-warning em{color:var(--orange)}.brief-status.brief-ok em{color:var(--green)}
 body.font-large .brief-action em,body.font-xlarge .brief-action em{font-size:calc(10px * var(--exec-text-scale))}
 @media(max-width:700px){.brief-action{min-height:86px}.brief-action em{font-size:12px}}
+
+
+/* v1.4.8 viewport safety: prevent overview content from being clipped behind the fixed-height shell */
+.exec-shell{height:auto;max-height:none;min-height:100vh;overflow:visible;grid-template-rows:auto auto auto auto auto}
+.view-frame{min-height:0;overflow:visible}
+.view-body{overflow:visible}
+.overview-dashboard{height:auto;min-height:0;grid-template-rows:auto auto auto}
+.exec-footer{padding-bottom:4px}
+@media(min-width:1181px){
+  .view-frame{overflow:visible}
+  .segment-grid{height:auto}
+}
