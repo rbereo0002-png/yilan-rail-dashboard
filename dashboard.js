@@ -7,7 +7,7 @@ const money=n=>Number(n||0).toLocaleString('zh-TW',{maximumFractionDigits:0});
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 
-let models={}, currentView='overview';
+let models={}, rawProjects={}, currentView='overview';
 const FONT_KEY='yilan-executive-font-size';
 function applyFontSize(size='standard'){
   const value=['standard','large','xlarge'].includes(size)?size:'standard';
@@ -222,7 +222,37 @@ function renderPayment(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
-const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment};
+
+function packageConditionClass(level,gate){
+  if(gate==='hard') return 'package-hard';
+  if(level==='required') return 'package-required';
+  if(level==='conditional') return 'package-conditional';
+  return 'package-neutral';
+}
+function renderNorthPackages(){
+  $('viewTitle').textContent='北段｜3標發包前置條件';
+  $('viewHint').textContent='目前北段規劃為先期工程標、宜蘭新站工程標、宜蘭新站以北工程標；管制至各標決標。';
+  const packs=rawProjects.north?.constructionPackages || [];
+  const cards=packs.map(p=>{
+    const conditions=(p.prerequisites||[]).map(x=>`<div class="package-condition ${packageConditionClass(x.level,x.gate)}">
+      <span class="package-dot"></span>
+      <div><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div>
+      <em>${x.gate==='hard'?'Gate':x.level==='required'?'必須':x.level==='conditional'?'條件式':'追蹤'}</em>
+    </div>`).join('');
+    const subs=(p.subitems||[]).map(x=>`<span>${esc(x)}</span>`).join('');
+    return `<article class="package-card">
+      <div class="package-head"><div><span class="package-kicker">北段工程標</span><h3>${esc(p.name)}</h3></div><span class="package-status">${esc(p.status||'規劃中')}</span></div>
+      <p class="package-scope">${esc(p.scope||'')}</p>
+      <div class="package-subitems">${subs}</div>
+      <div class="package-flow"><strong>發包主線</strong><span>設計前置 → 基本設計 → 經費審議 → 期末設計 → 招標文件 → 公告 → 決標</span></div>
+      <div class="package-conditions">${conditions}</div>
+      <div class="package-target">管制終點：<b>${esc(p.target||'決標')}</b></div>
+    </article>`;
+  }).join('');
+  $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>「必須」代表需納入管理；「Gate」目前僅明確套用於基本設計後之工程會經費審議；條件式外部程序依各標實際適用性判定，不直接視為公告禁止條件。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div>`;
+}
+
+const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages};
 
 function setView(view){
   currentView=view;
@@ -243,7 +273,9 @@ async function init(){
   const catalog=await loadJSON('projects.json');
   const today=todayLocal();
   for(const p of catalog.projects){
-    const data=normalizeProject(await loadJSON(p.data),p.id);
+    const raw=await loadJSON(p.data);
+    rawProjects[p.id]=raw;
+    const data=normalizeProject(raw,p.id);
     models[p.id]=calculateModel(data,today);
   }
   restoreFontSize();
