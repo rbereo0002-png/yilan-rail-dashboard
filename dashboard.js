@@ -249,7 +249,12 @@ function renderNorthPackages(){
       <div class="package-target">管制終點：<b>${esc(p.target||'決標')}</b></div>
     </article>`;
   }).join('');
-  $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>「必須」代表需納入管理；「Gate」目前僅明確套用於基本設計後之工程會經費審議；條件式外部程序依各標實際適用性判定，不直接視為公告禁止條件。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div>`;
+  const studies=(rawProjects.north?.specialStudies||[]).map(s=>`<article class="study-card">
+    <div class="study-head"><div><span class="package-kicker">重要專案／政策要求</span><h3>${esc(s.name)}</h3></div><span class="study-not-gate">非發包 Gate</span></div>
+    <div class="study-meta"><span><b>辦理階段</b>${esc(s.requiredStage||'')}</span><span><b>依據</b>${esc(s.basis||'')}</span><span><b>工程標歸屬</b>${esc(s.packageLink||'待確認')}</span></div>
+    <p>${esc(s.note||'')}</p>
+  </article>`).join('');
+  $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>發包主線只放真正影響公告／決標的前置事項；R1000與同月台轉乘另列「重要專案／政策要求」，完成評估／研究即可，是否納入工程標依結果決定。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div><section class="study-section"><div class="study-section-title"><h3>重要專案／政策要求</h3><span>不直接阻擋發包；先完成評估／研究，再依結論決定是否掛接工程標</span></div><div class="study-grid">${studies}</div></section>`;
 }
 
 const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages};
