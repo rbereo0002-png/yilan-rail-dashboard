@@ -225,3 +225,12 @@ body.font-large .brief-action em,body.font-xlarge .brief-action em{font-size:cal
 .package-target{margin-top:11px;padding-top:9px;border-top:1px dashed #dce4ee;font-size:12px;color:#637187}.package-target b{font-size:14px;color:#20314d}
 @media(max-width:1180px){.package-grid{grid-template-columns:1fr}.package-scope{min-height:0}}
 @media(max-width:700px){.north-package-note{flex-direction:column;gap:4px}.package-card{padding:12px}.package-head h3{font-size:18px}}
+
+/* v1.4.10 separate special studies from award gates */
+.study-section{margin-top:16px;padding-top:14px;border-top:2px solid #e5ebf3}
+.study-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}.study-section-title h3{font-size:18px;color:#20314d}.study-section-title span{font-size:12px;color:#6d7b8f}
+.study-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.study-card{border:1px solid #dce5ef;border-radius:14px;background:#fff;padding:14px;box-shadow:var(--shadow-soft)}
+.study-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.study-head h3{font-size:17px;margin:3px 0;color:#20314d}.study-not-gate{white-space:nowrap;font-size:10px;font-weight:900;padding:4px 7px;border-radius:999px;background:#eef2f6;color:#5f6d80}
+.study-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:10px 0}.study-meta span{font-size:11px;line-height:1.4;background:#f6f8fb;border-radius:8px;padding:7px;color:#5d6b7e}.study-meta b{display:block;color:#30435d;margin-bottom:2px}.study-card p{font-size:12px;line-height:1.5;color:#56667a;margin:0}
+@media(max-width:900px){.study-grid{grid-template-columns:1fr}.study-meta{grid-template-columns:1fr}.study-section-title{display:block}.study-section-title span{display:block;margin-top:4px}}
