@@ -282,5 +282,29 @@
       "actualApprovalDate": "",
       "note": "北段附件A基本設計子成果；期限隨基本設計成果，不另創獨立契約期限。"
     }
+  ],
+  "specialStudies": [
+    {
+      "id": "school-road-r1000",
+      "name": "校舍路曲線 R1000 優化評估",
+      "basis": "行政院核定後續執行注意事項",
+      "requiredStage": "基本設計階段完成評估",
+      "status": "待辦／辦理中",
+      "awardGate": false,
+      "packageLink": "待評估結果確認",
+      "decision": "待評估結果",
+      "note": "完成評估即可；是否採行及是否納入宜蘭新站以北工程標，依評估結果決定。"
+    },
+    {
+      "id": "shared-platform",
+      "name": "高鐵宜蘭站－臺鐵宜蘭新站同月台轉乘研究",
+      "basis": "北段契約附件A專案研究成果",
+      "requiredStage": "基本設計階段完成研究",
+      "status": "待辦／辦理中",
+      "awardGate": false,
+      "packageLink": "待研究／協調結果確認",
+      "decision": "待研究結果",
+      "note": "完成專案研究即可；是否採行及是否納入宜蘭新站工程標，依研究與介面協調結果決定。"
+    }
   ]
 }
