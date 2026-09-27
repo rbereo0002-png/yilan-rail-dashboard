@@ -249,3 +249,61 @@ body.font-large .brief-action em,body.font-xlarge .brief-action em{font-size:cal
 .package-award-note{font-size:11px;color:#65758a;line-height:1.45;background:#fff9ee;border-left:3px solid #e4a23c;border-radius:8px;padding:7px 9px;margin-bottom:9px}
 .package-details{border-top:1px solid #edf1f6;margin-top:5px;padding-top:7px}.package-details summary{cursor:pointer;font-size:12px;font-weight:900;color:#315b96;padding:4px 0}.package-details[open] summary{margin-bottom:6px}
 @media(max-width:700px){.package-award-summary{grid-template-columns:1fr 1fr}.package-path{overflow-x:auto;grid-template-columns:repeat(7,82px);padding-bottom:4px}.package-path-step span{font-size:10px}}
+
+
+/* v1.4.12 executive information hierarchy + mobile/tablet navigation */
+.exec-shell{gap:8px;padding:12px 16px}
+.exec-header{padding:11px 16px;border-radius:15px}
+.exec-header h1{font-size:25px;margin-bottom:2px}.exec-header p{font-size:12px}.brand-kicker{font-size:9px;margin-bottom:2px}
+.date-chip{min-width:112px;padding:7px 10px}.date-chip span{font-size:9px}.date-chip b{font-size:14px}
+.top-kpis{gap:7px}.top-kpi{min-height:58px;padding:8px 12px;border-radius:11px}.top-kpi span{font-size:11px}.top-kpi b{font-size:23px;margin-top:2px}
+.exec-nav{position:sticky;top:0;z-index:30;background:rgba(238,243,249,.94);backdrop-filter:blur(10px);padding:5px 1px;overflow-x:auto}
+.nav-btn,.back-btn{min-height:38px;padding:7px 13px;font-size:13px;white-space:nowrap}
+.view-title{padding:10px 14px}.view-title h2{font-size:19px}.view-title>span{font-size:11px}
+.view-body{padding:11px 13px}
+
+.overview-dashboard{display:flex;flex-direction:column;gap:10px}
+.management-brief{order:1}
+.overview-priority{order:2;border:1px solid #dce5ef;border-radius:14px;background:#fff;padding:11px;box-shadow:var(--shadow-soft)}
+.overview-priority-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:8px}.overview-priority-head b{font-size:16px;color:#20314d}.overview-priority-head span{font-size:11px;color:#6d7b8f}
+.overview-secondary{order:3;border:1px solid #dfe6ef;border-radius:12px;background:#fbfdff;padding:7px 10px}
+.overview-secondary>summary{cursor:pointer;font-size:12px;font-weight:900;color:#50617a;padding:4px 2px}.overview-secondary[open]>summary{margin-bottom:8px}
+.overview-secondary .segment-grid{height:auto}
+.segment-action{cursor:pointer}.segment-action:hover,.segment-action:focus-visible{border-color:#a9bdd8;box-shadow:var(--shadow);outline:none}
+.milestone-actions{display:flex;gap:8px;align-items:center}
+.overview-milestone-grid{gap:10px}.overview-milestones{padding:10px 12px}.overview-milestone-list{gap:6px 12px}
+.mini-link{min-height:32px}
+
+.segment-focus{display:flex;flex-direction:column;gap:12px}
+.segment-focus-toolbar{display:grid;grid-template-columns:.65fr 1.35fr auto;gap:9px;align-items:stretch}
+.segment-focus-toolbar>div{border:1px solid #dce5ef;border-radius:12px;background:#fff;padding:10px 12px}.segment-focus-toolbar span{display:block;font-size:10px;color:#738095;font-weight:800}.segment-focus-toolbar b{display:block;font-size:14px;color:#20314d;margin-top:3px;line-height:1.4}
+.focus-action{border:0;border-radius:12px;padding:10px 15px;font-weight:900;cursor:pointer;min-width:190px}.focus-action.primary{background:linear-gradient(135deg,#1d4f9d,#2a6ed1);color:#fff;box-shadow:0 6px 16px rgba(31,95,191,.2)}
+.segment-focus-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:12px}.focus-wide{min-width:0}
+
+@media(max-width:1180px){
+  .exec-shell{padding:10px 12px;gap:7px}
+  .exec-header{padding:10px 13px}.exec-header h1{font-size:22px}.exec-header p{display:none}.brand-kicker{display:none}
+  .header-actions{gap:6px}.font-controls{padding:2px}.font-controls button{min-height:32px;min-width:44px;font-size:11px}
+  .top-kpis{grid-template-columns:repeat(4,minmax(128px,1fr));overflow-x:auto;padding-bottom:2px}.top-kpi{min-height:54px;min-width:128px}
+  .management-brief{grid-template-columns:1fr 1fr 1fr}.brief-status,.brief-segment{padding:8px 9px}
+  .overview-milestone-grid{grid-template-columns:1fr 1fr}
+  .segment-focus-toolbar{grid-template-columns:1fr 1fr}.focus-action{grid-column:1/-1;min-height:46px}
+  .segment-focus-grid{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .exec-shell{padding:7px;gap:6px}
+  .exec-header{padding:9px 10px;align-items:center}.exec-header h1{font-size:19px;line-height:1.2}
+  .header-actions{flex-direction:row;align-items:center}.date-chip{min-width:94px;padding:6px 7px}.date-chip span{font-size:8px}.date-chip b{font-size:12px}
+  .font-controls{display:none}
+  .top-kpis{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.top-kpis::-webkit-scrollbar{display:none}.top-kpi{flex:0 0 118px;min-width:118px;min-height:48px;padding:6px 9px}.top-kpi span{font-size:10px}.top-kpi b{font-size:20px}
+  .exec-nav{margin:0 -1px;padding:4px 0}.nav-btn{min-height:40px;font-size:12px;padding:7px 11px}
+  .view-title{padding:9px 10px}.view-title>span{display:none}.view-title h2{font-size:18px}
+  .view-body{padding:8px}
+  .management-brief{grid-template-columns:1fr}.brief-status,.brief-segment{min-height:0;padding:8px 10px}.brief-action em{margin-top:3px}
+  .overview-priority{padding:8px}.overview-priority-head{display:block}.overview-priority-head span{display:block;margin-top:2px}
+  .overview-milestone-grid{grid-template-columns:1fr}
+  .overview-milestone-head{align-items:flex-start}.milestone-actions{flex-direction:column;align-items:flex-end;gap:1px}
+  .overview-secondary{padding:6px 8px}
+  .segment-focus-toolbar{grid-template-columns:1fr}.focus-action{grid-column:auto;width:100%}
+  .segment-focus-grid{grid-template-columns:1fr}
+}
