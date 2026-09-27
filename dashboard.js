@@ -40,7 +40,7 @@ function projectFocus(m){
 
 function segmentCard(m){
   const p=m.project,d=m.dashboard;
-  return `<article class="segment-card segment-${esc(p.id)}">
+  return `<article class="segment-card segment-${esc(p.id)} segment-action" role="button" tabindex="0" data-segment-focus="${esc(p.id)}">
     <div class="segment-head"><div><h3>${esc(p.name)}</h3><small>${esc(p.title)}</small></div><span class="phase">${esc(d.phaseLabel)}</span></div>
     <div class="key-dates">
       <div class="date-box"><span>決標／契約生效</span><b>${fmt(p.milestones.awardDate)}</b></div>
@@ -110,7 +110,7 @@ function overviewMilestones(m){
     </div>`;
   }).join('');
   return `<section class="overview-milestones segment-${esc(m.project.id)}">
-    <div class="overview-milestone-head"><div><b>${esc(m.project.name)}｜關鍵里程碑</b><small>${esc(m.dashboard.phaseLabel)}</small></div><button type="button" class="mini-link" data-view="progress">看完整進度 →</button></div>
+    <div class="overview-milestone-head"><div><b>${esc(m.project.name)}｜關鍵里程碑</b><small>${esc(m.dashboard.phaseLabel)}</small></div><div class="milestone-actions"><button type="button" class="mini-link" data-segment-focus="${esc(m.project.id)}">看本段重點 →</button><button type="button" class="mini-link" data-view="progress">完整進度 →</button></div></div>
     <div class="overview-milestone-list">${items || '<div class="empty">目前尚無關鍵里程碑資料</div>'}</div>
   </section>`;
 }
@@ -119,8 +119,14 @@ function renderOverview(){
   $('viewHint').textContent='先看整體狀態與關鍵里程碑；點選上方大項或「看完整進度」查看細項。';
   $('viewBody').innerHTML=`<div class="overview-dashboard">
     ${managementBrief()}
-    <div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>
-    <div class="overview-milestone-grid">${overviewMilestones(models.south)}${overviewMilestones(models.north)}</div>
+    <div class="overview-priority">
+      <div class="overview-priority-head"><b>目前最值得關注</b><span>先看關鍵里程碑與各段進度，再看基本摘要。</span></div>
+      <div class="overview-milestone-grid">${overviewMilestones(models.south)}${overviewMilestones(models.north)}</div>
+    </div>
+    <details class="overview-secondary">
+      <summary>查看南、北段基本摘要</summary>
+      <div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>
+    </details>
   </div>`;
 }
 function varianceClass(diff){
@@ -223,6 +229,41 @@ function renderPayment(){
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
 
+function segmentFocusItems(m){
+  const pre=m.dashboard.preSignSpecialItems.map(x=>row(x.name,x.note,x.contractDue,'特別列管','tag-warn'));
+  const active=m.dashboard.attention.slice(0,10).map(x=>row(
+    x.name,
+    x.attentionReason,
+    x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,
+    x.attentionLabel,
+    x.attentionPriority===0?'tag-danger':x.attentionPriority===1?'tag-warn':'tag-info'
+  ));
+  return [...pre,...active];
+}
+function renderSegmentFocus(id){
+  const m=models[id];
+  if(!m) return setView('overview',false);
+  $('viewTitle').textContent=`${m.project.name}｜重點管制`;
+  $('viewHint').textContent='集中顯示主管較需要的關鍵里程碑、預定／實際差異及近期待辦。';
+  const quick=id==='north'
+    ? '<button type="button" class="focus-action primary" data-view="northPackages">查看北段3標發包決標 →</button>'
+    : '<button type="button" class="focus-action primary" data-view="progress">查看南段完整設計進度 →</button>';
+  const items=segmentFocusItems(m);
+  $('viewBody').innerHTML=`<div class="segment-focus">
+    <div class="segment-focus-toolbar">
+      <div><span>目前階段</span><b>${esc(m.dashboard.phaseLabel)}</b></div>
+      <div><span>目前重點</span><b>${esc(projectFocus(m))}</b></div>
+      ${quick}
+    </div>
+    <div class="segment-focus-grid">
+      <section class="detail-card focus-wide"><h3>${esc(m.project.name)}｜關鍵里程碑</h3>${progressComparison(m)}</section>
+      <section class="detail-card"><h3>${esc(m.project.name)}｜近期待辦</h3><div class="list">${items.length?items.join(''):'<div class="empty">目前無列管事項</div>'}</div></section>
+    </div>
+  </div>`;
+}
+function renderSouthFocus(){renderSegmentFocus('south');}
+function renderNorthFocus(){renderSegmentFocus('north');}
+
 function packageConditionClass(level,gate){
   if(gate==='hard') return 'package-hard';
   if(level==='required') return 'package-required';
@@ -287,13 +328,23 @@ function renderNorthPackages(){
   </article>`).join('');
   $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>「Gate」目前僅明確套用於基本設計完成後之工程會經費審議；公告／決標日期未有正式依據者維持「待設定」，不自行推估。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div>${studies.length?`<section class="study-section"><div class="study-section-title"><h3>另列專案研究／評估</h3><span>不與3標發包主線混為同一 Gate</span></div><div class="study-grid">${studyCards}</div></section>`:''}`;
 }
-const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages};
+const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages,southFocus:renderSouthFocus,northFocus:renderNorthFocus};
 
-function setView(view){
+function viewFromHash(){
+  const key=(location.hash||'').replace(/^#/,'');
+  return renders[key]?key:'overview';
+}
+function setView(view,push=true){
+  if(!renders[view]) view='overview';
   currentView=view;
   document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view && b.classList.contains('nav-btn')));
   $('backButton').hidden=view==='overview';
   renders[view]?.();
+  if(push){
+    const hash=view==='overview'?'':`#${view}`;
+    if(location.hash!==hash) history.pushState({view},'',location.pathname+location.search+hash);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function updateTop(){
   const ms=Object.values(models);
@@ -314,14 +365,28 @@ async function init(){
     models[p.id]=calculateModel(data,today);
   }
   restoreFontSize();
-  updateTop();setView('overview');
+  updateTop();setView(viewFromHash(),false);
   $('dashboardStatus').textContent='資料已更新';
+  window.addEventListener('popstate',()=>setView(viewFromHash(),false));
   document.addEventListener('click',e=>{
     const font=e.target.closest('[data-font-size]');
     if(font){applyFontSize(font.dataset.fontSize);return;}
+    const focus=e.target.closest('[data-segment-focus]');
+    if(focus){
+      const id=focus.dataset.segmentFocus;
+      setView(id==='north'?'northFocus':'southFocus');
+      return;
+    }
     const btn=e.target.closest('[data-view]');
     if(btn){setView(btn.dataset.view);return;}
-    if(e.target.closest('#backButton')) setView('overview');
+    if(e.target.closest('#backButton')){
+      if(history.length>1) history.back();
+      else setView('overview');
+    }
+  });
+  document.addEventListener('keydown',e=>{
+    const focus=e.target.closest?.('[data-segment-focus]');
+    if(focus && (e.key==='Enter'||e.key===' ')){e.preventDefault();focus.click();}
   });
 }
 init().catch(err=>{
