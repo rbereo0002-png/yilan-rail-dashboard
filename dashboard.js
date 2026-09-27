@@ -246,7 +246,7 @@ function renderSegmentFocus(id){
   $('viewTitle').textContent=`${m.project.name}｜重點管制`;
   $('viewHint').textContent='集中顯示主管較需要的關鍵里程碑、預定／實際差異及近期待辦。';
   const quick=id==='north'
-    ? '<button type="button" class="focus-action primary" data-view="northPackages">查看北段3標發包決標 →</button>'
+    ? '<div class="focus-actions"><button type="button" class="focus-action primary" data-view="northDeliverables">查看北段成果清單 →</button><button type="button" class="focus-action secondary" data-view="northPackages">查看北段3標發包決標 →</button></div>'
     : '<button type="button" class="focus-action primary" data-view="progress">查看南段完整設計進度 →</button>';
   const items=segmentFocusItems(m);
   $('viewBody').innerHTML=`<div class="segment-focus">
@@ -263,6 +263,24 @@ function renderSegmentFocus(id){
 }
 function renderSouthFocus(){renderSegmentFocus('south');}
 function renderNorthFocus(){renderSegmentFocus('north');}
+
+function renderNorthDeliverables(){
+  $('viewTitle').textContent='北段｜應提送成果完整清單';
+  $('viewHint').textContent='依北段附件A整理；目前管制至工程標決標，施工階段成果暫不納入。';
+  const catalog=rawProjects.north?.deliverableCatalog;
+  if(!catalog){$('viewBody').innerHTML='<div class="empty">尚未建立成果主檔</div>';return;}
+  const groups=(catalog.groups||[]).map((g,gi)=>{
+    const items=(g.items||[]).map(x=>{
+      const flag=x.conditional?'<em class="deliverable-flag conditional">條件式</em>':'<em class="deliverable-flag required">應提送</em>';
+      const meta=[x.unit?'單位：'+esc(x.unit):'',x.timing?'時點：'+esc(x.timing):'',x.copies?'份數：'+esc(x.copies):''].filter(Boolean).join('｜');
+      const subs=(x.subitems||[]).map(s=>'<li>'+esc(s)+'</li>').join('');
+      return '<div class="deliverable-item"><div class="deliverable-main"><div><b>'+esc(x.name)+'</b>'+(x.contractName?'<small>契約原名：'+esc(x.contractName)+'</small>':'')+'</div>'+flag+'</div>'+(meta?'<div class="deliverable-meta">'+meta+'</div>':'')+(x.note?'<div class="deliverable-note">'+esc(x.note)+'</div>':'')+(subs?'<ul class="deliverable-subs">'+subs+'</ul>':'')+'</div>';
+    }).join('');
+    return '<details class="deliverable-group" '+(gi<2?'open':'')+'><summary><span>'+esc(g.name)+'</span><b>'+(g.items||[]).length+' 項</b></summary><div class="deliverable-list">'+items+'</div></details>';
+  }).join('');
+  const count=(catalog.groups||[]).reduce((n,g)=>n+(g.items||[]).length,0);
+  $('viewBody').innerHTML='<div class="deliverable-intro"><div><span>成果主檔</span><b>'+count+' 項主要成果／文件</b><small>'+esc(catalog.scope||'')+'</small></div><button type="button" class="focus-action secondary" data-view="northPackages">查看3標發包管制 →</button></div><div class="deliverable-groups">'+groups+'</div>';
+}
 
 function packageConditionClass(level,gate){
   if(gate==='hard') return 'package-hard';
@@ -328,7 +346,7 @@ function renderNorthPackages(){
   </article>`).join('');
   $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>「Gate」目前僅明確套用於基本設計完成後之工程會經費審議；公告／決標日期未有正式依據者維持「待設定」，不自行推估。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div>${studies.length?`<section class="study-section"><div class="study-section-title"><h3>另列專案研究／評估</h3><span>不與3標發包主線混為同一 Gate</span></div><div class="study-grid">${studyCards}</div></section>`:''}`;
 }
-const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages,southFocus:renderSouthFocus,northFocus:renderNorthFocus};
+const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages,northDeliverables:renderNorthDeliverables,southFocus:renderSouthFocus,northFocus:renderNorthFocus};
 
 function viewFromHash(){
   const key=(location.hash||'').replace(/^#/,'');
