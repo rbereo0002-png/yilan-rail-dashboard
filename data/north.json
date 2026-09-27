@@ -117,7 +117,16 @@
           "level": "required",
           "gate": "finish"
         }
-      ]
+      ],
+      "awardControl": {
+        "plannedNoticeDate": "",
+        "plannedAwardDate": "",
+        "actualNoticeDate": "",
+        "actualAwardDate": "",
+        "currentStage": "設計前置",
+        "nextStage": "基本設計",
+        "note": "各標公告／決標目標日尚待正式分標及發包期程確認後登錄。"
+      }
     },
     {
       "id": "yilan-new-station",
@@ -196,7 +205,16 @@
           "level": "required",
           "gate": "finish"
         }
-      ]
+      ],
+      "awardControl": {
+        "plannedNoticeDate": "",
+        "plannedAwardDate": "",
+        "actualNoticeDate": "",
+        "actualAwardDate": "",
+        "currentStage": "設計前置",
+        "nextStage": "基本設計",
+        "note": "各標公告／決標目標日尚待正式分標及發包期程確認後登錄。"
+      }
     },
     {
       "id": "north-of-yilan-new",
@@ -270,7 +288,16 @@
           "level": "required",
           "gate": "finish"
         }
-      ]
+      ],
+      "awardControl": {
+        "plannedNoticeDate": "",
+        "plannedAwardDate": "",
+        "actualNoticeDate": "",
+        "actualAwardDate": "",
+        "currentStage": "設計前置",
+        "nextStage": "基本設計",
+        "note": "各標公告／決標目標日尚待正式分標及發包期程確認後登錄。"
+      }
     }
   ],
   "specialDeliverables": [
