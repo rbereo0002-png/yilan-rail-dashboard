@@ -229,9 +229,33 @@ function packageConditionClass(level,gate){
   if(level==='conditional') return 'package-conditional';
   return 'package-neutral';
 }
+function packageAwardSummary(p){
+  const c=p.awardControl||{};
+  const today=todayLocal();
+  const plannedAward=c.plannedAwardDate||'';
+  const days=plannedAward?daysBetween(today,plannedAward):null;
+  const dayText=days==null?'待設定':days<0?`已逾目標 ${Math.abs(days)} 日`:`距目標 ${days} 日`;
+  const dayCls=days==null?'award-days-pending':days<0?'award-days-late':days<=30?'award-days-soon':'award-days-normal';
+  return `<div class="package-award-summary">
+    <div><span>目前階段</span><b>${esc(c.currentStage||'待登錄')}</b></div>
+    <div><span>下一關</span><b>${esc(c.nextStage||'待確認')}</b></div>
+    <div><span>預定公告</span><b>${c.plannedNoticeDate?fmt(c.plannedNoticeDate):'待設定'}</b></div>
+    <div><span>預定決標</span><b>${plannedAward?fmt(plannedAward):'待設定'}</b><small class="${dayCls}">${dayText}</small></div>
+  </div>`;
+}
+function packagePath(p){
+  const c=p.awardControl||{};
+  const labels=['設計前置','基本設計','經費審議','期末設計','招標文件','公告','決標'];
+  const current=c.currentStage||'設計前置';
+  const idx=Math.max(0,labels.indexOf(current));
+  return `<div class="package-path">${labels.map((label,i)=>{
+    const cls=i<idx?'done':i===idx?'current':'future';
+    return `<div class="package-path-step ${cls}"><i></i><span>${label}</span></div>`;
+  }).join('')}</div>`;
+}
 function renderNorthPackages(){
-  $('viewTitle').textContent='北段｜3標發包前置條件';
-  $('viewHint').textContent='目前北段規劃為先期工程標、宜蘭新站工程標、宜蘭新站以北工程標；管制至各標決標。';
+  $('viewTitle').textContent='北段｜3標發包決標管制';
+  $('viewHint').textContent='長官快速判讀：目前階段、下一關、外部條件、預定公告／決標；施工後續暫不納管。';
   const packs=rawProjects.north?.constructionPackages || [];
   const cards=packs.map(p=>{
     const conditions=(p.prerequisites||[]).map(x=>`<div class="package-condition ${packageConditionClass(x.level,x.gate)}">
@@ -240,23 +264,29 @@ function renderNorthPackages(){
       <em>${x.gate==='hard'?'Gate':x.level==='required'?'必須':x.level==='conditional'?'條件式':'追蹤'}</em>
     </div>`).join('');
     const subs=(p.subitems||[]).map(x=>`<span>${esc(x)}</span>`).join('');
+    const note=p.awardControl?.note?`<div class="package-award-note">${esc(p.awardControl.note)}</div>`:'';
     return `<article class="package-card">
       <div class="package-head"><div><span class="package-kicker">北段工程標</span><h3>${esc(p.name)}</h3></div><span class="package-status">${esc(p.status||'規劃中')}</span></div>
       <p class="package-scope">${esc(p.scope||'')}</p>
       <div class="package-subitems">${subs}</div>
-      <div class="package-flow"><strong>發包主線</strong><span>設計前置 → 基本設計 → 經費審議 → 期末設計 → 招標文件 → 公告 → 決標</span></div>
-      <div class="package-conditions">${conditions}</div>
+      ${packageAwardSummary(p)}
+      ${packagePath(p)}
+      ${note}
+      <details class="package-details">
+        <summary>查看發包前置條件</summary>
+        <div class="package-conditions">${conditions}</div>
+      </details>
       <div class="package-target">管制終點：<b>${esc(p.target||'決標')}</b></div>
     </article>`;
   }).join('');
-  const studies=(rawProjects.north?.specialStudies||[]).map(s=>`<article class="study-card">
-    <div class="study-head"><div><span class="package-kicker">重要專案／政策要求</span><h3>${esc(s.name)}</h3></div><span class="study-not-gate">非發包 Gate</span></div>
-    <div class="study-meta"><span><b>辦理階段</b>${esc(s.requiredStage||'')}</span><span><b>依據</b>${esc(s.basis||'')}</span><span><b>工程標歸屬</b>${esc(s.packageLink||'待確認')}</span></div>
+  const studies=rawProjects.north?.specialStudies||[];
+  const studyCards=studies.map(s=>`<article class="study-card">
+    <div class="study-head"><div><span class="package-kicker">專案研究／評估</span><h3>${esc(s.name)}</h3></div><span class="study-not-gate">非發包 Gate</span></div>
+    <div class="study-meta"><span><b>應辦階段</b>${esc(s.requiredStage||'—')}</span><span><b>目前狀態</b>${esc(s.status||'—')}</span><span><b>工程標連結</b>${esc(s.packageLink||'—')}</span></div>
     <p>${esc(s.note||'')}</p>
   </article>`).join('');
-  $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>發包主線只放真正影響公告／決標的前置事項；R1000與同月台轉乘另列「重要專案／政策要求」，完成評估／研究即可，是否納入工程標依結果決定。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div><section class="study-section"><div class="study-section-title"><h3>重要專案／政策要求</h3><span>不直接阻擋發包；先完成評估／研究，再依結論決定是否掛接工程標</span></div><div class="study-grid">${studies}</div></section>`;
+  $('viewBody').innerHTML=`<div class="north-package-note"><b>判讀原則</b><span>「Gate」目前僅明確套用於基本設計完成後之工程會經費審議；公告／決標日期未有正式依據者維持「待設定」，不自行推估。</span></div><div class="package-grid">${cards || '<div class="empty">尚未建立北段工程標資料</div>'}</div>${studies.length?`<section class="study-section"><div class="study-section-title"><h3>另列專案研究／評估</h3><span>不與3標發包主線混為同一 Gate</span></div><div class="study-grid">${studyCards}</div></section>`:''}`;
 }
-
 const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment,northPackages:renderNorthPackages};
 
 function setView(view){
