@@ -333,5 +333,681 @@
       "decision": "待研究結果",
       "note": "完成專案研究即可；是否採行及是否納入宜蘭新站工程標，依研究與介面協調結果決定。"
     }
-  ]
+  ],
+  "deliverableCatalog": {
+    "scope": "目前管制至各工程標決標；施工階段成果暫不納入。契約要求於發包前提報、決標前核定者仍納入。",
+    "source": "北段附件A 特定工作範疇 3.1、3.2.3、3.3.2.1",
+    "groups": [
+      {
+        "id": "startup",
+        "name": "履約啟動／執行服務",
+        "items": [
+          {
+            "id": "execPlan",
+            "name": "執行服務計畫書",
+            "required": true,
+            "unit": "全案",
+            "copies": "12份",
+            "timing": "依契約期限",
+            "subitems": [
+              "工程範圍、工作內容及方法",
+              "設計規範依據、設計理念、分析及設計方法",
+              "預定工作成果及細設所需圖面／報告清單",
+              "設計品質計畫",
+              "設計綱要進度",
+              "需甲方提供資料及協助事項",
+              "人力動員組織架構",
+              "審查管考、追蹤表建議格式",
+              "服務建議書可行方案引用分析",
+              "技師簽證執行計畫",
+              "BIM執行服務計畫",
+              "車站建築執行服務計畫"
+            ]
+          },
+          {
+            "id": "stationData",
+            "name": "車站建築－資料蒐集階段成果",
+            "required": true,
+            "unit": "車站",
+            "timing": "執行服務計畫核定後60日曆天",
+            "subitems": [
+              "公共參與及在地對話",
+              "專業人士諮詢",
+              "國際車站／TOD案例與趨勢",
+              "通用無障礙、永續低碳及韌性城市等理念",
+              "都市計畫／都市設計審議法令及案例"
+            ]
+          },
+          {
+            "id": "stationConcept",
+            "name": "車站概念設計成果",
+            "required": true,
+            "unit": "車站",
+            "timing": "執行服務計畫核定後120日曆天",
+            "subitems": [
+              "車站構想",
+              "宜蘭新站與高鐵站共月台轉乘研擬",
+              "設計檢核表",
+              "都市設計審議報告書（初稿）",
+              "量體配置、開放空間系統及都市景觀構想",
+              "專家諮詢意見彙整與回應說明"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "survey",
+        "name": "測量／地質／管線調查",
+        "items": [
+          {
+            "id": "surveyPlan",
+            "name": "補充測量工作計畫書",
+            "required": true,
+            "unit": "全案",
+            "timing": "依契約期限",
+            "subitems": [
+              "施工進度控制表",
+              "各項測量施作方法",
+              "精度要求",
+              "驗收方式",
+              "儀器開工前檢驗成果",
+              "工程人員名冊學經歷",
+              "點之記範例",
+              "觀測紀錄計算表格",
+              "電腦成果報表與成圖範例"
+            ]
+          },
+          {
+            "id": "surveyTopo",
+            "name": "實測1/500數值地形圖",
+            "required": true,
+            "unit": "全案",
+            "copies": "A1圖全1套＋電腦圖檔"
+          },
+          {
+            "id": "surveySections",
+            "name": "縱、橫斷面圖",
+            "required": true,
+            "unit": "全案",
+            "copies": "A1圖及電腦圖檔全3份"
+          },
+          {
+            "id": "surveyBook",
+            "name": "測量成果簿（含測算資料）",
+            "required": true,
+            "unit": "全案",
+            "copies": "5份＋電腦檔",
+            "subitems": [
+              "測量說明",
+              "主控制點網圖",
+              "水準網圖",
+              "圖根點網圖",
+              "已知控制點資料說明、點註記、檢測資料及成果表",
+              "主控制點點註記、位置明細表及成果表",
+              "圖根點成果表",
+              "導線、水準、斷面及其他計算／觀測／調查資料"
+            ]
+          },
+          {
+            "id": "geoPlan",
+            "name": "補充地質調查工作計畫書",
+            "required": true,
+            "unit": "全案",
+            "timing": "依契約期限"
+          },
+          {
+            "id": "geoResult",
+            "name": "補充地質調查成果報告",
+            "required": true,
+            "unit": "全案",
+            "copies": "12份＋電子檔"
+          },
+          {
+            "id": "utilityPlan",
+            "name": "管線調查工作計畫書",
+            "required": true,
+            "unit": "全案",
+            "timing": "依契約期限"
+          },
+          {
+            "id": "utilityResult",
+            "name": "管線調查成果報告",
+            "required": true,
+            "unit": "全案",
+            "copies": "12份（含圖說及電子檔）"
+          }
+        ]
+      },
+      {
+        "id": "land",
+        "name": "路權／都市計畫／用地",
+        "items": [
+          {
+            "id": "rowPackage",
+            "name": "設計完成後路權及用地圖說",
+            "required": true,
+            "unit": "依實際範圍",
+            "timing": "完成設計後30日曆天",
+            "subitems": [
+              "1/500路權範圍圖",
+              "1/500路權範圍圖套繪地形二原圖",
+              "1/1000路權範圍圖套繪未分割地籍圖",
+              "用地取得所需圖說及附件"
+            ]
+          },
+          {
+            "id": "tempStake",
+            "name": "臨時界樁測設成果",
+            "conditional": true,
+            "unit": "按標案",
+            "timing": "甲方通知後30日曆天內完成"
+          },
+          {
+            "id": "permStakePlan",
+            "name": "永久樁控制點設置計畫",
+            "conditional": true,
+            "unit": "依通知",
+            "timing": "甲方通知開工後10日曆天"
+          },
+          {
+            "id": "permStakeResult",
+            "name": "路權樁測量成果報告書／圖／電子檔",
+            "conditional": true,
+            "unit": "依通知",
+            "timing": "甲方通知開工後280日曆天",
+            "copies": "裝訂3份"
+          },
+          {
+            "id": "urbanPlanBook",
+            "name": "變更都市計畫書圖（含主、細計畫）",
+            "conditional": true,
+            "unit": "適用地點",
+            "timing": "路權範圍圖提出後45日曆天"
+          },
+          {
+            "id": "urbanStake",
+            "name": "都市計畫樁位測定成果資料及現地釘樁",
+            "conditional": true,
+            "unit": "適用地點",
+            "timing": "都市計畫發布實施公告後90日曆天"
+          },
+          {
+            "id": "landPreSplit",
+            "name": "預為分割後用地成果",
+            "conditional": true,
+            "unit": "適用地點",
+            "timing": "甲方提供預為分割成果後10日曆天",
+            "subitems": [
+              "已分割1/1000路權圖套繪地籍圖及附件",
+              "公、私有土地歸戶清冊"
+            ]
+          },
+          {
+            "id": "landMeetingDocs",
+            "name": "公聽會／協議價購等資料",
+            "conditional": true,
+            "unit": "適用地點",
+            "timing": "甲方提供地籍資料後30日曆天",
+            "subitems": [
+              "公聽會簡報資料",
+              "協議價購土地及地上物會議簡報",
+              "農業用地變更使用說明書"
+            ]
+          },
+          {
+            "id": "land20",
+            "name": "用地取得20日成果",
+            "conditional": true,
+            "unit": "適用地點",
+            "timing": "甲方通知後20日曆天",
+            "subitems": [
+              "協議價購土地地價款清冊",
+              "非都市土地變更編定申請書",
+              "撥用不動產計畫書"
+            ]
+          },
+          {
+            "id": "land30",
+            "name": "用地取得30日成果",
+            "conditional": true,
+            "unit": "適用地點",
+            "timing": "甲方通知後30日曆天",
+            "subitems": [
+              "徵收市價查估作業所需查估書表",
+              "安置計畫",
+              "徵收／撤銷徵收／更正徵收／一併徵收土地計畫書"
+            ]
+          },
+          {
+            "id": "hearingRecord",
+            "name": "公聽會成果",
+            "conditional": true,
+            "unit": "適用案件",
+            "subitems": [
+              "通知公告及會議紀錄張貼照片（發文後10日內）",
+              "公聽會拍照及錄影",
+              "公聽會會議紀錄（會後2日內）"
+            ]
+          },
+          {
+            "id": "valuation",
+            "name": "不動產估價報告書及地上物查估成果",
+            "conditional": true,
+            "unit": "適用案件",
+            "timing": "完成地上物查估後原則30日曆天；必要時經同意得延至45日"
+          },
+          {
+            "id": "transferClose",
+            "name": "土地所有權移轉登記結案文件",
+            "conditional": true,
+            "unit": "適用案件",
+            "subitems": [
+              "辦妥登記土地明細表",
+              "協議價購及一併價購所有權契約書",
+              "土地補償費清冊",
+              "登記規費及書狀費收據正本",
+              "其他契約約定文件"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "risk",
+        "name": "設計前置／施工風險評估",
+        "items": [
+          {
+            "id": "designRiskPlan",
+            "name": "設計階段施工風險評估實施計畫書",
+            "required": true,
+            "unit": "全案",
+            "timing": "契約生效日起60日內",
+            "subitems": [
+              "設計階段施工風險評估實施計畫書審查表"
+            ]
+          },
+          {
+            "id": "designRisk",
+            "name": "工程施工風險評估報告",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份",
+            "timing": "併設計成果提送",
+            "subitems": [
+              "設計階段施工風險評估報告審查表",
+              "工程採購文件安全衛生項目自主檢查表",
+              "危害登記簿／風險傳遞相關成果"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "basic",
+        "name": "基本設計成果",
+        "items": [
+          {
+            "id": "basicReview",
+            "name": "規劃報告及設計標的相關資料檢討及建議",
+            "required": true,
+            "unit": "全案"
+          },
+          {
+            "id": "basicSurveyEval",
+            "name": "各項配合工作調查及試驗成果評估報告（含地質敏感評估）",
+            "required": true,
+            "unit": "全案"
+          },
+          {
+            "id": "alignment",
+            "name": "路權圖及軌道定線圖",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "A3 1/500 5份（含原圖1份）"
+          },
+          {
+            "id": "procurementStrategy",
+            "name": "採購策略及分標原則",
+            "required": true,
+            "unit": "全案"
+          },
+          {
+            "id": "lawReview",
+            "name": "法令、規定及規範分析檢討",
+            "required": true,
+            "unit": "全案"
+          },
+          {
+            "id": "detailCriteria",
+            "name": "細部設計準則",
+            "required": true,
+            "unit": "全案"
+          },
+          {
+            "id": "basicDrawings",
+            "name": "基本設計圖（含色彩計畫）",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "costEstimate",
+            "name": "量體計算分析及成本概估",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "constructionPlan",
+            "name": "施工規劃及施工初步時程",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "surplusSoil",
+            "name": "營建剩餘土石方處理方案",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "basicReport",
+            "name": "基本設計報告",
+            "required": true,
+            "unit": "全案",
+            "subitems": [
+              "宜蘭市校舍路口曲線段曲率未達R1000優化可行性研議"
+            ]
+          },
+          {
+            "id": "environmentReport",
+            "name": "環境保護措施報告",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "valueEngineering",
+            "name": "價值工程研析報告",
+            "required": true,
+            "unit": "全案",
+            "timing": "併基本設計成果提送"
+          },
+          {
+            "id": "transferStudy",
+            "name": "宜蘭新站與高鐵站共月台轉乘專案研究報告",
+            "required": true,
+            "unit": "全案"
+          },
+          {
+            "id": "introVideo",
+            "name": "工程計畫簡介影片及3D電腦動畫",
+            "required": true,
+            "unit": "全案",
+            "copies": "各5份",
+            "subitems": [
+              "影片3～5分鐘或依甲方需求",
+              "3D電腦動畫3～5分鐘或依甲方需求",
+              "4K以上，含字幕、旁白、配音、特效"
+            ]
+          },
+          {
+            "id": "ocsBasic",
+            "name": "先期工程電車線基本設計成果",
+            "required": true,
+            "unit": "先期工程標",
+            "subitems": [
+              "一般電車線架構設計圖",
+              "站場電車線分群圖",
+              "電車線設計摘要報告",
+              "特定電車線材料規範"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pcc",
+        "name": "工程會經費審議",
+        "items": [
+          {
+            "id": "pccReport",
+            "name": "經費審議報告書圖",
+            "required": true,
+            "unit": "依審議案件／工程標",
+            "copies": "依各階段審查機關需求",
+            "timing": "基本設計完成後辦理；為進入期末設計之Gate"
+          }
+        ]
+      },
+      {
+        "id": "final",
+        "name": "期末／細部設計成果",
+        "items": [
+          {
+            "id": "runoffPlan",
+            "name": "出流管制計畫書",
+            "conditional": true,
+            "unit": "適用工程標",
+            "timing": "基本設計成果核定後或甲方通知期限內"
+          },
+          {
+            "id": "soilWaterPlan",
+            "name": "水土保持計畫書",
+            "conditional": true,
+            "unit": "適用工程標",
+            "timing": "基本設計成果核定後或甲方通知期限內",
+            "note": "契約列載；實際適用性待確認"
+          },
+          {
+            "id": "designReport",
+            "name": "工程設計報告",
+            "required": true,
+            "unit": "計畫範圍",
+            "copies": "12份"
+          },
+          {
+            "id": "detailDrawings",
+            "name": "細部設計圖",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "A3縮圖12份（含原圖1份）"
+          },
+          {
+            "id": "designCalculations",
+            "name": "細部設計計算書",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份"
+          },
+          {
+            "id": "specialProvisions",
+            "name": "特訂條款",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份"
+          },
+          {
+            "id": "technicalSpecs",
+            "name": "施工技術規範",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份"
+          },
+          {
+            "id": "materialSpecs",
+            "name": "材料規範",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "quantityCalc",
+            "name": "工程數量計算書",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份"
+          },
+          {
+            "id": "budgetBook",
+            "name": "工程預算書",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份",
+            "subitems": [
+              "工程詢價",
+              "分析評估資料",
+              "編列原則",
+              "PCCES等規定格式／xml及Excel檔"
+            ]
+          },
+          {
+            "id": "outlineConstruction",
+            "name": "施工綱要計畫（含施工進度表）",
+            "required": true,
+            "unit": "各工程標"
+          },
+          {
+            "id": "tenderDocs",
+            "name": "工程招標文件",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "3份",
+            "subitems": [
+              "簽認紙本工程圖掃描PDF",
+              "可編輯圖檔／DWG等"
+            ]
+          },
+          {
+            "id": "supervisionExecution",
+            "name": "監造服務工作執行計畫書（含人力計畫表）",
+            "required": true,
+            "unit": "全案",
+            "copies": "12份",
+            "timing": "於期末設計成果提出"
+          },
+          {
+            "id": "projectSupervision",
+            "name": "計畫監造計畫",
+            "required": true,
+            "unit": "全案",
+            "copies": "12份",
+            "timing": "工程設計完稿時併同提送"
+          },
+          {
+            "id": "trackSwitch",
+            "name": "軌道切換計畫書",
+            "required": true,
+            "unit": "各工程標",
+            "copies": "12份"
+          },
+          {
+            "id": "bim",
+            "name": "BIM模型及應用成果",
+            "required": true,
+            "unit": "各階段／各工程標",
+            "subitems": [
+              "基地現況模型",
+              "基本設計模型／基本結構設計模型",
+              "3D檢核分析報告",
+              "檢核與整合執行方法及成果驗證分析報告",
+              "設施及材料明細與數量統計",
+              "特定工法4D模擬檢討報告",
+              "特定工法4D模擬動畫",
+              "細部結構設計模型",
+              "軟體專用格式＋IFC等開放格式"
+            ]
+          },
+          {
+            "id": "ocsFinal",
+            "name": "先期工程機電／電車線期末設計成果",
+            "required": true,
+            "unit": "先期工程標",
+            "subitems": [
+              "電車線基礎型式圖",
+              "永久性電車線電化分群圖（需鐵道局及臺鐵公司簽核）"
+            ]
+          },
+          {
+            "id": "finalSelfCheck",
+            "name": "期末設計成果自檢表",
+            "required": true,
+            "unit": "各工程標",
+            "timing": "期末設計成果提送時一併提送"
+          }
+        ]
+      },
+      {
+        "id": "permits",
+        "name": "許可／專業送審文件",
+        "items": [
+          {
+            "id": "urbanDesign",
+            "name": "都市設計審議文件",
+            "conditional": true,
+            "unit": "適用車站／基地",
+            "subitems": [
+              "都市設計審議報告書（初稿）",
+              "審議修正版／核定相關文件"
+            ]
+          },
+          {
+            "id": "buildingPermit",
+            "name": "建築許可及各專業送審文件",
+            "conditional": true,
+            "unit": "適用建築物",
+            "timing": "依細部設計核定成果辦理"
+          },
+          {
+            "id": "riverPermit",
+            "name": "河川區域使用許可／跨河構造物水利申請文件",
+            "conditional": true,
+            "unit": "宜蘭河相關工程",
+            "subitems": [
+              "水理分析計算",
+              "技師簽證",
+              "破堤計畫（如適用）"
+            ]
+          },
+          {
+            "id": "environmentPermitChecklist",
+            "name": "開發計畫應取得各項相關許可檢核表",
+            "required": true,
+            "unit": "全案",
+            "subitems": [
+              "環評承諾事項檢核",
+              "相關許可證（文件）申請時機控管"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "preAwardSupervision",
+        "name": "工程發包前／決標前成果",
+        "items": [
+          {
+            "id": "packageSupervision",
+            "name": "各工程標監造計畫",
+            "required": true,
+            "unit": "各工程標",
+            "timing": "工程標公告前提送甲方審核；決標前完成核定"
+          },
+          {
+            "id": "safetySupervision",
+            "name": "安全衛生監督查核計畫",
+            "required": true,
+            "unit": "各工程標",
+            "timing": "工程發包前提報；決標前完成核定"
+          },
+          {
+            "id": "environmentInspection",
+            "name": "環境保護檢查計畫",
+            "required": true,
+            "unit": "各工程標",
+            "timing": "工程發包前提報；決標前完成核定"
+          },
+          {
+            "id": "secondLevelSampling",
+            "name": "二級抽驗",
+            "contractName": "二級品管抽驗計畫",
+            "required": true,
+            "unit": "各工程標",
+            "timing": "工程發包前提報；決標前完成核定"
+          }
+        ]
+      }
+    ]
+  }
 }
