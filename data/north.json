@@ -362,6 +362,23 @@
               "技師簽證執行計畫",
               "BIM執行服務計畫",
               "車站建築執行服務計畫"
+            ],
+            "deadlineControl": {
+              "trigger": "簽約日",
+              "submit": "30日曆天內",
+              "ownerReview": "契約未見本項統一固定日數",
+              "pcmReview": "30日曆天（依PCM既有管制原則）",
+              "approval": "依甲方審查結果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -376,6 +393,21 @@
               "國際車站／TOD案例與趨勢",
               "通用無障礙、永續低碳及韌性城市等理念",
               "都市計畫／都市設計審議法令及案例"
+            ],
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "60日曆天內完成",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "納入設計諮詢審查時依PCM管制",
+              "approval": "完成資料蒐集階段",
+              "packages": [
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -391,6 +423,21 @@
               "都市設計審議報告書（初稿）",
               "量體配置、開放空間系統及都市景觀構想",
               "專家諮詢意見彙整與回應說明"
+            ],
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "120日曆天內完成",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "納入設計諮詢審查時依PCM管制",
+              "approval": "完成概念設計階段",
+              "packages": [
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           }
         ]
@@ -415,6 +462,23 @@
               "點之記範例",
               "觀測紀錄計算表格",
               "電腦成果報表與成圖範例"
+            ],
+            "deadlineControl": {
+              "trigger": "簽約日",
+              "submit": "30日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "核定後起算成果報告120日",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -422,14 +486,48 @@
             "name": "實測1/500數值地形圖",
             "required": true,
             "unit": "全案",
-            "copies": "A1圖全1套＋電腦圖檔"
+            "copies": "A1圖全1套＋電腦圖檔",
+            "deadlineControl": {
+              "trigger": "補充測量工作計畫書核定日",
+              "submit": "併補充測量成果，120日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "依甲方審查結果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "surveySections",
             "name": "縱、橫斷面圖",
             "required": true,
             "unit": "全案",
-            "copies": "A1圖及電腦圖檔全3份"
+            "copies": "A1圖及電腦圖檔全3份",
+            "deadlineControl": {
+              "trigger": "補充測量工作計畫書核定日",
+              "submit": "併補充測量成果，120日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "依甲方審查結果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "surveyBook",
@@ -446,6 +544,23 @@
               "主控制點點註記、位置明細表及成果表",
               "圖根點成果表",
               "導線、水準、斷面及其他計算／觀測／調查資料"
+            ],
+            "deadlineControl": {
+              "trigger": "補充測量工作計畫書核定日",
+              "submit": "併補充測量成果，120日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "依甲方審查結果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -453,28 +568,96 @@
             "name": "補充地質調查工作計畫書",
             "required": true,
             "unit": "全案",
-            "timing": "依契約期限"
+            "timing": "依契約期限",
+            "deadlineControl": {
+              "trigger": "簽約日",
+              "submit": "30日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "核定後起算成果報告120日",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "geoResult",
             "name": "補充地質調查成果報告",
             "required": true,
             "unit": "全案",
-            "copies": "12份＋電子檔"
+            "copies": "12份＋電子檔",
+            "deadlineControl": {
+              "trigger": "補充地質調查工作計畫書核定日",
+              "submit": "120日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "依甲方審查結果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "utilityPlan",
             "name": "管線調查工作計畫書",
             "required": true,
             "unit": "全案",
-            "timing": "依契約期限"
+            "timing": "依契約期限",
+            "deadlineControl": {
+              "trigger": "簽約日",
+              "submit": "30日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "核定後起算成果報告120日",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "utilityResult",
             "name": "管線調查成果報告",
             "required": true,
             "unit": "全案",
-            "copies": "12份（含圖說及電子檔）"
+            "copies": "12份（含圖說及電子檔）",
+            "deadlineControl": {
+              "trigger": "管線調查工作計畫書核定日",
+              "submit": "120日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，30日曆天管制",
+              "approval": "依甲方審查結果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           }
         ]
       },
@@ -623,6 +806,23 @@
             "timing": "契約生效日起60日內",
             "subitems": [
               "設計階段施工風險評估實施計畫書審查表"
+            ],
+            "deadlineControl": {
+              "trigger": "契約生效日（決標日）",
+              "submit": "60日曆天內",
+              "ownerReview": "未另訂固定日數",
+              "pcmReview": "設計諮詢審查；30日曆天管制",
+              "approval": "設計前置成果，應於設計作業前完成管制",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -636,6 +836,23 @@
               "設計階段施工風險評估報告審查表",
               "工程採購文件安全衛生項目自主檢查表",
               "危害登記簿／風險傳遞相關成果"
+            ],
+            "deadlineControl": {
+              "trigger": "基本設計成果提送節點",
+              "submit": "初稿併基本設計；核定後於期末設計提送正式本",
+              "ownerReview": "隨基本／期末設計審查",
+              "pcmReview": "30日曆天（隨設計成果審查）",
+              "approval": "正式本併期末設計成果",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           }
         ]
@@ -648,62 +865,232 @@
             "id": "basicReview",
             "name": "規劃報告及設計標的相關資料檢討及建議",
             "required": true,
-            "unit": "全案"
+            "unit": "全案",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "basicSurveyEval",
             "name": "各項配合工作調查及試驗成果評估報告（含地質敏感評估）",
             "required": true,
-            "unit": "全案"
+            "unit": "全案",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "alignment",
             "name": "路權圖及軌道定線圖",
             "required": true,
             "unit": "各工程標",
-            "copies": "A3 1/500 5份（含原圖1份）"
+            "copies": "A3 1/500 5份（含原圖1份）",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "procurementStrategy",
             "name": "採購策略及分標原則",
             "required": true,
-            "unit": "全案"
+            "unit": "全案",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "lawReview",
             "name": "法令、規定及規範分析檢討",
             "required": true,
-            "unit": "全案"
+            "unit": "全案",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "detailCriteria",
             "name": "細部設計準則",
             "required": true,
-            "unit": "全案"
+            "unit": "全案",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "basicDrawings",
             "name": "基本設計圖（含色彩計畫）",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "costEstimate",
             "name": "量體計算分析及成本概估",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "constructionPlan",
             "name": "施工規劃及施工初步時程",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "surplusSoil",
             "name": "營建剩餘土石方處理方案",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "basicReport",
@@ -712,26 +1099,94 @@
             "unit": "全案",
             "subitems": [
               "宜蘭市校舍路口曲線段曲率未達R1000優化可行性研議"
+            ],
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
             "id": "environmentReport",
             "name": "環境保護措施報告",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "valueEngineering",
             "name": "價值工程研析報告",
             "required": true,
             "unit": "全案",
-            "timing": "併基本設計成果提送"
+            "timing": "併基本設計成果提送",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "transferStudy",
             "name": "宜蘭新站與高鐵站共月台轉乘專案研究報告",
             "required": true,
-            "unit": "全案"
+            "unit": "全案",
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "introVideo",
@@ -743,6 +1198,23 @@
               "影片3～5分鐘或依甲方需求",
               "3D電腦動畫3～5分鐘或依甲方需求",
               "4K以上，含字幕、旁白、配音、特效"
+            ],
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -755,6 +1227,19 @@
               "站場電車線分群圖",
               "電車線設計摘要報告",
               "特定電車線材料規範"
+            ],
+            "deadlineControl": {
+              "trigger": "執行服務計畫書核定日",
+              "submit": "併基本設計成果初稿，150日曆天內",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入基本設計核定",
+              "packages": [
+                "advance"
+              ]
+            },
+            "packageNames": [
+              "先期工程標"
             ]
           }
         ]
@@ -769,7 +1254,24 @@
             "required": true,
             "unit": "依審議案件／工程標",
             "copies": "依各階段審查機關需求",
-            "timing": "基本設計完成後辦理；為進入期末設計之Gate"
+            "timing": "基本設計完成後辦理；為進入期末設計之Gate",
+            "deadlineControl": {
+              "trigger": "基本設計完成／核定",
+              "submit": "依工程會經費審議程序提送；契約未訂固定日數",
+              "ownerReview": "依經費審議程序",
+              "pcmReview": "PCM配合諮詢審查；無另見固定期限",
+              "approval": "工程會經費審議完成／核定後始進入期末設計",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           }
         ]
       },
@@ -782,7 +1284,22 @@
             "name": "出流管制計畫書",
             "conditional": true,
             "unit": "適用工程標",
-            "timing": "基本設計成果核定後或甲方通知期限內"
+            "timing": "基本設計成果核定後或甲方通知期限內",
+            "deadlineControl": {
+              "trigger": "基本設計成果核定日或甲方通知日",
+              "submit": "依甲方通知期限；契約未訂統一固定日數",
+              "ownerReview": "依甲方及主管機關程序",
+              "pcmReview": "如送PCM諮詢審查，依PCM管制",
+              "approval": "依主管機關審議／核定程序",
+              "packages": [
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "soilWaterPlan",
@@ -790,55 +1307,191 @@
             "conditional": true,
             "unit": "適用工程標",
             "timing": "基本設計成果核定後或甲方通知期限內",
-            "note": "契約列載；實際適用性待確認"
+            "note": "契約列載；實際適用性待確認",
+            "deadlineControl": {
+              "trigger": "基本設計成果核定日或甲方通知日",
+              "submit": "依甲方通知期限；契約未訂統一固定日數",
+              "ownerReview": "依甲方及主管機關程序",
+              "pcmReview": "如送PCM諮詢審查，依PCM管制",
+              "approval": "條件式；適用性確認後依主管機關程序",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "designReport",
             "name": "工程設計報告",
             "required": true,
             "unit": "計畫範圍",
-            "copies": "12份"
+            "copies": "12份",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "detailDrawings",
             "name": "細部設計圖",
             "required": true,
             "unit": "各工程標",
-            "copies": "A3縮圖12份（含原圖1份）"
+            "copies": "A3縮圖12份（含原圖1份）",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "designCalculations",
             "name": "細部設計計算書",
             "required": true,
             "unit": "各工程標",
-            "copies": "12份"
+            "copies": "12份",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "specialProvisions",
             "name": "特訂條款",
             "required": true,
             "unit": "各工程標",
-            "copies": "12份"
+            "copies": "12份",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "technicalSpecs",
             "name": "施工技術規範",
             "required": true,
             "unit": "各工程標",
-            "copies": "12份"
+            "copies": "12份",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "materialSpecs",
             "name": "材料規範",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "quantityCalc",
             "name": "工程數量計算書",
             "required": true,
             "unit": "各工程標",
-            "copies": "12份"
+            "copies": "12份",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "budgetBook",
@@ -851,13 +1504,47 @@
               "分析評估資料",
               "編列原則",
               "PCCES等規定格式／xml及Excel檔"
+            ],
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
             "id": "outlineConstruction",
             "name": "施工綱要計畫（含施工進度表）",
             "required": true,
-            "unit": "各工程標"
+            "unit": "各工程標",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "tenderDocs",
@@ -868,6 +1555,23 @@
             "subitems": [
               "簽認紙本工程圖掃描PDF",
               "可編輯圖檔／DWG等"
+            ],
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "PCM招標文件審查依其契約期限；系統暫以30日曆天管制",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -876,7 +1580,24 @@
             "required": true,
             "unit": "全案",
             "copies": "12份",
-            "timing": "於期末設計成果提出"
+            "timing": "於期末設計成果提出",
+            "deadlineControl": {
+              "trigger": "期末設計成果提出",
+              "submit": "與期末設計成果同時提出",
+              "ownerReview": "28天內；逾期未正式通知認可與否則視為接受",
+              "pcmReview": "如送PCM諮詢審查，依PCM管制",
+              "approval": "甲方正式書面認可；逾28天未通知則視為接受",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "projectSupervision",
@@ -884,14 +1605,48 @@
             "required": true,
             "unit": "全案",
             "copies": "12份",
-            "timing": "工程設計完稿時併同提送"
+            "timing": "工程設計完稿時併同提送",
+            "deadlineControl": {
+              "trigger": "工程設計完稿",
+              "submit": "併同工程設計完稿提送",
+              "ownerReview": "契約未另訂固定日數",
+              "pcmReview": "如送PCM諮詢審查，依PCM管制",
+              "approval": "依甲方審核",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "trackSwitch",
             "name": "軌道切換計畫書",
             "required": true,
             "unit": "各工程標",
-            "copies": "12份"
+            "copies": "12份",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "bim",
@@ -908,6 +1663,23 @@
               "特定工法4D模擬動畫",
               "細部結構設計模型",
               "軟體專用格式＋IFC等開放格式"
+            ],
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
             ]
           },
           {
@@ -918,6 +1690,19 @@
             "subitems": [
               "電車線基礎型式圖",
               "永久性電車線電化分群圖（需鐵道局及臺鐵公司簽核）"
+            ],
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance"
+              ]
+            },
+            "packageNames": [
+              "先期工程標"
             ]
           },
           {
@@ -925,7 +1710,24 @@
             "name": "期末設計成果自檢表",
             "required": true,
             "unit": "各工程標",
-            "timing": "期末設計成果提送時一併提送"
+            "timing": "期末設計成果提送時一併提送",
+            "deadlineControl": {
+              "trigger": "基本設計核定日或甲方通知日",
+              "submit": "期末設計成果初稿300日曆天內；先期工程優先，主體及車站依甲方指示分階段",
+              "ownerReview": "甲方依審查程序",
+              "pcmReview": "30日曆天",
+              "approval": "納入期末設計／招標成果核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           }
         ]
       },
@@ -982,21 +1784,72 @@
             "name": "各工程標監造計畫",
             "required": true,
             "unit": "各工程標",
-            "timing": "工程標公告前提送甲方審核；決標前完成核定"
+            "timing": "工程標公告前提送甲方審核；決標前完成核定",
+            "deadlineControl": {
+              "trigger": "各工程標發包前",
+              "submit": "發包前提報甲方審核",
+              "ownerReview": "須於工程決標前完成審核程序",
+              "pcmReview": "PCM辦理監造計畫諮詢／審查時依其契約管制",
+              "approval": "工程決標前完成核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "safetySupervision",
             "name": "安全衛生監督查核計畫",
             "required": true,
             "unit": "各工程標",
-            "timing": "工程發包前提報；決標前完成核定"
+            "timing": "工程發包前提報；決標前完成核定",
+            "deadlineControl": {
+              "trigger": "各工程標發包前",
+              "submit": "發包前提報甲方審核",
+              "ownerReview": "須於工程決標前完成審核程序",
+              "pcmReview": "PCM審查安全衛生監督查核計畫",
+              "approval": "工程決標前完成核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "environmentInspection",
             "name": "環境保護檢查計畫",
             "required": true,
             "unit": "各工程標",
-            "timing": "工程發包前提報；決標前完成核定"
+            "timing": "工程發包前提報；決標前完成核定",
+            "deadlineControl": {
+              "trigger": "各工程標發包前",
+              "submit": "發包前提報甲方審核",
+              "ownerReview": "須於工程決標前完成審核程序",
+              "pcmReview": "如送PCM諮詢審查，依PCM管制",
+              "approval": "工程決標前完成核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           },
           {
             "id": "secondLevelSampling",
@@ -1004,10 +1857,32 @@
             "contractName": "二級品管抽驗計畫",
             "required": true,
             "unit": "各工程標",
-            "timing": "工程發包前提報；決標前完成核定"
+            "timing": "工程發包前提報；決標前完成核定",
+            "deadlineControl": {
+              "trigger": "各工程標發包前",
+              "submit": "發包前提報甲方審核",
+              "ownerReview": "須於工程決標前完成審核程序",
+              "pcmReview": "如送PCM諮詢審查，依PCM管制",
+              "approval": "工程決標前完成核定",
+              "packages": [
+                "advance",
+                "yilan-new-station",
+                "north-of-yilan-new"
+              ]
+            },
+            "packageNames": [
+              "先期工程標",
+              "宜蘭新站工程標",
+              "宜蘭新站以北工程標"
+            ]
           }
         ]
       }
-    ]
+    ],
+    "deadlineLegend": {
+      "pcm": "PCM欄位僅在有明確審查工作或既有管制原則時列示；未查得個別固定期限者不自行創設契約期限。",
+      "owner": "甲方欄位以北段契約／附件A明文為準；未明定者標示「未另訂固定日數」。",
+      "packages": "對應工程標為管理分類；實際成果是否需分標提送仍依附件A及甲方指示。"
+    }
   }
 }
