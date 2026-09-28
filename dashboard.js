@@ -272,9 +272,9 @@ function renderNorthDeliverables(){
   const groups=(catalog.groups||[]).map((g,gi)=>{
     const items=(g.items||[]).map(x=>{
       const flag=x.conditional?'<em class="deliverable-flag conditional">條件式</em>':'<em class="deliverable-flag required">應提送</em>';
-      const meta=[x.unit?'單位：'+esc(x.unit):'',x.timing?'時點：'+esc(x.timing):'',x.copies?'份數：'+esc(x.copies):''].filter(Boolean).join('｜');
+      const dc=x.deadlineControl||{}; const meta=[x.unit?'單位：'+esc(x.unit):'',x.timing?'原成果時點：'+esc(x.timing):'',x.copies?'份數：'+esc(x.copies):''].filter(Boolean).join('｜'); const deadline=[dc.trigger?'起算：'+esc(dc.trigger):'',dc.submit?'提送：'+esc(dc.submit):'',dc.ownerReview?'甲方審查：'+esc(dc.ownerReview):'',dc.pcmReview?'PCM：'+esc(dc.pcmReview):'',dc.approval?'核定：'+esc(dc.approval):''].filter(Boolean).map(v=>'<span>'+v+'</span>').join(''); const packages=(x.packageNames||[]).map(v=>'<i>'+esc(v)+'</i>').join('');
       const subs=(x.subitems||[]).map(s=>'<li>'+esc(s)+'</li>').join('');
-      return '<div class="deliverable-item"><div class="deliverable-main"><div><b>'+esc(x.name)+'</b>'+(x.contractName?'<small>契約原名：'+esc(x.contractName)+'</small>':'')+'</div>'+flag+'</div>'+(meta?'<div class="deliverable-meta">'+meta+'</div>':'')+(x.note?'<div class="deliverable-note">'+esc(x.note)+'</div>':'')+(subs?'<ul class="deliverable-subs">'+subs+'</ul>':'')+'</div>';
+      return '<div class="deliverable-item"><div class="deliverable-main"><div><b>'+esc(x.name)+'</b>'+(x.contractName?'<small>契約原名：'+esc(x.contractName)+'</small>':'')+'</div>'+flag+'</div>'+(meta?'<div class="deliverable-meta">'+meta+'</div>':'')+(deadline?'<div class="deliverable-deadline">'+deadline+'</div>':'')+(packages?'<div class="deliverable-packages"><b>對應：</b>'+packages+'</div>':'')+(x.note?'<div class="deliverable-note">'+esc(x.note)+'</div>':'')+(subs?'<ul class="deliverable-subs">'+subs+'</ul>':'')+'</div>';
     }).join('');
     return '<details class="deliverable-group" '+(gi<2?'open':'')+'><summary><span>'+esc(g.name)+'</span><b>'+(g.items||[]).length+' 項</b></summary><div class="deliverable-list">'+items+'</div></details>';
   }).join('');
