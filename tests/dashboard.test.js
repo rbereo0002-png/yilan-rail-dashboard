@@ -8,16 +8,24 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.7/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.7/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.9/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.9/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
 });
 
+test('south default data records evaluation and actual signing dates',()=>{
+  const p=normalizeProject(JSON.parse(read('data/south.json')),'south');
+  const m=calculateModel(p,'2026-10-02');
+  assert.equal(p.milestones.evaluationDate,'2026-08-24');
+  assert.equal(p.milestones.actualSignDate,'2026-10-01');
+  assert.equal(m.dashboard.phase,'active-performance');
+});
+
 test('executive dashboard provides one-frame detail switching and return-to-overview control',()=>{
   const html=read('dashboard.html'),js=read('dashboard.js');
-  for(const view of ['overview','progress','attention','review','payment']) assert.match(html,new RegExp(`data-view="${view}"`));
+  for(const view of ['overview','progress','attention','kpi','review','payment']) assert.match(html,new RegExp(`data-view="${view}"`));
   assert.match(html,/id="backButton"/);
   assert.match(js,/function setView\(view\)/);
   assert.match(js,/setView\('overview'\)/);
@@ -145,4 +153,33 @@ test('v1.4.7 management brief cards drill down without leaving executive page',(
   assert.match(js,/view:'review'/);
   assert.match(css,/\.brief-action/);
   assert.match(css,/\.brief-action:hover/);
+});
+
+test('v1.4.8 adds non-contract KPI controls without changing contract schedule counts',()=>{
+  const north=normalizeProject(JSON.parse(read('data/north.json')),'north');
+  const south=normalizeProject(JSON.parse(read('data/south.json')),'south');
+  const northModel=calculateModel(north,'2026-10-02');
+  const southModel=calculateModel(south,'2026-10-02');
+  assert.equal(northModel.kpiSummary.total,5);
+  assert.equal(southModel.kpiSummary.total,2);
+  assert.equal(northModel.kpiSummary.unclear,0);
+  assert.equal(southModel.kpiSummary.unclear,0);
+  assert.equal(northModel.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').due,'2026-10-12');
+  assert.equal(southModel.kpiControls.find(x=>x.id==='south-yilan-hsr-same-platform-meeting').due,'2026-10-12');
+  assert.equal(northModel.dashboard.total,northModel.schedule.list.filter(x=>x.contractRule).length);
+  assert.equal(southModel.dashboard.total,southModel.schedule.list.filter(x=>x.contractRule).length);
+});
+
+test('v1.4.8 executive and workbench expose editable KPI control tables',()=>{
+  const html=read('dashboard.html'),js=read('dashboard.js'),index=read('index.html'),views=read('views.js'),css=read('dashboard.css'),app=read('app.js'),store=read('store.js');
+  assert.match(html,/KPI／外部管制/);
+  assert.match(js,/function renderKpi\(\)/);
+  assert.match(js,/kpiMiniCard/);
+  assert.match(index,/id="kpiControlTable"/);
+  assert.match(views,/kpiControlTable/);
+  assert.match(views,/data-kpi-field="actualDate"/);
+  assert.match(views,/data-kpi-field="actualNote"/);
+  assert.match(app,/input\.dataset\.kpiId/);
+  assert.match(store,/actualDate/);
+  assert.match(css,/\.kpi-mini-card/);
 });
