@@ -68,9 +68,10 @@ function projectListCard(title,m,items){
 function nextMilestone(m){
   const candidates=[
     ...m.dashboard.preSignSpecialItems,
-    ...m.schedule.list.filter(x=>!x.effectiveApproval && (x.contractDue || x.managementForecast || x.forecastDue))
+    ...m.schedule.list.filter(x=>!x.effectiveApproval && (x.contractDue || x.managementForecast || x.forecastDue)),
+    ...m.kpiControls.filter(x=>!x.actualDate && x.due).map(x=>({...x,name:x.name,contractDue:x.due,view:'kpi'}))
   ].map(x=>({
-    id:x.id,name:x.name,
+    id:x.id,name:x.name,view:x.view || 'progress',
     date:x.contractDue || x.managementForecast || x.forecastDue || null
   })).filter(x=>x.date && x.date>=m.today)
     .sort((a,b)=>a.date.localeCompare(b.date));
@@ -89,7 +90,7 @@ function managementBrief(){
     const next=nextMilestone(m);
     if(!next) return `<button type="button" class="brief-segment brief-action" data-view="progress"><span>${esc(m.project.name)}</span><b>目前無近期關鍵節點</b><small>${esc(m.dashboard.phaseLabel)}</small><em>查看進度 →</em></button>`;
     const days=daysBetween(m.today,next.date);
-    return `<button type="button" class="brief-segment brief-action" data-view="progress"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small><em>查看進度 →</em></button>`;
+    return `<button type="button" class="brief-segment brief-action" data-view="${esc(next.view)}"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small><em>${next.view==='kpi'?'查看KPI':'查看進度'} →</em></button>`;
   };
   return `<section class="management-brief">
     <button type="button" class="brief-status brief-action ${overall.cls}" data-view="${overall.view}"><span>主管摘要</span><b>${overall.label}</b><small>${overall.desc}</small><em>${overall.view==='review'?'查看審查':'查看待辦'} →</em></button>
@@ -194,8 +195,11 @@ function renderAttention(){
   const cards=['south','north'].map(id=>{
     const m=models[id],d=m.dashboard;
     const pre=d.preSignSpecialItems.map(x=>row(x.name,x.note,x.contractDue,'簽約前特別列管','tag-warn'));
+    const kpi=m.kpiControls
+      .filter(x=>!x.actualDate && ['逾期','30日內到期','待釐清'].includes(x.computedStatus))
+      .map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
     const active=d.attention.slice(0,8).map(x=>row(x.name,x.attentionReason,x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,x.attentionLabel,x.attentionPriority===0?'tag-danger':x.attentionPriority===1?'tag-warn':'tag-info'));
-    return projectListCard('重要事項',m,[...pre,...active]);
+    return projectListCard('重要事項',m,[...pre,...kpi,...active]);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
