@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.9/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.9/);
+  assert.match(dashboard,/dashboard\.js\?v=1\.4\.10/);
+  assert.match(dashboard,/dashboard\.css\?v=1\.4\.10/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -161,11 +161,12 @@ test('v1.4.8 adds non-contract KPI controls without changing contract schedule c
   const northModel=calculateModel(north,'2026-10-02');
   const southModel=calculateModel(south,'2026-10-02');
   assert.equal(northModel.kpiSummary.total,5);
-  assert.equal(southModel.kpiSummary.total,2);
+  assert.equal(southModel.kpiSummary.total,1);
   assert.equal(northModel.kpiSummary.unclear,0);
   assert.equal(southModel.kpiSummary.unclear,0);
   assert.equal(northModel.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').due,'2026-10-12');
-  assert.equal(southModel.kpiControls.find(x=>x.id==='south-yilan-hsr-same-platform-meeting').due,'2026-10-12');
+  assert.equal(northModel.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').name,'宜蘭新站與高鐵宜蘭站同月臺轉乘報告（初步專案簡報與分析成果）');
+  assert.equal(southModel.kpiControls.some(x=>x.id.includes('same-platform')),false);
   assert.equal(northModel.dashboard.total,northModel.schedule.list.filter(x=>x.contractRule).length);
   assert.equal(southModel.dashboard.total,southModel.schedule.list.filter(x=>x.contractRule).length);
 });
