@@ -8,7 +8,11 @@ import {calculateSchedule} from '../schedule-engine.js';
 import {calculateSupervision} from '../supervision-engine.js';
 import {addDays,addWorkdays,validDate} from '../dates.js';
 import {tableMarkup,exportHTML,quickEntryMarkup} from '../views.js';
-const fixture = id => normalizeProject(JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url))));
+const fixture = id => {
+  const data=JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url)));
+  if (id === 'south') data.milestones.actualSignDate='';
+  return normalizeProject(data);
+};
 const model = (p,today='2026-12-01') => calculateModel(p,today);
 function signed(id='south') {const p=fixture(id);p.milestones.actualSignDate=p.milestones.signDate;return p;}
 
