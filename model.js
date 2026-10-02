@@ -101,5 +101,18 @@ export function calculateModel(project, today = todayLocal()) {
     const status = item.actualApprovalDate ? '已核定' : item.actualSubmitDate ? '已提送待核定' : '待辦';
     return {...item,parentName:parent?.name || item.parentRule,parentDue,status};
   });
-  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables});
+  const kpiControls = (source.kpiControls || []).map(item => {
+    const due = item.internalTargetDate || item.targetDate || null;
+    const remaining = due ? daysBetween(today,due) : null;
+    const computedStatus = item.status || (remaining == null ? '待釐清' : remaining < 0 ? '逾期' : remaining <= 30 ? '30日內到期' : '列管中');
+    const priority = computedStatus === '逾期' ? 0 : computedStatus === '30日內到期' ? 1 : computedStatus === '待釐清' ? 2 : 9;
+    return {...item,due,remainingDays:remaining,computedStatus,priority};
+  }).sort((a,b)=>a.priority-b.priority || (a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
+  const kpiSummary = {
+    total:kpiControls.length,
+    overdue:kpiControls.filter(x=>x.computedStatus === '逾期').length,
+    due30:kpiControls.filter(x=>x.computedStatus === '30日內到期').length,
+    unclear:kpiControls.filter(x=>x.computedStatus === '待釐清').length
+  };
+  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary});
 }
