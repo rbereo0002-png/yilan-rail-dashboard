@@ -43,6 +43,25 @@ export function normalizeProject(input, expectedId) {
     if (deliverable.actualApprovalDate && !validDate(deliverable.actualApprovalDate)) throw new Error(`子成果核定日期格式錯誤：${deliverable.name}`);
     return deliverable;
   });
+  p.kpiControls = Array.isArray(p.kpiControls) ? p.kpiControls : [];
+  p.kpiControls = p.kpiControls.map((item,index) => {
+    if (!object(item)) throw new Error(`KPI管制項目第 ${index + 1} 筆必須為物件`);
+    const control = {
+      id:String(item.id || `kpi-${index + 1}`),
+      category:String(item.category || 'KPI管制'),
+      name:String(item.name || ''),
+      targetDate:item.targetDate || '',
+      internalTargetDate:item.internalTargetDate || '',
+      source:String(item.source || ''),
+      scope:String(item.scope || ''),
+      status:String(item.status || ''),
+      note:String(item.note || '')
+    };
+    if (!control.name) throw new Error(`KPI管制項目第 ${index + 1} 筆缺少名稱`);
+    if (control.targetDate && !validDate(control.targetDate)) throw new Error(`KPI管制日期格式錯誤：${control.name}`);
+    if (control.internalTargetDate && !validDate(control.internalTargetDate)) throw new Error(`KPI局內管控日期格式錯誤：${control.name}`);
+    return control;
+  });
   const date = (obj,key) => {
     obj[key] ??= '';
     if (obj[key] !== '' && !validDate(obj[key])) throw new Error(`日期格式錯誤：${key}`);
