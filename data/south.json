@@ -5,9 +5,10 @@
   "title": "宜蘭至羅東鐵路高架化計畫南段（宜蘭新站南～冬山站北）土建、軌道工程委託設計及監造技術服務",
   "milestones": {
     "awardDate": "2026-09-04",
-    "evaluationDate": "",
+    "evaluationDate": "2026-08-24",
     "negotiationDate": "",
     "signDate": "2026-10-01",
+    "actualSignDate": "2026-10-01",
     "workStartDate": "2026-10-01"
   },
   "settings": {
@@ -48,7 +49,35 @@
     "constructionClose": ""
   },
   "rows": {},
-  "notes": "南段已於2026/09/04決標並自決標日起契約生效；工作啟始日及預定簽約日為2026/10/01。設計階段施工風險評估實施計畫書依契約生效日起60日內提送；執行服務計畫書、補充測量、補充地質及管線調查工作計畫書依簽約後30日內提送。",
+  "notes": "南段已於2026/08/24評選、2026/09/04決標並自決標日起契約生效；工作啟始日、預定簽約日及實際簽約日為2026/10/01。設計階段施工風險評估實施計畫書依契約生效日起60日內提送；執行服務計畫書、補充測量、補充地質及管線調查工作計畫書依簽約後30日內提送。",
+  "kpiControls": [
+    {
+      "id": "south-2027-key-main-basic-submit",
+      "category": "116年度重點工作管考",
+      "name": "北段、南段及系統主體工程基本設計成果提出",
+      "targetDate": "2027-06-30",
+      "internalTargetDate": "",
+      "source": "RBH-2-C08-04-年度重點工作管考表",
+      "scope": "北段/南段/系統",
+      "status": "",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "跨標段KPI；南段同步列管，不作為契約成果期限。"
+    },
+    {
+      "id": "south-yilan-hsr-same-platform-meeting",
+      "category": "會議紀錄管制",
+      "name": "同月臺轉乘構想初步專案簡報與分析成果資料協助",
+      "targetDate": "2026-10-12",
+      "internalTargetDate": "",
+      "source": "高鐵宜蘭站與臺鐵宜蘭新站同月臺轉乘構想初步討論會議紀錄（115/09/24）",
+      "scope": "宜蘭新站介面/南段銜接",
+      "status": "",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "會議結論請台灣世曦彙整南段中興顧問與PCM資料，於115/10/12前提出初步專案簡報與分析成果；南段列管資料提供及整合協助。"
+    }
+  ],
   "constructionPackages": [],
   "specialDeliverables": [
     {
