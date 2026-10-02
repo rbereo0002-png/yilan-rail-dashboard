@@ -69,17 +69,27 @@ export function tableMarkup(model, editable = false) {
     payment.designCumulative == null ? '—' : percent(payment.designCumulative),payment.year || '—',e(payment.note)
   ],`data-payment-id="${e(payment.paymentId)}" data-payment-tier="${payment.tier}"`));
   const yearRows = model.payments.years.map(year => tr([`${year.year}（民國${Number(year.year)-1911}年）`,money(year.ready),money(year.forecast),money(year.amount),year.count]));
+  const kpiRows = model.kpiControls.map(item => tr([
+    e(item.category),
+    `<b>${e(item.name)}</b><div class="small">${e(item.scope || '—')}</div>`,
+    fmt(item.targetDate),
+    fmt(item.internalTargetDate),
+    `<span class="timeline-pill ${item.computedStatus === '逾期' ? 'tl-danger' : item.computedStatus === '30日內到期' ? 'tl-warning' : item.computedStatus === '待釐清' ? 'tl-external' : 'tl-normal'}">${e(item.computedStatus)}</span>`,
+    e(item.source || '—'),
+    e(item.note || '')
+  ],`data-kpi-id="${e(item.id)}"`));
   return {
     scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
     contractRuleTable:tableHTML(['類別','工作／成果','前置節點','期限性質','起算日','契約期限','管理預估期限','實際提送','實際核定','狀態','付款連動'],ruleRows),
     dependencyTable:tableHTML(['類別','工作／成果','前置節點','期限性質','契約日數','管理基準日期','目前提送預估／實際','延誤判讀','付款連動'],dependencyRows),
     paymentTable:tableHTML(['類別','付款條件','付款性質','比例','條件日期（實際／預估）','預估付款日','預估金額','設計累計','年度','備註'],paymentRows),
-    yearSummary:tableHTML(['年度','已達條件金額','管理預估金額','合計','筆數'],yearRows.length ? yearRows : [tr(['目前沒有可推估付款日之資料','—','—','—','—'])])
+    yearSummary:tableHTML(['年度','已達條件金額','管理預估金額','合計','筆數'],yearRows.length ? yearRows : [tr(['目前沒有可推估付款日之資料','—','—','—','—'])]),
+    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','狀態','來源','備註'],kpiRows.length ? kpiRows : [tr(['目前無非契約KPI／外部管制事項','—','—','—','—','—','—'])])
   };
 }
 
 export function exportHTML(model) {
-  const names = {scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求'};
+  const names = {scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'非契約KPI與外部管制'};
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${e(model.project.name)}履約管制</title></head><body><h1>${e(model.project.name)}履約與付款管制</h1><p>資料日期：${fmt(model.today)}；用地及監造付款未納入本版年度彙整。</p>${Object.entries(tableMarkup(model)).map(([id,markup])=>`<h2>${names[id]}</h2><table border="1">${markup}</table>`).join('')}</body></html>`;
 }
 
@@ -132,6 +142,7 @@ function renderForms(model,readOnly,catalog) {
   ],`data-package-row="${e(pkg.id)}"`));
   $('packageTable').querySelector('tbody').innerHTML = packageRows.join('') || `<tr><td colspan="6" class="center">尚未建立施工分標；待基本設計採購策略／甲方指示確認後再登錄。</td></tr>`;
   html('packageSummary',`<div class="note">目前 ${model.construction.total} 標；已決標 ${model.construction.awarded} 標；各分標工程全部決標日：<b>${fmt(model.construction.allWorksAwardDate)}</b></div>`);
+  html('kpiControlSummary',`<div class="note">本區列管116年度重點工作、預定發包管制及會議紀錄追蹤；共 <b>${model.kpiSummary.total}</b> 項，待釐清 <b>${model.kpiSummary.unclear}</b> 項。此區不連動契約期限、付款或履約逾期判讀。</div>`);
 
   const specialRows = model.specialDeliverables.map(item => tr([
     e(item.parentName),e(item.name),fmt(item.parentDue),
