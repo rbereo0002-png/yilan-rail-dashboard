@@ -29,6 +29,8 @@ async function loadJSON(path){
 }
 
 function projectFocus(m){
+  const kpi=m.kpiControls.find(x=>x.computedStatus==='待釐清' || x.computedStatus==='逾期' || x.computedStatus==='30日內到期');
+  if(kpi) return `${kpi.name}：${kpi.computedStatus}${kpi.due ? `（${fmt(kpi.due)}）` : '，日期待確認'}`;
   const special=m.dashboard.preSignSpecialItems[0];
   if(special) return `${special.name}：期限 ${fmt(special.contractDue)}`;
   const att=m.dashboard.attention[0];
@@ -120,6 +122,7 @@ function renderOverview(){
   $('viewBody').innerHTML=`<div class="overview-dashboard">
     ${managementBrief()}
     <div class="segment-grid">${segmentCard(models.south)}${segmentCard(models.north)}</div>
+    <div class="kpi-overview-grid">${kpiMiniCard(models.south)}${kpiMiniCard(models.north)}</div>
     <div class="overview-milestone-grid">${overviewMilestones(models.south)}${overviewMilestones(models.north)}</div>
   </div>`;
 }
@@ -196,6 +199,30 @@ function renderAttention(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
+function kpiStatusClass(status){
+  if(status==='逾期') return 'tag-danger';
+  if(status==='30日內到期') return 'tag-warn';
+  if(status==='待釐清') return 'tag-info';
+  return 'tag-ok';
+}
+function kpiMiniCard(m){
+  const s=m.kpiSummary;
+  return `<button type="button" class="kpi-mini-card segment-${esc(m.project.id)}" data-view="kpi">
+    <span>${esc(m.project.name)}｜KPI／外部管制</span>
+    <b>${s.total} 項</b>
+    <small>已完成 ${s.completed}｜待釐清 ${s.unclear}｜30日內 ${s.due30}｜逾期 ${s.overdue}</small>
+  </button>`;
+}
+function renderKpi(){
+  $('viewTitle').textContent='KPI／外部管制';
+  $('viewHint').textContent='列116年度重點工作、預定發包管制及會議紀錄追蹤；此區不納入契約期限或付款計算。';
+  const cards=['south','north'].map(id=>{
+    const m=models[id];
+    const items=m.kpiControls.map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
+    return projectListCard('非契約KPI／外部管制事項',m,items);
+  }).join('');
+  $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
+}
 function renderReview(){
   $('viewTitle').textContent='審查狀況';
   $('viewHint').textContent='顯示已提送但尚未核定之成果及審查期限／管理目標。';
@@ -222,7 +249,7 @@ function renderPayment(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
-const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,review:renderReview,payment:renderPayment};
+const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
 
 function setView(view){
   currentView=view;
