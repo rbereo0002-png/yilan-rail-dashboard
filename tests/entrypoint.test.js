@@ -36,13 +36,13 @@ test('milestone assignments tolerate cached HTML without new field',()=>{
 });
 test('production entrypoint cache-busts v1.3 assets',()=>{
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(html,/app\.js\?v=1\.3\.1/);
+  assert.match(html,/app\.js\?v=1\.3\.3/);
 });
 
 
 test('v1.3.2 print layout keeps screen logic untouched and marks duplicate print blocks',()=>{
   const html=read('index.html'),css=read('style.css');
-  assert.match(html,/style\.css\?v=1\.3\.2/);
+  assert.match(html,/style\.css\?v=1\.3\.3/);
   assert.match(html,/id="dependencyPrintBlock"/);
   assert.match(html,/id="paymentMilestonePrintBlock"/);
   assert.match(html,/id="publicDataSection"/);
