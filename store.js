@@ -55,11 +55,14 @@ export function normalizeProject(input, expectedId) {
       source:String(item.source || ''),
       scope:String(item.scope || ''),
       status:String(item.status || ''),
+      actualDate:item.actualDate || '',
+      actualNote:String(item.actualNote || ''),
       note:String(item.note || '')
     };
     if (!control.name) throw new Error(`KPI管制項目第 ${index + 1} 筆缺少名稱`);
     if (control.targetDate && !validDate(control.targetDate)) throw new Error(`KPI管制日期格式錯誤：${control.name}`);
     if (control.internalTargetDate && !validDate(control.internalTargetDate)) throw new Error(`KPI局內管控日期格式錯誤：${control.name}`);
+    if (control.actualDate && !validDate(control.actualDate)) throw new Error(`KPI實際完成日期格式錯誤：${control.name}`);
     return control;
   });
   const date = (obj,key) => {
