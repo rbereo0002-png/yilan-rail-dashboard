@@ -15,6 +15,14 @@ test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
 });
 
+test('south default data records evaluation and actual signing dates',()=>{
+  const p=normalizeProject(JSON.parse(read('data/south.json')),'south');
+  const m=calculateModel(p,'2026-10-02');
+  assert.equal(p.milestones.evaluationDate,'2026-08-24');
+  assert.equal(p.milestones.actualSignDate,'2026-10-01');
+  assert.equal(m.dashboard.phase,'active-performance');
+});
+
 test('executive dashboard provides one-frame detail switching and return-to-overview control',()=>{
   const html=read('dashboard.html'),js=read('dashboard.js');
   for(const view of ['overview','progress','attention','kpi','review','payment']) assert.match(html,new RegExp(`data-view="${view}"`));
@@ -154,18 +162,24 @@ test('v1.4.8 adds non-contract KPI controls without changing contract schedule c
   const southModel=calculateModel(south,'2026-10-02');
   assert.equal(northModel.kpiSummary.total,5);
   assert.equal(southModel.kpiSummary.total,2);
-  assert.equal(northModel.kpiSummary.unclear,1);
-  assert.equal(southModel.kpiSummary.unclear,1);
+  assert.equal(northModel.kpiSummary.unclear,0);
+  assert.equal(southModel.kpiSummary.unclear,0);
+  assert.equal(northModel.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').due,'2026-10-12');
+  assert.equal(southModel.kpiControls.find(x=>x.id==='south-yilan-hsr-same-platform-meeting').due,'2026-10-12');
   assert.equal(northModel.dashboard.total,northModel.schedule.list.filter(x=>x.contractRule).length);
   assert.equal(southModel.dashboard.total,southModel.schedule.list.filter(x=>x.contractRule).length);
 });
 
-test('v1.4.8 executive and workbench expose KPI control tables',()=>{
-  const html=read('dashboard.html'),js=read('dashboard.js'),index=read('index.html'),views=read('views.js'),css=read('dashboard.css');
+test('v1.4.8 executive and workbench expose editable KPI control tables',()=>{
+  const html=read('dashboard.html'),js=read('dashboard.js'),index=read('index.html'),views=read('views.js'),css=read('dashboard.css'),app=read('app.js'),store=read('store.js');
   assert.match(html,/KPI／外部管制/);
   assert.match(js,/function renderKpi\(\)/);
   assert.match(js,/kpiMiniCard/);
   assert.match(index,/id="kpiControlTable"/);
   assert.match(views,/kpiControlTable/);
+  assert.match(views,/data-kpi-field="actualDate"/);
+  assert.match(views,/data-kpi-field="actualNote"/);
+  assert.match(app,/input\.dataset\.kpiId/);
+  assert.match(store,/actualDate/);
   assert.match(css,/\.kpi-mini-card/);
 });
