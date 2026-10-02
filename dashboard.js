@@ -210,7 +210,7 @@ function kpiMiniCard(m){
   return `<button type="button" class="kpi-mini-card segment-${esc(m.project.id)}" data-view="kpi">
     <span>${esc(m.project.name)}｜KPI／外部管制</span>
     <b>${s.total} 項</b>
-    <small>待釐清 ${s.unclear}｜30日內 ${s.due30}｜逾期 ${s.overdue}</small>
+    <small>已完成 ${s.completed}｜待釐清 ${s.unclear}｜30日內 ${s.due30}｜逾期 ${s.overdue}</small>
   </button>`;
 }
 function renderKpi(){
@@ -218,7 +218,7 @@ function renderKpi(){
   $('viewHint').textContent='列116年度重點工作、預定發包管制及會議紀錄追蹤；此區不納入契約期限或付款計算。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
-    const items=m.kpiControls.map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
+    const items=m.kpiControls.map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
     return projectListCard('非契約KPI／外部管制事項',m,items);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
