@@ -42,7 +42,7 @@ test('production entrypoint cache-busts v1.3 assets',()=>{
 
 test('v1.3.2 print layout keeps screen logic untouched and marks duplicate print blocks',()=>{
   const html=read('index.html'),css=read('style.css');
-  assert.match(html,/style\.css\?v=1\.3\.2/);
+  assert.match(html,/style\.css\?v=1\.3\.3/);
   assert.match(html,/id="dependencyPrintBlock"/);
   assert.match(html,/id="paymentMilestonePrintBlock"/);
   assert.match(html,/id="publicDataSection"/);
