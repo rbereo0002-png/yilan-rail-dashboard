@@ -74,9 +74,10 @@ export function tableMarkup(model, editable = false) {
     `<b>${e(item.name)}</b><div class="small">${e(item.scope || '—')}</div>`,
     fmt(item.targetDate),
     fmt(item.internalTargetDate),
+    editable ? `<input type="date" data-kpi-id="${e(item.id)}" data-kpi-field="actualDate" value="${e(item.actualDate || '')}" max="${e(model.today)}" aria-label="${e(item.name)}實際完成日">` : fmt(item.actualDate),
     `<span class="timeline-pill ${item.computedStatus === '逾期' ? 'tl-danger' : item.computedStatus === '30日內到期' ? 'tl-warning' : item.computedStatus === '待釐清' ? 'tl-external' : 'tl-normal'}">${e(item.computedStatus)}</span>`,
     e(item.source || '—'),
-    e(item.note || '')
+    `${editable ? `<textarea data-kpi-id="${e(item.id)}" data-kpi-field="actualNote" aria-label="${e(item.name)}實際辦理情形">${e(item.actualNote || '')}</textarea>` : e(item.actualNote || '')}<div class="small">${e(item.note || '')}</div>`
   ],`data-kpi-id="${e(item.id)}"`));
   return {
     scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
@@ -84,7 +85,7 @@ export function tableMarkup(model, editable = false) {
     dependencyTable:tableHTML(['類別','工作／成果','前置節點','期限性質','契約日數','管理基準日期','目前提送預估／實際','延誤判讀','付款連動'],dependencyRows),
     paymentTable:tableHTML(['類別','付款條件','付款性質','比例','條件日期（實際／預估）','預估付款日','預估金額','設計累計','年度','備註'],paymentRows),
     yearSummary:tableHTML(['年度','已達條件金額','管理預估金額','合計','筆數'],yearRows.length ? yearRows : [tr(['目前沒有可推估付款日之資料','—','—','—','—'])]),
-    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','狀態','來源','備註'],kpiRows.length ? kpiRows : [tr(['目前無非契約KPI／外部管制事項','—','—','—','—','—','—'])])
+    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],kpiRows.length ? kpiRows : [tr(['目前無非契約KPI／外部管制事項','—','—','—','—','—','—','—'])])
   };
 }
 
