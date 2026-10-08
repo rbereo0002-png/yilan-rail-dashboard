@@ -233,7 +233,8 @@ function renderReview(){
   const cards=['south','north'].map(id=>{
     const m=models[id];
     const items=m.dashboard.underReviewItems.map(x=>row(x.name,`${x.pcmReviewContract?'PCM契約':'管理預估'} ${x.reviewDays}日；${x.reviewOverdueDays>0?`逾期 ${x.reviewOverdueDays}日`:'審查中'}`,x.reviewTarget,x.reviewOverdueDays>0?'催辦':'審查中',x.reviewOverdueDays>0?'tag-danger':'tag-info'));
-    return projectListCard('審查中',m,items);
+    const periodic=[...(m.insuranceControls || []).filter(x=>x.status!=='已審查／持續保期追蹤').map(x=>row(x.name,x.note,x.coverageEnd || x.coverageStart,x.status,'tag-info')),...(m.monthlyReports || []).filter(x=>x.status!=='已核定／結案').map(x=>row(`${x.month}工作月報`,`${x.documentRef || ''} ${x.calendarVerified ? '' : '假日行事曆待確認'}`,x.due,x.status,x.status==='逾期未提送' ? 'tag-danger' : 'tag-info'))];
+    return projectListCard('審查中',m,items)+projectListCard('保險／逐月月報',m,periodic);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }

@@ -81,7 +81,12 @@ export function tableMarkup(model, editable = false) {
   ],`data-kpi-id="${e(item.id)}"`);
   const headers=['類別','管制事項／子清單','來源目標日期','局內目標日期','實際完成日','狀態','依據','辦理情形／證據／備註'];
   const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!x.actualDate && x.category===category).map(controlRow));
+  const recordInput=(item,key,type,attribute,label)=>editable ? `<input type="${type}" ${attribute} data-record-field="${key}" value="${e(item[key] || '')}" ${['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(key) ? `max="${model.today}"` : ''} aria-label="${e(label)}">` : e(item[key] || '—');
+  const insuranceRows=(model.insuranceControls || []).map(item=>{const attr=`data-insurance-id="${e(item.id)}"`;return tr([e(item.name),recordInput(item,'coverageStart','date',attr,'起保日'),recordInput(item,'coverageEnd','date',attr,'保期截止日'),recordInput(item,'submitDate','date',attr,'保單及收據提送日'),recordInput(item,'approvalDate','date',attr,'審查完成日'),recordInput(item,'renewalSubmitDate','date',attr,'續保提送日'),e(item.status),recordInput(item,'documentRef','text',attr,'保單／文號／收據'),recordInput(item,'note','text',attr,'保險審查及續保備註')]);});
+  const reportRows=(model.monthlyReports || []).map(item=>{const attr=`data-report-month="${item.month}"`;return tr([e(item.month),`${fmt(item.baseDue)}<br>順延試算：${fmt(item.adjustedDue)}<br>${item.calendarVerified ? '行事曆已確認' : '假日行事曆待確認'}<br>${recordInput(item,'dueOverride','date',attr,'本期確認期限')}`,recordInput(item,'submitDate','date',attr,'實際收文日'),recordInput(item,'reviewDate','date',attr,'審查日'),recordInput(item,'revisionRequestDate','date',attr,'通知修正日'),recordInput(item,'resubmitDate','date',attr,'修正提送日'),recordInput(item,'approvalDate','date',attr,'核定日'),e(item.status),recordInput(item,'documentRef','text',attr,'收文／審查文號'),recordInput(item,'note','text',attr,'月報內容與缺失')]);});
   return {
+    insuranceTable:tableHTML(['險種','起保日','保期截止','文件提送','審查完成','續保提送','狀態','保單／文號／收據','備註'],insuranceRows),
+    monthlyReportTable:tableHTML(['報告月份','每月10日基準／假日順延／本期確認期限','收文日','審查日','通知修正','修正提送','核定日','狀態','文號','備註'],reportRows),
     scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
     contractRuleTable:tableHTML(['類別','工作／成果','前置節點','期限性質','起算日','契約期限','管理預估期限','實際提送','實際核定','狀態','付款連動'],ruleRows),
     dependencyTable:tableHTML(['類別','工作／成果','前置節點','期限性質','契約日數','管理基準日期','目前提送預估／實際','延誤判讀','付款連動'],dependencyRows),
@@ -96,7 +101,7 @@ export function tableMarkup(model, editable = false) {
 }
 
 export function exportHTML(model) {
-  const names = {meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
+  const names = {insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${e(model.project.name)}履約管制</title></head><body><h1>${e(model.project.name)}履約與付款管制</h1><p>資料日期：${fmt(model.today)}；用地及監造付款未納入本版年度彙整。</p>${Object.entries(tableMarkup(model)).map(([id,markup])=>`<h2>${names[id]}</h2><table border="1">${markup}</table>`).join('')}</body></html>`;
 }
 
@@ -149,6 +154,9 @@ function renderForms(model,readOnly,catalog) {
   ],`data-package-row="${e(pkg.id)}"`));
   $('packageTable').querySelector('tbody').innerHTML = packageRows.join('') || `<tr><td colspan="6" class="center">尚未建立施工分標；待基本設計採購策略／甲方指示確認後再登錄。</td></tr>`;
   html('packageSummary',`<div class="note">目前 ${model.construction.total} 標；已決標 ${model.construction.awarded} 標；各分標工程全部決標日：<b>${fmt(model.construction.allWorksAwardDate)}</b></div>`);
+  const config=model.project.monthlyReportConfig || {};
+  html('periodicConfig', ['firstMonth','lastMonth','calendarConfirmedThrough'].map((key,i)=>`<label>${['首期報告月份','末期月份（空白則動態顯示至本月後2個月）','假日及補班行事曆已核對至'][i]}${readOnly ? e(config[key] || '—') : `<input type="month" data-report-config="${key}" value="${e(config[key] || '')}">`}</label>`).join('')+['holidays','workingDates'].map(key=>`<label>${key==='holidays' ? '法定假日／補假 YYYY-MM-DD（空白分隔）' : '補班日期 YYYY-MM-DD（優先於週末）'}${readOnly ? e((model.project.settings[key] || []).join(' ')) : `<textarea data-calendar-field="${key}">${e((model.project.settings[key] || []).join(' '))}</textarea>`}</label>`).join(''));
+  html('periodicSummary',`<p>保險 ${model.insuranceControls.length} 項；待審查 ${model.insuranceControls.filter(x=>x.status==='已提送待審查').length}；到期／續保提醒 ${model.insuranceControls.filter(x=>x.daysToExpiry!=null && x.daysToExpiry<=30).length}。月報 ${model.monthlyReports.length} 期；已核定 ${model.monthlyReports.filter(x=>x.status==='已核定／結案').length}；未核定事項持續追蹤。</p>`);
   html('kpiControlSummary',`<div class="note">會議事項依交辦、查核及介面分流；完成後移至已結案。含KPI／外部管制共 <b>${model.kpiSummary.total}</b> 項，待釐清 <b>${model.kpiSummary.unclear}</b> 項。此區不連動契約期限、付款或履約逾期判讀。</div>`);
 
   const specialRows = model.specialDeliverables.map(item => tr([

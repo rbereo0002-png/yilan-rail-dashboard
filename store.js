@@ -43,6 +43,24 @@ export function normalizeProject(input, expectedId) {
     if (deliverable.actualApprovalDate && !validDate(deliverable.actualApprovalDate)) throw new Error(`子成果核定日期格式錯誤：${deliverable.name}`);
     return deliverable;
   });
+  p.insuranceRecords = Array.isArray(p.insuranceRecords) ? p.insuranceRecords.map(x=>({...x})) : [];
+  for (const item of p.insuranceRecords) {
+    if (!item.id || !item.name) throw new Error('保險缺少名稱或識別碼');
+    for (const key of ['coverageStart','coverageEnd','submitDate','approvalDate','renewalSubmitDate']) {
+      item[key] ||= ''; if (item[key] && !validDate(item[key])) throw new Error(`保險日期錯誤：${key}`);
+    }
+    if(item.coverageStart && item.coverageEnd && item.coverageEnd<item.coverageStart) throw new Error('保險截止日不得早於起保日');
+  }
+  p.monthlyReportConfig ||= {firstMonth:'',lastMonth:'',calendarConfirmedThrough:'',note:''};
+  for(const key of ['firstMonth','lastMonth','calendarConfirmedThrough']) {
+    if(p.monthlyReportConfig[key] && !/^\d{4}-(0[1-9]|1[0-2])$/.test(p.monthlyReportConfig[key])) throw new Error('月報月份格式錯誤');
+  }
+  if(p.monthlyReportConfig.lastMonth && p.monthlyReportConfig.firstMonth>p.monthlyReportConfig.lastMonth) throw new Error('月報結束月不得早於首期');
+  p.monthlyReports = object(p.monthlyReports) ? p.monthlyReports : {};
+  for (const [month,item] of Object.entries(p.monthlyReports)) {
+    if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !object(item)) throw new Error('月報紀錄格式錯誤');
+    for(const key of ['dueOverride','submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate']) if(item[key] && !validDate(item[key])) throw new Error(`月報日期錯誤：${month}`);
+  }
   p.kpiControls = Array.isArray(p.kpiControls) ? p.kpiControls : [];
   p.kpiControls = p.kpiControls.map((item,index) => {
     if (!object(item)) throw new Error(`KPI管制項目第 ${index + 1} 筆必須為物件`);
@@ -96,6 +114,7 @@ export function normalizeProject(input, expectedId) {
     p.settings[key] = n;
   }
   if (!['budget','contract'].includes(p.settings.forecastMode)) throw new Error('估算模式錯誤');
+  if (!Array.isArray(p.settings.workingDates || []) || (p.settings.workingDates || []).some(d => !validDate(d))) throw new Error('補班日期請使用 YYYY-MM-DD');
   if (!Array.isArray(p.settings.holidays) || p.settings.holidays.some(d => !validDate(d))) throw new Error('非工作日請使用 YYYY-MM-DD');
   for (const key of ['survey','geo','utility','land','design','supervision']) {
     for (const source of ['budget','contract']) {
