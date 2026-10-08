@@ -15,7 +15,8 @@
     "pcmDays": 30,
     "payWorkdays": 30,
     "forecastMode": "budget",
-    "holidays": []
+    "holidays": [],
+    "workingDates": []
   },
   "budget": {
     "total": 828711915,
@@ -112,5 +113,36 @@
       "actualApprovalDate": "",
       "note": "南段期末設計提送文件列管項目；本版僅列設計成果檢核，不啟用施工監造模組。"
     }
-  ]
+  ],
+  "insuranceRecords": [
+    {
+      "id": "professional",
+      "name": "工程師／建築師專業責任險",
+      "coverageStart": "2026-10-01",
+      "coverageEnd": "",
+      "submitDate": "",
+      "approvalDate": "",
+      "renewalSubmitDate": "",
+      "documentRef": "",
+      "note": "投保後保單正本1份及保費繳納收據送機關審查，始得計價請款。附件三第八條。"
+    },
+    {
+      "id": "employer",
+      "name": "雇主意外責任險",
+      "coverageStart": "2026-10-01",
+      "coverageEnd": "",
+      "submitDate": "",
+      "approvalDate": "",
+      "renewalSubmitDate": "",
+      "documentRef": "",
+      "note": "保額、自負額及被保險人依第十一條審查，含分包商員工。"
+    }
+  ],
+  "monthlyReportConfig": {
+    "firstMonth": "2026-10",
+    "lastMonth": "",
+    "calendarConfirmedThrough": "",
+    "note": "每月10日前（如遇假日得順延）。預設次月10日為上月月報管制基準；首期涵蓋期間及10日是否含當日由機關確認，必要時調整本期日期。法定假日及補班請核對並登錄。"
+  },
+  "monthlyReports": {}
 }

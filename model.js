@@ -116,5 +116,27 @@ export function calculateModel(project, today = todayLocal()) {
     unclear:kpiControls.filter(x=>x.computedStatus === '待釐清').length,
     completed:kpiControls.filter(x=>x.computedStatus === '已完成').length
   };
-  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary});
+  const actual = date => date && date <= today ? date : '';
+  const insuranceControls=(source.insuranceRecords || []).map(item=>{
+    const daysToExpiry=item.coverageEnd ? daysBetween(today,item.coverageEnd) : null;
+    const status=daysToExpiry!=null && daysToExpiry<0 ? '保期已屆滿' : daysToExpiry!=null && daysToExpiry<=30 ? '30日內須確認續保' : actual(item.approvalDate) ? '已審查／持續保期追蹤' : actual(item.submitDate) ? '已提送待審查' : '待提送／核對投保';
+    return {...item,daysToExpiry,status};
+  });
+  const monthlyReports=[];
+  const config=source.monthlyReportConfig || {};
+  const monthOffset=(month,offset)=>{const [y,m]=month.split('-').map(Number);const d=new Date(Date.UTC(y,m-1+offset,1));return d.toISOString().slice(0,7);};
+  const start=config.firstMonth || source.milestones.workStartDate?.slice(0,7);
+  const horizon=config.lastMonth || monthOffset(today.slice(0,7),2);
+  const holidays=new Set(source.settings.holidays || []),working=new Set(source.settings.workingDates || []);
+  if(start) for(let month=start;month<=horizon;month=monthOffset(month,1)) {
+    const record=source.monthlyReports?.[month] || {};
+    const baseDue=monthOffset(month,1)+'-10';let adjustedDue=baseDue;
+    const isHoliday=date=>{if(working.has(date))return false;const day=new Date(date+'T12:00:00Z').getUTCDay();return holidays.has(date)||day===0||day===6;};
+    let shifts=0;while(isHoliday(adjustedDue) && shifts++<60){const d=new Date(adjustedDue+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+1);adjustedDue=d.toISOString().slice(0,10);}
+    const calendarVerified=Boolean(config.calendarConfirmedThrough && adjustedDue.slice(0,7)<=config.calendarConfirmedThrough);
+    const due=record.dueOverride || adjustedDue;
+    const status=actual(record.approvalDate) ? '已核定／結案' : actual(record.resubmitDate) ? '已修正待審查' : actual(record.revisionRequestDate) ? '待修正' : actual(record.submitDate) ? '已提送待審查' : due<today ? (calendarVerified || record.dueOverride ? '逾期未提送' : '超過暫定日期／假日待核') : '待提送';
+    monthlyReports.push({...record,month,baseDue,adjustedDue,due,calendarVerified,status,remainingDays:daysBetween(today,due)});
+  }
+  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary,insuranceControls,monthlyReports});
 }

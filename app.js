@@ -116,6 +116,9 @@ async function init() {
         fail(new Error(SIGN_DATE_WARNING));return;
       }
     }
+    if ((input.dataset.insuranceId || input.dataset.reportMonth) && ['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(input.dataset.recordField) && input.value>todayLocal()) {
+      fail(new Error('實際辦理日期不得晚於今日'));refresh();return;
+    }
     if (input.dataset.row && ['submit','approval'].includes(input.dataset.kind) && input.value && input.value > todayLocal()) {
       const message='實際提送日／實際核定日不得晚於今日。';
       input.setCustomValidity(message);input.reportValidity();input.setCustomValidity('');
@@ -128,7 +131,16 @@ async function init() {
     }
     try {
       store.edit(p=>{
-        if (input.dataset.packageId) {
+        if (input.dataset.insuranceId) {
+          const item=p.insuranceRecords.find(x=>x.id===input.dataset.insuranceId);if(item)item[input.dataset.recordField]=input.value;
+        } else if (input.dataset.reportMonth) {
+          p.monthlyReports[input.dataset.reportMonth] ||= {};
+          p.monthlyReports[input.dataset.reportMonth][input.dataset.recordField]=input.value;
+        } else if(input.dataset.reportConfig) {
+          p.monthlyReportConfig[input.dataset.reportConfig]=input.value;
+        } else if(input.dataset.calendarField) {
+          p.settings[input.dataset.calendarField]=input.value.split(/[\s,，]+/).filter(Boolean);
+        } else if (input.dataset.packageId) {
           const pkg=p.constructionPackages.find(x=>x.id===input.dataset.packageId);
           if (pkg) pkg[input.dataset.packageField]=input.value;
         } else if (input.dataset.kpiId) {
