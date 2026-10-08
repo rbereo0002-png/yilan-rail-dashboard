@@ -29,7 +29,7 @@ async function loadJSON(path){
 }
 
 function projectFocus(m){
-  const kpi=m.kpiControls.find(x=>x.computedStatus==='待釐清' || x.computedStatus==='逾期' || x.computedStatus==='30日內到期');
+  const kpi=m.kpiControls.find(x=>x.computedStatus==='逾期' || x.computedStatus==='30日內到期');
   if(kpi) return `${kpi.name}：${kpi.computedStatus}${kpi.due ? `（${fmt(kpi.due)}）` : '，日期待確認'}`;
   const special=m.dashboard.preSignSpecialItems[0];
   if(special) return `${special.name}：期限 ${fmt(special.contractDue)}`;
@@ -222,8 +222,8 @@ function renderKpi(){
   $('viewHint').textContent='列116年度重點工作、預定發包管制及會議紀錄追蹤；此區不納入契約期限或付款計算。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
-    const items=m.kpiControls.map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
-    return projectListCard('非契約KPI／外部管制事項',m,items);
+    const items=m.kpiControls.filter(x=>!x.actualDate).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
+    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus))))).join('');
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }

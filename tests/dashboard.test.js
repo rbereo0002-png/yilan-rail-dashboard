@@ -160,8 +160,9 @@ test('v1.4.8 adds non-contract KPI controls without changing contract schedule c
   const south=normalizeProject(JSON.parse(read('data/south.json')),'south');
   const northModel=calculateModel(north,'2026-10-02');
   const southModel=calculateModel(south,'2026-10-02');
-  assert.equal(northModel.kpiSummary.total,5);
-  assert.equal(southModel.kpiSummary.total,1);
+  assert.equal(northModel.kpiControls.filter(x=>!x.id.startsWith('north-kickoff-1151006-')).length,5);
+  assert.equal(northModel.kpiSummary.total,41);
+  assert.equal(southModel.kpiSummary.total,2);
   assert.equal(northModel.kpiSummary.unclear,0);
   assert.equal(southModel.kpiSummary.unclear,0);
   assert.equal(northModel.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').due,'2026-10-12');

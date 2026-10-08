@@ -105,7 +105,7 @@ export function calculateModel(project, today = todayLocal()) {
     const due = item.internalTargetDate || item.targetDate || null;
     const remaining = due ? daysBetween(today,due) : null;
     const completed = Boolean(item.actualDate);
-    const computedStatus = item.status || (completed ? '已完成' : remaining == null ? '待釐清' : remaining < 0 ? '逾期' : remaining <= 30 ? '30日內到期' : '列管中');
+    const computedStatus = completed ? '已完成' : item.status || (remaining == null ? (item.category === '設計查核' ? '待審查確認' : item.category === '介面決策' ? '待協調／決策' : item.category === '交辦待辦' ? '待確認期限' : '待釐清') : remaining < 0 ? '逾期' : remaining <= 30 ? '30日內到期' : '列管中');
     const priority = computedStatus === '逾期' ? 0 : computedStatus === '30日內到期' ? 1 : computedStatus === '待釐清' ? 2 : computedStatus === '已完成' ? 10 : 9;
     return {...item,due,remainingDays:remaining,computedStatus,priority};
   }).sort((a,b)=>a.priority-b.priority || (a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
