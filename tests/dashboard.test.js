@@ -185,3 +185,20 @@ test('v1.4.8 executive and workbench expose editable KPI control tables',()=>{
   assert.match(store,/actualDate/);
   assert.match(css,/\.kpi-mini-card/);
 });
+
+
+test('executive 14-day summary includes meeting controls before signing and removes completed controls',()=>{
+ const p=normalizeProject(JSON.parse(read('data/north.json')),'north');
+ const m=calculateModel(p,'2026-10-08');
+ assert.ok(m.dashboard.executiveDue14>=1);
+ const report=m.dashboard.executiveItems.find(x=>x.id==='north-yilan-hsr-same-platform-meeting');
+ assert.equal(report.due,'2026-10-12');
+ assert.equal(report.remainingDays,4);
+ assert.equal(new Set(m.dashboard.executiveItems.map(x=>x.id)).size,m.dashboard.executiveItems.length);
+ const dates=m.dashboard.executiveItems.map(x=>x.due || '9999');
+ assert.deepEqual(dates,[...dates].sort());
+ p.kpiControls.find(x=>x.id===report.id).actualDate='2026-10-08';
+ const done=calculateModel(p,'2026-10-08');
+ assert.ok(!done.dashboard.executiveItems.some(x=>x.id===report.id));
+ assert.equal(done.dashboard.executiveDue14,m.dashboard.executiveDue14-1);
+});

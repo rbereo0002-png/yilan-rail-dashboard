@@ -51,7 +51,7 @@ function segmentCard(m){
     </div>
     <div class="segment-stats">
       <div class="stat-box"><span>逾期</span><b>${d.overdue}</b></div>
-      <div class="stat-box"><span>14日內</span><b>${d.due14}</b></div>
+      <div class="stat-box"><span>14日內</span><b>${d.executiveDue14}</b></div>
       <div class="stat-box"><span>審查中</span><b>${d.underReview}</b></div>
       <div class="stat-box"><span>完成</span><b>${d.completed}/${d.total}</b></div>
     </div>
@@ -191,15 +191,11 @@ function renderProgress(){
 }
 function renderAttention(){
   $('viewTitle').textContent='重要待辦';
-  $('viewHint').textContent='優先顯示逾期、審查催辦、14日及30日內事項；簽約前特殊事項另列。';
+  $('viewHint').textContent='依期限由近到遠排列，逾期事項在前、未訂期限事項在後；含契約、簽約前特別列管及會議／外部管制。';
   const cards=['south','north'].map(id=>{
     const m=models[id],d=m.dashboard;
-    const pre=d.preSignSpecialItems.map(x=>row(x.name,x.note,x.contractDue,'簽約前特別列管','tag-warn'));
-    const kpi=m.kpiControls
-      .filter(x=>!x.actualDate && ['逾期','30日內到期','待釐清'].includes(x.computedStatus))
-      .map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
-    const active=d.attention.slice(0,8).map(x=>row(x.name,x.attentionReason,x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,x.attentionLabel,x.attentionPriority===0?'tag-danger':x.attentionPriority===1?'tag-warn':'tag-info'));
-    return projectListCard('重要事項',m,[...pre,...kpi,...active]);
+    const items=d.executiveItems.map(x=>row(x.name,x.description,x.due,x.label,x.label==='逾期' || x.attentionPriority===0?'tag-danger':x.kind==='special' || x.attentionPriority===1?'tag-warn':'tag-info'));
+    return projectListCard('重要事項',m,items);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
@@ -266,7 +262,7 @@ function updateTop(){
   const ms=Object.values(models);
   $('dashboardDate').textContent=fmt(todayLocal());
   $('kpiOverdue').textContent=ms.reduce((n,m)=>n+m.dashboard.overdue,0);
-  $('kpiDue14').textContent=ms.reduce((n,m)=>n+m.dashboard.due14,0);
+  $('kpiDue14').textContent=ms.reduce((n,m)=>n+m.dashboard.executiveDue14,0);
   $('kpiReview').textContent=ms.reduce((n,m)=>n+m.dashboard.underReview,0);
   $('kpiCompleted').textContent=ms.reduce((n,m)=>n+m.dashboard.completed,0);
 }

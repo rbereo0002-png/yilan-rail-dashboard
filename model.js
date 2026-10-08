@@ -116,6 +116,16 @@ export function calculateModel(project, today = todayLocal()) {
     unclear:kpiControls.filter(x=>x.computedStatus === '待釐清').length,
     completed:kpiControls.filter(x=>x.computedStatus === '已完成').length
   };
+  // Executive reminders also include dated meeting / external controls, independently of signing.
+  const executiveItems = [
+    ...preSignSpecialItems.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.contractDue,label:'簽約前特別列管',description:x.note,kind:'special'})),
+    ...attention.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,label:x.attentionLabel,description:x.attentionReason,kind:'contract'})),
+    ...kpiControls.filter(x=>!x.actualDate && (['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (x.remainingDays!=null && x.remainingDays<=30)))
+      .map(x=>({...x,label:x.computedStatus,description:`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source || ''}`,kind:'control'}))
+  ].filter((x,i,all)=>all.findIndex(y=>y.id===x.id)===i)
+    .sort((a,b)=>(a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
+  dashboard.executiveItems=executiveItems;
+  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && !x.effectiveSubmit && !x.effectiveApproval).length;
   const actual = date => date && date <= today ? date : '';
   const insuranceControls=(source.insuranceRecords || []).map(item=>{
     const daysToExpiry=item.coverageEnd ? daysBetween(today,item.coverageEnd) : null;
