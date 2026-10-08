@@ -43,7 +43,10 @@ export function normalizeProject(input, expectedId) {
     if (deliverable.actualApprovalDate && !validDate(deliverable.actualApprovalDate)) throw new Error(`子成果核定日期格式錯誤：${deliverable.name}`);
     return deliverable;
   });
-  p.insuranceRecords = Array.isArray(p.insuranceRecords) ? p.insuranceRecords.map(x=>({...x})) : [];
+  p.insuranceRecords = Array.isArray(p.insuranceRecords) ? p.insuranceRecords.map(x=>({...x})) : [
+    {id:'professional',name:'工程師／建築師專業責任險',coverageStart:p.milestones?.workStartDate || '',note:'投保後保單及收據送審；審查完成後仍須追蹤續保。'},
+    {id:'employer',name:'雇主意外責任險',coverageStart:p.milestones?.workStartDate || '',note:'依契約核對保額、自負額及被保險人。'}
+  ];
   for (const item of p.insuranceRecords) {
     if (!item.id || !item.name) throw new Error('保險缺少名稱或識別碼');
     for (const key of ['coverageStart','coverageEnd','submitDate','approvalDate','renewalSubmitDate']) {

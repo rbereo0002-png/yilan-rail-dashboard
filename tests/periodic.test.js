@@ -21,3 +21,5 @@ test('unknown holiday calendar does not assert contractual overdue; confirmed ca
 test('insurance keeps expiry reminders after approval and rejects backwards policy period',()=>{
  const p=fixture();p.insuranceRecords[0].approvalDate='2026-10-08';p.insuranceRecords[0].coverageEnd='2026-11-01';assert.equal(calculateModel(p,'2026-10-20').insuranceControls[0].status,'30日內須確認續保');assert.equal(calculateModel(p,'2026-11-02').insuranceControls[0].status,'保期已屆滿');p.insuranceRecords[0].coverageEnd='2026-01-01';assert.throws(()=>normalizeProject(p),/截止日/);
 });
+
+test('legacy local drafts receive insurance controls without losing saved dates',()=>{const p=fixture();delete p.insuranceRecords;delete p.monthlyReports;delete p.monthlyReportConfig;p.rows.basic_submit='2026-10-01';const restored=normalizeProject(p);assert.equal(restored.insuranceRecords.length,2);assert.equal(restored.rows.basic_submit,'2026-10-01');});
