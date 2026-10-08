@@ -122,7 +122,7 @@ async function init() {
       fail(new Error(message));refresh();return;
     }
     if (input.dataset.kpiId && input.dataset.kpiField === 'actualDate' && input.value && input.value > todayLocal()) {
-      const message='KPI實際完成日不得晚於今日。';
+      const message='管制事項實際完成日不得晚於今日。';
       input.setCustomValidity(message);input.reportValidity();input.setCustomValidity('');
       fail(new Error(message));refresh();return;
     }
@@ -133,7 +133,10 @@ async function init() {
           if (pkg) pkg[input.dataset.packageField]=input.value;
         } else if (input.dataset.kpiId) {
           const item=p.kpiControls.find(x=>x.id===input.dataset.kpiId);
-          if (item) item[input.dataset.kpiField]=input.value;
+          if (item) {
+            const target=input.dataset.childId ? item.children.find(x=>x.id===input.dataset.childId) : item;
+            if (target) target[input.dataset.kpiField]=input.value;
+          }
         } else if (input.dataset.specialId) {
           const item=p.specialDeliverables.find(x=>x.id===input.dataset.specialId);
           if (item) item[input.dataset.specialField]=input.value;

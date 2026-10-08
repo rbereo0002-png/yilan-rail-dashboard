@@ -49,6 +49,7 @@ export function normalizeProject(input, expectedId) {
     const control = {
       id:String(item.id || `kpi-${index + 1}`),
       category:String(item.category || 'KPI管制'),
+      children:Array.isArray(item.children) ? item.children.map(child=>({...child, actualDate:child.actualDate || '', actualNote:String(child.actualNote || '')})) : [],
       name:String(item.name || ''),
       targetDate:item.targetDate || '',
       internalTargetDate:item.internalTargetDate || '',
@@ -59,6 +60,10 @@ export function normalizeProject(input, expectedId) {
       actualNote:String(item.actualNote || ''),
       note:String(item.note || '')
     };
+    for (const child of control.children) {
+      if (!child.id || !child.name) throw new Error('子清單缺少名稱或識別碼');
+      if (child.actualDate && !validDate(child.actualDate)) throw new Error('子清單完成日期格式錯誤');
+    }
     if (!control.name) throw new Error(`KPI管制項目第 ${index + 1} 筆缺少名稱`);
     if (control.targetDate && !validDate(control.targetDate)) throw new Error(`KPI管制日期格式錯誤：${control.name}`);
     if (control.internalTargetDate && !validDate(control.internalTargetDate)) throw new Error(`KPI局內管控日期格式錯誤：${control.name}`);
