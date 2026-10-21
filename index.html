@@ -398,10 +398,16 @@
             <input type="date" id="actualSignDate">
           </div>
 
-          <div class="field">
-            <label>其他成果 PCM 管理預估審查日數（日曆天）</label>
-            <input type="number" id="pcmDays" value="30">
-            <div class="hint">基本設計14日、細部設計14日、草擬招標文件10日依PCM工作說明書契約期限；本欄30日僅供其他成果管理預估。</div>
+          <div class="field" style="grid-column:1 / -1">
+            <label>PCM 審查期限（南、北段共用，依各成果分別計算）</label>
+            <div id="pcmContractReviewSummary" class="note" aria-live="polite"></div>
+            <div class="hint">上述期限由系統規則帶入。PCM審查期限與機關最終核定日分開列管。</div>
+            <details style="margin-top:12px">
+              <summary>其他成果的管理預估設定（非上述三項審查期限）</summary>
+              <label for="pcmDays">其他成果時程試算天數（日曆天，管理假設）</label>
+              <input type="number" id="pcmDays" value="30" min="0" max="3650">
+              <div class="hint">本欄僅用於未設定個別PCM審查期限的成果之時程預估，不代表契約規定為30日，也不影響上述三項期限。</div>
+            </details>
           </div>
 
           <div class="field">
@@ -724,6 +730,6 @@
 
 </div>
 
-<script type="module" src="app.js?v=20261021-amount-lock"></script>
+<script type="module" src="app.js?v=20261021-pcm-display"></script>
 </body>
 </html>
