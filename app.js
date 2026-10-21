@@ -104,7 +104,7 @@ async function init() {
     if (input.id === 'importFile') {
       const file=input.files?.[0];input.value='';
       const request=store.request;
-      if (file) void file.text().then(text=>{if (request===store.request)store.importProject(JSON.parse(text));}).catch(fail);
+      if (file) void file.text().then(text=>{if (request===store.request)return store.importProject(JSON.parse(text));}).catch(fail);
       return;
     }
     if (store.readOnly || store.loading) return;

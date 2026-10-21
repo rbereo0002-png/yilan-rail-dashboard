@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ProjectStore} from '../store.js';
-const data=id=>JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url)));
+const data=id=>{const p=JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url)));p.kpiControls=p.kpiControls.filter(x=>!x.id.includes('contract-budget-confirmation'));return p;};
 const catalog={defaultProject:'south',projects:[{id:'north',data:'north'},{id:'south',data:'south'}]};
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
 function storage(){const m=new Map();return{getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};}
@@ -24,7 +24,7 @@ test('draft retained separately for both segments and imported ID selects matchi
   await store.select('north');assert.equal(store.project.rows.execPlan_submit,undefined);
   store.edit(p=>p.contract.design=123);await store.select('south');assert.equal(store.project.rows.execPlan_submit,'2026-10-15');
   await store.select('north');assert.equal(store.project.contract.design,123);
-  store.importProject(data('south'));assert.equal(store.project.id,'south');assert.equal(store.dirty.size,2);
+  await store.importProject(data('south'));assert.equal(store.project.id,'south');assert.equal(store.dirty.size,2);
 });
 test('edits blocked during fetch and in readonly mode',async()=>{
   const pending=deferred();const store=new ProjectStore({catalog,loader:id=>id==='north'?pending.promise:Promise.resolve(data(id)),storage:storage()});
@@ -80,4 +80,21 @@ test('construction packages remain isolated by segment and validate dates',async
   await store.select('north');assert.equal(store.project.constructionPackages.length,0);
   await store.select('south');assert.equal(store.project.constructionPackages[0].code,'S1');
   assert.throws(()=>store.edit(p=>p.constructionPackages[0].actualAwardDate='2027-02-30'));
+});
+
+for (const id of ['north','south']) test(`${id}: confirmed amounts survive edits, saved drafts and imports while actual dates remain editable`,async()=>{
+  const original=JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url)));
+  const cache=storage(), local=structuredClone(original);
+  local.contract.design=1;local.budget.design=2;local.kpiControls=[];local.rows.execPlan_submit='2026-10-20';
+  cache.setItem(`yilan-dashboard-${id}`,JSON.stringify(local));
+  const store=new ProjectStore({catalog,loader:async()=>structuredClone(original),storage:cache});
+  await store.select(id);
+  assert.deepEqual(store.project.contract,original.contract);assert.deepEqual(store.project.budget,original.budget);
+  assert.equal(store.project.amountsLocked,true);assert.equal(store.project.rows.execPlan_submit,'2026-10-20');
+  store.edit(p=>{p.contract.design=3;p.budget.total=4;p.amountsLocked=false;p.rows.execPlan_submit='2026-10-21';});
+  assert.deepEqual(store.project.contract,original.contract);assert.deepEqual(store.project.budget,original.budget);
+  assert.equal(store.project.rows.execPlan_submit,'2026-10-21');
+  await store.importProject(local);
+  assert.deepEqual(store.project.contract,original.contract);assert.deepEqual(store.project.budget,original.budget);
+  assert.equal(store.project.rows.execPlan_submit,'2026-10-20');
 });

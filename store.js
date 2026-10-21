@@ -137,7 +137,22 @@ export class ProjectStore {
   constructor({catalog, loader, storage, onChange = () => {}, readOnly = false}) {
     Object.assign(this,{catalog,loader,storage,onChange,readOnly});
     this.project = null; this.loading = false; this.error = ''; this.notice = '';
+    this.amountBaselines = new Map();
     this.request = 0; this.drafts = new Map(); this.dirty = new Set();
+  }
+  rememberAmounts(remote) {
+    const confirmed = remote.kpiControls.some(x => x.id === `${remote.id}-contract-budget-confirmation-1151019` && x.actualDate);
+    if (confirmed) this.amountBaselines.set(remote.id, {budget:structuredClone(remote.budget),contract:structuredClone(remote.contract)});
+    else this.amountBaselines.delete(remote.id);
+  }
+  protectAmounts(data) {
+    const baseline = this.amountBaselines.get(data.id);
+    if (!baseline) return data;
+    const next = structuredClone(data);
+    next.budget = structuredClone(baseline.budget);
+    next.contract = structuredClone(baseline.contract);
+    next.amountsLocked = true;
+    return next;
   }
   key(id) { return `yilan-dashboard-${id}`; }
   emit() { this.onChange(this); }
@@ -160,6 +175,7 @@ export class ProjectStore {
       else {
         data = normalizeProject(await this.loader(entry.data), id);
         if (request !== this.request) return false;
+        this.rememberAmounts(data);
         if (!this.readOnly && !remoteOnly) {
           try {
             const saved = this.storage?.getItem(this.key(id));
@@ -168,7 +184,7 @@ export class ProjectStore {
         }
       }
       if (request !== this.request) return false;
-      this.project = normalizeProject(data, id);
+      this.project = normalizeProject(this.protectAmounts(data), id);
       if (!this.readOnly) this.drafts.set(id,this.project);
       this.loading = false;
       try { this.storage?.setItem('yilan-dashboard-last-project',id); } catch { this.notice = '瀏覽器無法記住標段；目前資料仍可使用。'; }
@@ -182,15 +198,20 @@ export class ProjectStore {
     if (this.readOnly || this.loading || !this.project) return false;
     const next = structuredClone(this.project);
     mutator(next);
-    this.project = normalizeProject(next,this.project.id);
+    this.project = normalizeProject(this.protectAmounts(next),this.project.id);
     this.drafts.set(this.project.id,this.project); this.dirty.add(this.project.id);
     this.error = ''; this.emit(); return true;
   }
-  importProject(data) {
+  async importProject(data) {
     if (this.readOnly || this.loading) return false;
-    const project = normalizeProject(data);
+    let project = normalizeProject(data);
     if (!this.catalog.projects.some(p => p.id === project.id)) throw new Error('匯入標段不在專案清單');
-    ++this.request;
+    const request = ++this.request;
+    const entry = this.catalog.projects.find(p => p.id === project.id);
+    const remote = normalizeProject(await this.loader(entry.data), project.id);
+    if (request !== this.request || this.readOnly) return false;
+    this.rememberAmounts(remote);
+    project = normalizeProject(this.protectAmounts(project),project.id);
     this.project = project; this.drafts.set(project.id,project); this.dirty.add(project.id);
     this.error = ''; this.emit(); return true;
   }

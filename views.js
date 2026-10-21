@@ -136,10 +136,10 @@ function renderForms(model,readOnly,catalog) {
   $('soilWaterEnabled').checked=p.settings.enabledRules.soilWaterPlan === true;
   const milestones = [['決標／契約生效',p.milestones.awardDate],['評選',p.milestones.evaluationDate],['工作啟始',p.milestones.workStartDate],['簽約預定',p.milestones.signDate],[model.schedule.signing.effective ? '實際簽約' : '待確認實際簽約',p.milestones.actualSignDate]];
   html('badges',milestones.filter(([,d])=>d).map(([label,date])=>`<span class="badge">${label} ${fmt(date)}</span>`).join(''));
-  text('budgetNote',`${p.name}預算總額 ${money(p.budget.total)} 元；發包技術服務費 ${money(p.budget.serviceTotal)} 元。${p.notes || ''}`);
+  text('budgetNote',`${p.name}預算總額 ${money(p.budget.total)} 元；發包技術服務費 ${money(p.budget.serviceTotal)} 元。${p.amountsLocked ? '契約與預算金額已確認一致，金額欄位已鎖定。' : ''}${p.notes || ''}`);
   const labels = {survey:'補充測量',geo:'補充地質調查',utility:'管線調查',land:'用地及地上物相關作業',design:'工程設計',supervision:'施工監造'};
   $('budgetTable').querySelector('tbody').innerHTML=Object.entries(labels).map(([key,label])=>tr([
-    label,money(p.budget[key]),readOnly ? money(p.contract[key]) : `<input type="number" min="0" step="any" class="contractAmt" data-budget="${key}" value="${p.contract[key]}" aria-label="${label}契約分項金額">`,
+    label,money(p.budget[key]),(readOnly || p.amountsLocked) ? money(p.contract[key]) : `<input type="number" min="0" step="any" class="contractAmt" data-budget="${key}" value="${p.contract[key]}" aria-label="${label}契約分項金額">`,
     money(p.settings.forecastMode === 'contract' ? p.contract[key] : p.budget[key]),key === 'supervision' ? '保留資料，暫不納入本版管制' : '依原預算／契約基準'
   ])).join('');
   html('noticeInputs',model.schedule.list.filter(x=>x.triggerType === 'externalNotice').map(x=>`<div class="field"><label>${e(x.name)}：甲方通知日<input type="date" data-notice="${e(x.id)}" value="${e(p.notices[x.id] || '')}"></label></div>`).join(''));
