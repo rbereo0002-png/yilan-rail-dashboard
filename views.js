@@ -36,7 +36,7 @@ export function quickEntryMarkup(model, editable = false, filter = 'urgent') {
     `<b>${e(item.name)}</b><div class="small">${e(item.group)}</div>`,
     fmt(item.contractDue),
     editable ? `<input type="date" data-row="${e(item.id)}" data-kind="submit" value="${e(item.actualSubmit || '')}" max="${e(model.today)}" aria-label="${e(item.name)}快速登錄實際提送日">` : fmt(item.actualSubmit),
-    `${fmt(item.reviewTarget)}<div class="small">${item.effectiveSubmit ? (item.pcmReviewContract ? `PCM契約 ${item.reviewDays}日` : `管理預估 ${item.reviewDays}日`) : '提送後自動計算'}</div>`,
+    `${fmt(item.reviewTarget)}<div class="small">${item.pcmReviewContract ? `PCM契約 ${item.reviewDays}日` : `管理預估 ${item.reviewDays}日`}${item.effectiveSubmit ? '' : '；提送後計算期限'}</div>`,
     editable ? `<input type="date" data-row="${e(item.id)}" data-kind="approval" value="${e(item.actualApproval || '')}" max="${e(model.today)}" aria-label="${e(item.name)}快速登錄實際核定日">` : fmt(item.actualApproval),
     `${statusPill(item)}${editable && (item.actualSubmit || item.actualApproval) ? `<button type="button" class="quick-clear" data-clear-row="${e(item.id)}">清除實績</button>` : ''}`
   ],`data-quick-node-id="${e(item.id)}"`));
@@ -128,6 +128,8 @@ function renderForms(model,readOnly,catalog) {
     ? `已建立 ${model.construction.total} 個施工分標；全部決標日由系統自動計算。`
     : '未建立施工分標清單時可手動登錄；建立後由各分標實際決標日自動判定。');
   $('pcmDays').value=p.settings.pcmDays;
+  text('pcmContractReviewSummary', [['basic','基本設計'],['final','細部設計（期末設計）'],['tender','草擬招標文件']]
+    .map(([id,label]) => `${label}：${model.schedule.model[id].reviewDays}日`).join('　｜　'));
   $('payMode').value=String(p.settings.payWorkdays);
   // Preserve imported nonstandard administrative estimates rather than silently resetting them.
   if (!$('payMode').value) {const option=document.createElement('option');option.value=String(p.settings.payWorkdays);option.textContent=`自訂 ${p.settings.payWorkdays} 工作天`;$('payMode').append(option);$('payMode').value=option.value;}
