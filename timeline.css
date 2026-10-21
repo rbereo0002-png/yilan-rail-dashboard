@@ -163,3 +163,6 @@
   min-width:95px;
   text-align:center;
 }
+
+.gantt-bar::before{content:"";position:absolute;left:0;top:-3px;width:3px;height:14px;background:#334155}
+.gantt-label .gantt-dates{font-size:12px;opacity:1;line-height:1.5;font-variant-numeric:tabular-nums}

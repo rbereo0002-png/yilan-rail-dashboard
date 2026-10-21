@@ -201,3 +201,9 @@ body.font-large .brief-status small,body.font-large .brief-segment small,body.fo
 .brief-status.brief-danger em{color:var(--red)}.brief-status.brief-warning em{color:var(--orange)}.brief-status.brief-ok em{color:var(--green)}
 body.font-large .brief-action em,body.font-xlarge .brief-action em{font-size:calc(10px * var(--exec-text-scale))}
 @media(max-width:700px){.brief-action{min-height:86px}.brief-action em{font-size:12px}}
+
+.range-bars{grid-template-rows:10px 10px auto;gap:10px;padding:6px 0}
+.range-start,.range-actual{position:absolute;display:block;width:10px;height:10px;top:0;transform:translateX(-50%);background:#344054;border-radius:50%}
+.range-actual{background:#2467c7;border-radius:0;transform:translateX(-50%) rotate(45deg)}
+.comparison-axis{display:flex;justify-content:space-between;font-size:12px;color:#475467;margin:0}
+.variance-label small{font-size:13px;line-height:1.6}
