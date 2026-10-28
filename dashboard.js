@@ -227,7 +227,7 @@ function renderKpi(){
 function renderTransfer(){
   $('viewTitle').textContent='同月台轉乘';
   $('viewHint').textContent='宜蘭新站與高鐵宜蘭站專項；保留已辦理紀錄。函送或紀錄發送不代表方案核定。';
-  const cards=['south','north'].flatMap(id=>{
+  const cards=['north'].flatMap(id=>{
     const m=models[id],items=m.kpiControls.filter(isTransferControl);
     const studies=(m.specialDeliverables || []).filter(isTransferControl);
     if(!items.length && !studies.length) return [];

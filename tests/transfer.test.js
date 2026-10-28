@@ -27,5 +27,8 @@ test('south does not duplicate the north-only transfer controls',()=>{
  const p=normalizeProject(JSON.parse(readFileSync(new URL('../data/south.json',import.meta.url))));
  const m=calculateModel(p,'2026-10-27');
  assert.equal(m.kpiControls.filter(isTransferControl).length,0);
+ assert.ok(!('transferControlTable' in tableMarkup(m)));
+ assert.ok(!('transferStudyTable' in tableMarkup(m)));
+ assert.doesNotMatch(exportHTML(m),/<h2>同月台轉乘/);
  assert.equal((m.specialDeliverables||[]).filter(isTransferControl).length,0);
 });

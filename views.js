@@ -93,8 +93,10 @@ export function tableMarkup(model, editable = false) {
     dependencyTable:tableHTML(['類別','工作／成果','前置節點','期限性質','契約日數','管理基準日期','目前提送預估／實際','延誤判讀','付款連動'],dependencyRows),
     paymentTable:tableHTML(['類別','付款條件','付款性質','比例','條件日期（實際／預估）','預估付款日','預估金額','設計累計','年度','備註'],paymentRows),
     yearSummary:tableHTML(['年度','已達條件金額','管理預估金額','合計','筆數'],yearRows.length ? yearRows : [tr(['目前沒有可推估付款日之資料','—','—','—','—'])]),
+    ...(model.project.id === 'north' ? {
     transferStudyTable:tableHTML(['契約子成果','依據／期限','實際提送','實際核定','狀態'],(model.specialDeliverables || []).filter(isTransferControl).map(x=>tr([e(x.name),e(x.note)+'<br>'+fmt(x.parentDue),fmt(x.actualSubmitDate),fmt(x.actualApprovalDate),e(x.status)]))),
     transferControlTable:tableHTML(headers,model.kpiControls.filter(isTransferControl).map(item=>controlRow({...item,computedStatus:transferStatus(item)}))),
+    } : {}),
     meetingTaskTable:grouped('交辦待辦'),
     designChecklistTable:grouped('設計查核'),
     interfaceControlTable:grouped('介面決策'),
@@ -220,6 +222,10 @@ function renderTimeline(model) {
 }
 
 export function renderModel(model,{readOnly,catalog}) {
+  for (const id of ['transferControl','transferControlLink']) {
+    const element=$(id);
+    if (element) element.hidden=model.project.id !== 'north';
+  }
   renderForms(model,readOnly,catalog);
   for (const [id,markup] of Object.entries(tableMarkup(model,!readOnly))) html(id,markup);
   renderDashboard(model);renderTimeline(model);
