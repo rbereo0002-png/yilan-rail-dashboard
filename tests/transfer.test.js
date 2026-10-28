@@ -14,7 +14,10 @@ test('transfer topic includes all five meeting/interface records and contractual
   assert.ok(tables.transferControlTable.includes('data-kpi-id="'+x.id+'"'));
   for(const key of ['meetingTaskTable','interfaceControlTable','kpiControlTable']) assert.ok(!tables[key].includes('data-kpi-id="'+x.id+'"'));
  }
- assert.match(tables.transferControlTable,/已提送待審查/);
+ assert.match(tables.transferControlTable,/已完成會議審查／待修正/);
+ assert.equal(items.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').actualDate,'2026-10-12');
+ assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').targetDate,'2026-11-06');
+ assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').actualDate,'');
  assert.match(tables.transferControlTable,/1153201806/);
  assert.match(tables.transferStudyTable,/共月台轉乘專案研究報告/);
  assert.match(exportHTML(m),/<h2>同月台轉乘<\/h2>/);
