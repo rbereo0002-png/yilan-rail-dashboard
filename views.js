@@ -1,3 +1,4 @@
+import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {formatDate as fmt, daysBetween, addDays} from './dates.js';
 
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g,c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -80,7 +81,7 @@ export function tableMarkup(model, editable = false) {
     `${editable ? `<textarea data-kpi-id="${e(item.id)}" data-kpi-field="actualNote" aria-label="${e(item.name)}實際辦理情形">${e(item.actualNote || '')}</textarea>` : e(item.actualNote || '')}<div class="small">${e(item.note || '')}</div>`
   ],`data-kpi-id="${e(item.id)}"`);
   const headers=['類別','管制事項／子清單','來源目標日期','局內目標日期','實際完成日','狀態','依據','辦理情形／證據／備註'];
-  const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!x.actualDate && x.category===category).map(controlRow));
+  const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && x.category===category).map(controlRow));
   const recordInput=(item,key,type,attribute,label)=>editable ? `<input type="${type}" ${attribute} data-record-field="${key}" value="${e(item[key] || '')}" ${['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(key) ? `max="${model.today}"` : ''} aria-label="${e(label)}">` : e(item[key] || '—');
   const insuranceRows=(model.insuranceControls || []).map(item=>{const attr=`data-insurance-id="${e(item.id)}"`;return tr([e(item.name),recordInput(item,'coverageStart','date',attr,'起保日'),recordInput(item,'coverageEnd','date',attr,'保期截止日'),recordInput(item,'submitDate','date',attr,'保單及收據提送日'),recordInput(item,'approvalDate','date',attr,'審查完成日'),recordInput(item,'renewalSubmitDate','date',attr,'續保提送日'),e(item.status),recordInput(item,'documentRef','text',attr,'保單／文號／收據'),recordInput(item,'note','text',attr,'保險審查及續保備註')]);});
   const reportRows=(model.monthlyReports || []).map(item=>{const attr=`data-report-month="${item.month}"`;return tr([e(item.month),`${fmt(item.baseDue)}<br>順延試算：${fmt(item.adjustedDue)}<br>${item.calendarVerified ? '行事曆已確認' : '假日行事曆待確認'}<br>${recordInput(item,'dueOverride','date',attr,'本期確認期限')}`,recordInput(item,'submitDate','date',attr,'實際收文日'),recordInput(item,'reviewDate','date',attr,'審查日'),recordInput(item,'revisionRequestDate','date',attr,'通知修正日'),recordInput(item,'resubmitDate','date',attr,'修正提送日'),recordInput(item,'approvalDate','date',attr,'核定日'),e(item.status),recordInput(item,'documentRef','text',attr,'收文／審查文號'),recordInput(item,'note','text',attr,'月報內容與缺失')]);});
@@ -92,16 +93,18 @@ export function tableMarkup(model, editable = false) {
     dependencyTable:tableHTML(['類別','工作／成果','前置節點','期限性質','契約日數','管理基準日期','目前提送預估／實際','延誤判讀','付款連動'],dependencyRows),
     paymentTable:tableHTML(['類別','付款條件','付款性質','比例','條件日期（實際／預估）','預估付款日','預估金額','設計累計','年度','備註'],paymentRows),
     yearSummary:tableHTML(['年度','已達條件金額','管理預估金額','合計','筆數'],yearRows.length ? yearRows : [tr(['目前沒有可推估付款日之資料','—','—','—','—'])]),
+    transferStudyTable:tableHTML(['契約子成果','依據／期限','實際提送','實際核定','狀態'],(model.specialDeliverables || []).filter(isTransferControl).map(x=>tr([e(x.name),e(x.note)+'<br>'+fmt(x.parentDue),fmt(x.actualSubmitDate),fmt(x.actualApprovalDate),e(x.status)]))),
+    transferControlTable:tableHTML(headers,model.kpiControls.filter(isTransferControl).map(item=>controlRow({...item,computedStatus:transferStatus(item)}))),
     meetingTaskTable:grouped('交辦待辦'),
     designChecklistTable:grouped('設計查核'),
     interfaceControlTable:grouped('介面決策'),
     completedControlTable:tableHTML(headers,model.kpiControls.filter(x=>x.actualDate).map(controlRow)),
-    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!x.actualDate && !['交辦待辦','設計查核','介面決策'].includes(x.category)).map(controlRow))
+    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && !['交辦待辦','設計查核','介面決策'].includes(x.category)).map(controlRow))
   };
 }
 
 export function exportHTML(model) {
-  const names = {insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
+  const names = {transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${e(model.project.name)}履約管制</title></head><body><h1>${e(model.project.name)}履約與付款管制</h1><p>資料日期：${fmt(model.today)}；用地及監造付款未納入本版年度彙整。</p>${Object.entries(tableMarkup(model)).map(([id,markup])=>`<h2>${names[id]}</h2><table border="1">${markup}</table>`).join('')}</body></html>`;
 }
 
@@ -224,3 +227,4 @@ export function renderModel(model,{readOnly,catalog}) {
   document.body.classList.toggle('view-mode',readOnly);
   document.querySelectorAll('input,textarea,select').forEach(input=>{input.disabled=readOnly && input.id !== 'projectSelect';});
 }
+

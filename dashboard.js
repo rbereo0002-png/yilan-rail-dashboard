@@ -1,3 +1,4 @@
+import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {normalizeProject} from './store.js';
 import {calculateModel} from './model.js';
 import {formatDate as fmt,todayLocal,daysBetween,addDays} from './dates.js';
@@ -69,7 +70,7 @@ function nextMilestone(m){
   const candidates=[
     ...m.dashboard.preSignSpecialItems,
     ...m.schedule.list.filter(x=>!x.effectiveApproval && (x.contractDue || x.managementForecast || x.forecastDue)),
-    ...m.kpiControls.filter(x=>!x.actualDate && x.due).map(x=>({...x,name:x.name,contractDue:x.due,view:'kpi'}))
+    ...m.kpiControls.filter(x=>!x.actualDate && x.due).map(x=>({...x,name:x.name,contractDue:x.due,view:isTransferControl(x)?'transfer':'kpi'}))
   ].map(x=>({
     id:x.id,name:x.name,view:x.view || 'progress',
     date:x.contractDue || x.managementForecast || x.forecastDue || null
@@ -90,7 +91,7 @@ function managementBrief(){
     const next=nextMilestone(m);
     if(!next) return `<button type="button" class="brief-segment brief-action" data-view="progress"><span>${esc(m.project.name)}</span><b>目前無近期關鍵節點</b><small>${esc(m.dashboard.phaseLabel)}</small><em>查看進度 →</em></button>`;
     const days=daysBetween(m.today,next.date);
-    return `<button type="button" class="brief-segment brief-action" data-view="${esc(next.view)}"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small><em>${next.view==='kpi'?'查看KPI':'查看進度'} →</em></button>`;
+    return `<button type="button" class="brief-segment brief-action" data-view="${esc(next.view)}"><span>${esc(m.project.name)}｜下一關鍵</span><b>${esc(next.name)}</b><small>${fmt(next.date)}・距今 ${days} 日</small><em>${next.view==='transfer'?'查看同月台轉乘':next.view==='kpi'?'查看KPI':'查看進度'} →</em></button>`;
   };
   return `<section class="management-brief">
     <button type="button" class="brief-status brief-action ${overall.cls}" data-view="${overall.view}"><span>主管摘要</span><b>${overall.label}</b><small>${overall.desc}</small><em>${overall.view==='review'?'查看審查':'查看待辦'} →</em></button>
@@ -219,9 +220,22 @@ function renderKpi(){
   const cards=['south','north'].map(id=>{
     const m=models[id];
     const items=m.kpiControls.filter(x=>!x.actualDate).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
-    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus))))).join('');
+    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus))))).join('');
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
+}
+function renderTransfer(){
+  $('viewTitle').textContent='同月台轉乘';
+  $('viewHint').textContent='宜蘭新站與高鐵宜蘭站專項；保留已辦理紀錄。函送或紀錄發送不代表方案核定。';
+  const cards=['south','north'].flatMap(id=>{
+    const m=models[id],items=m.kpiControls.filter(isTransferControl);
+    const studies=(m.specialDeliverables || []).filter(isTransferControl);
+    if(!items.length && !studies.length) return [];
+    return projectListCard('契約子成果',m,studies.map(x=>row(x.name,[x.note,`實際提送 ${fmt(x.actualSubmitDate)}；實際核定 ${fmt(x.actualApprovalDate)}`].join('｜'),x.parentDue,x.status)))+projectListCard('同月台轉乘',m,items.map(x=>row(x.name,
+      [x.scope,x.source,x.actualDate ? `實際辦理日 ${fmt(x.actualDate)}` : '',x.actualNote,x.note].filter(Boolean).join('｜'),
+      x.due,transferStatus(x),kpiStatusClass(transferStatus(x)))));
+  });
+  $('viewBody').innerHTML=`<div class="detail-grid">${cards.join('') || '<div class="empty">目前無列管事項</div>'}</div>`;
 }
 function renderReview(){
   $('viewTitle').textContent='審查狀況';
@@ -250,7 +264,7 @@ function renderPayment(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
-const renders={overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
+const renders={transfer:renderTransfer,overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
 
 function setView(view){
   currentView=view;
@@ -289,3 +303,4 @@ init().catch(err=>{
   $('dashboardStatus').textContent=`載入失敗：${err.message}`;
   $('viewBody').innerHTML=`<div class="empty">無法載入儀表板資料：${esc(err.message)}</div>`;
 });
+

@@ -1,7 +1,7 @@
 import {ProjectStore} from './store.js';
 import {calculateModel} from './model.js';
 import {todayLocal, signingState, SIGN_DATE_WARNING} from './dates.js';
-import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261021-start';
+import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261027-transfer';
 
 const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
@@ -179,3 +179,4 @@ async function init() {
   await store.select(catalog.projects.some(p=>p.id === last) ? last : catalog.defaultProject);
 }
 init().catch(error=>{$('appStatus').textContent=`無法載入資料：${error.message}。請透過 HTTP／GitHub Pages 開啟本頁。`;});
+
