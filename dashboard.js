@@ -211,16 +211,16 @@ function kpiMiniCard(m){
   return `<button type="button" class="kpi-mini-card segment-${esc(m.project.id)}" data-view="kpi">
     <span>${esc(m.project.name)}｜KPI／外部管制</span>
     <b>${s.total} 項</b>
-    <small>已完成 ${s.completed}｜待釐清 ${s.unclear}｜30日內 ${s.due30}｜逾期 ${s.overdue}</small>
+    <small>已完成 ${s.completed}｜待釐清 ${s.unclear}｜30日內 ${s.due30}｜管理／KPI目標逾期 ${s.overdue}（非契約逾期）</small>
   </button>`;
 }
 function renderKpi(){
   $('viewTitle').textContent='KPI／外部管制';
-  $('viewHint').textContent='列116年度重點工作、預定發包管制及會議紀錄追蹤；此區不納入契約期限或付款計算。';
+  $('viewHint').textContent='此區「逾期」指會議交辦／管理目標或上級KPI到期未結案，並非設計契約成果逾期。115/10/31 PCM三項已於11/2研討，但仍待成果核定，不得逕行解除列管。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
     const items=m.kpiControls.filter(x=>!x.actualDate).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
-    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus))))).join('');
+    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,(x.computedStatus==='逾期'?'管理目標逾期':x.computedStatus),kpiStatusClass(x.computedStatus))))).join('');
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
