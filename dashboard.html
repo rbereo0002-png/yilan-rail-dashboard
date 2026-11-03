@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>宜蘭高架｜長官儀表板</title>
-  <link rel="stylesheet" href="dashboard.css?v=20261021-start">
+  <link rel="stylesheet" href="dashboard.css?v=20261103-overdue-groups">
 </head>
 <body>
   <main class="exec-shell">
@@ -24,17 +24,23 @@
       </div>
     </header>
 
-    <section class="top-kpis" aria-label="整體摘要">
-      <button class="top-kpi danger" data-view="attention"><span>重大異常</span><b id="kpiOverdue">0</b></button>
+    <section class="top-kpis" aria-label="整體逾期分類">
+      <button class="top-kpi danger" data-view="overdue"><span>契約逾期</span><b id="kpiContractOverdue">0</b></button>
+      <button class="top-kpi warning" data-view="overdue"><span>管理目標逾期</span><b id="kpiManagementOverdue">0</b></button>
+      <button class="top-kpi info" data-view="overdue"><span>審查逾期</span><b id="kpiReviewOverdue">0</b></button>
+      <button class="top-kpi neutral" data-view="overdue"><span>上級KPI逾期</span><b id="kpiUpperKpiOverdue">0</b></button>
+    </section>
+    <p class="overdue-note">契約、管理目標、審查及上級KPI分別統計；管理目標逾期不代表契約逾期。</p>
+    <section class="top-kpis secondary-kpis" aria-label="其他進度摘要">
       <button class="top-kpi warning" data-view="attention"><span>14日內重要事項</span><b id="kpiDue14">0</b></button>
-      <button class="top-kpi info" data-view="review"><span>審查中</span><b id="kpiReview">0</b></button>
-      <button class="top-kpi neutral" data-view="overview"><span>已核定成果</span><b id="kpiCompleted">0</b></button>
+      <button class="top-kpi neutral" data-view="overview"><span>已核定契約成果</span><b id="kpiCompleted">0</b></button>
     </section>
 
     <nav class="exec-nav" aria-label="儀表板大項">
       <button class="nav-btn active" data-view="overview">總覽</button>
       <button class="nav-btn" data-view="progress">設計進度／差異</button>
       <button class="nav-btn" data-view="attention">重要待辦</button>
+      <button class="nav-btn" data-view="overdue">逾期分類</button>
       <button class="nav-btn" data-view="transfer">同月台轉乘</button>
       <button class="nav-btn" data-view="meeting">會議列管／解除</button>
       <button class="nav-btn" data-view="kpi">KPI／外部管制</button>
@@ -58,7 +64,7 @@
       <span id="dashboardStatus">載入中…</span>
     </footer>
   </main>
-  <script type="module" src="dashboard.js?v=20261103-meeting-controls"></script>
+  <script type="module" src="dashboard.js?v=20261103-overdue-groups"></script>
 </body>
 </html>
 
