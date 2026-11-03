@@ -165,6 +165,9 @@ function renderForms(model,readOnly,catalog) {
   const config=model.project.monthlyReportConfig || {};
   html('periodicConfig', ['firstMonth','lastMonth','calendarConfirmedThrough'].map((key,i)=>`<label>${['首期報告月份','末期月份（空白則動態顯示至本月後2個月）','假日及補班行事曆已核對至'][i]}${readOnly ? e(config[key] || '—') : `<input type="month" data-report-config="${key}" value="${e(config[key] || '')}">`}</label>`).join('')+['holidays','workingDates'].map(key=>`<label>${key==='holidays' ? '法定假日／補假 YYYY-MM-DD（空白分隔）' : '補班日期 YYYY-MM-DD（優先於週末）'}${readOnly ? e((model.project.settings[key] || []).join(' ')) : `<textarea data-calendar-field="${key}">${e((model.project.settings[key] || []).join(' '))}</textarea>`}</label>`).join(''));
   html('periodicSummary',`<p>保險 ${model.insuranceControls.length} 項；待審查 ${model.insuranceControls.filter(x=>x.status==='已提送待審查').length}；到期／續保提醒 ${model.insuranceControls.filter(x=>x.daysToExpiry!=null && x.daysToExpiry<=30).length}。月報 ${model.monthlyReports.length} 期；已核定 ${model.monthlyReports.filter(x=>x.status==='已核定／結案').length}；未核定事項持續追蹤。</p>`);
+  const managementOverdue=model.kpiControls.filter(x=>!x.actualDate && x.due && x.due<model.today && x.computedStatus==='逾期' && !/^(116年度|上級KPI)/.test(x.category||''));
+  const upperOverdue=model.kpiControls.filter(x=>!x.actualDate && x.due && x.due<model.today && x.computedStatus==='逾期' && /^(116年度|上級KPI)/.test(x.category||''));
+  html('overdueControlSummary',`逾期分類｜契約 ${model.dashboard.overdue} 項｜管理目標 ${managementOverdue.length} 項｜審查 ${model.dashboard.reviewOverdue} 項｜上級KPI ${upperOverdue.length} 項。管理及KPI目標逾期不等於契約逾期；原期限不自動展延。`);
   html('kpiControlSummary',`<div class="note">11月2日研討會獨立列管，召開不等於解除；其他會議事項依交辦、查核及介面分流。含KPI／外部管制共 <b>${model.kpiSummary.total}</b> 項，待釐清 <b>${model.kpiSummary.unclear}</b> 項。此區不連動契約期限、付款或履約逾期判讀。</div>`);
 
   const specialRows = model.specialDeliverables.map(item => tr([
