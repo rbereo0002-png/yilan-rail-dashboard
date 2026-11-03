@@ -49,7 +49,13 @@
     "constructionEnd": "",
     "constructionClose": ""
   },
-  "rows": {},
+  "rows": {
+    "execPlan_submit": "2026-10-30",
+    "surveyPlan_submit": "2026-10-30",
+    "geoPlan_submit": "2026-10-30",
+    "utilityPlan_submit": "2026-10-30",
+    "designRiskPlan_submit": "2026-11-02"
+  },
   "notes": "南段已於2026/08/24評選、2026/09/04決標並自決標日起契約生效；工作啟始日、預定簽約日及實際簽約日為2026/10/01。設計階段施工風險評估實施計畫書依契約生效日起60日內提送；執行服務計畫書、補充測量、補充地質及管線調查工作計畫書依簽約後30日內提送。；115/10/19承辦確認：本段委託設計及施工監造技術服務契約詳細價目表金額與預算詳細價目表金額相同。",
   "kpiControls": [
     {
@@ -125,6 +131,38 @@
       "actualSubmitDate": "",
       "actualApprovalDate": "",
       "note": "南段期末設計提送文件列管項目；本版僅列設計成果檢核，不啟用施工監造模組。"
+    },
+    {
+      "id": "south-station-architecture-execution-plan",
+      "parentRule": "execPlan",
+      "name": "車站建築執行服務計畫",
+      "actualSubmitDate": "2026-10-30",
+      "actualApprovalDate": "",
+      "note": "中興工程顧問115/10/30軌道一字第1150117751號函提送A版，為執行服務計畫書及工作計畫書之附件成果；待PCM／機關審查，未核定。"
+    },
+    {
+      "id": "south-design-quality-plan",
+      "parentRule": "execPlan",
+      "name": "設計品質計畫（A版）",
+      "actualSubmitDate": "2026-10-30",
+      "actualApprovalDate": "",
+      "note": "中興工程顧問115/10/30軌道一字第1150117751號函提送A版，為執行服務計畫書及工作計畫書之附件成果；待PCM／機關審查，未核定。"
+    },
+    {
+      "id": "south-professional-engineer-cert-plan",
+      "parentRule": "execPlan",
+      "name": "技師簽證執行計畫（A版）",
+      "actualSubmitDate": "2026-10-30",
+      "actualApprovalDate": "",
+      "note": "中興工程顧問115/10/30軌道一字第1150117751號函提送A版，為執行服務計畫書及工作計畫書之附件成果；待PCM／機關審查，未核定。"
+    },
+    {
+      "id": "south-bim-execution-plan",
+      "parentRule": "execPlan",
+      "name": "BIM執行服務計畫（A版）",
+      "actualSubmitDate": "2026-10-30",
+      "actualApprovalDate": "",
+      "note": "中興工程顧問115/10/30軌道一字第1150117751號函提送A版，為執行服務計畫書及工作計畫書之附件成果；待PCM／機關審查，未核定。"
     }
   ],
   "insuranceRecords": [
@@ -157,5 +195,40 @@
     "calendarConfirmedThrough": "",
     "note": "每月10日前（如遇假日得順延）。預設次月10日為上月月報管制基準；首期涵蓋期間及10日是否含當日由機關確認，必要時調整本期日期。法定假日及補班請核對並登錄。"
   },
-  "monthlyReports": {}
+  "monthlyReports": {},
+  "correspondenceRecords": [
+    {
+      "id": "south-sinotech-1150117751",
+      "direction": "incoming",
+      "documentDate": "2026-10-30",
+      "documentNumber": "軌道一字第1150117751號",
+      "sender": "中興工程顧問股份有限公司",
+      "recipient": "交通部鐵道局東部工程分局",
+      "subject": "南段執行服務計畫書(A版)及工作計畫書(A版)提送",
+      "status": "已提送／待審查",
+      "relatedRuleIds": [
+        "execPlan",
+        "surveyPlan",
+        "geoPlan",
+        "utilityPlan"
+      ],
+      "note": "7項：執行服務計畫書（含車站建築執行服務計畫）、設計品質計畫、技師簽證執行計畫、BIM執行服務計畫、補充測量、補充地質調查、管線調查工作計畫書。審核無誤後再補定稿紙本及光碟。函附雲端連結有效7日，須留存附件。",
+      "sourceFile": "1150117751.di"
+    },
+    {
+      "id": "south-sinotech-1150118251",
+      "direction": "incoming",
+      "documentDate": "2026-11-02",
+      "documentNumber": "軌道一字第1150118251號",
+      "sender": "中興工程顧問股份有限公司",
+      "recipient": "交通部鐵道局東部工程分局",
+      "subject": "南段設計階段施工風險評估實施計畫書(A版)提送",
+      "status": "已提送／待審查",
+      "relatedRuleIds": [
+        "designRiskPlan"
+      ],
+      "note": "依契約附件A第3.2.2節提送。審核無誤後再補定稿紙本及光碟。函附雲端連結有效7日，須留存附件。",
+      "sourceFile": "1150118251.di"
+    }
+  ]
 }
