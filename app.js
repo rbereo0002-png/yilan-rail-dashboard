@@ -1,7 +1,7 @@
 import {ProjectStore} from './store.js';
-import {calculateModel} from './model.js';
+import {calculateModel} from './model.js?v=20261103-north-consistency';
 import {todayLocal, signingState, SIGN_DATE_WARNING} from './dates.js';
-import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261103-meeting-controls';
+import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261103-north-consistency';
 
 const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
