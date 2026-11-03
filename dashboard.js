@@ -220,7 +220,26 @@ function renderKpi(){
   const cards=['south','north'].map(id=>{
     const m=models[id];
     const items=m.kpiControls.filter(x=>!x.actualDate).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
-    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus))))).join('');
+    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus))))).join('');
+  }).join('');
+  $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
+}
+function meetingItems(m){return m.kpiControls.filter(x=>x.category==='會議追蹤（非KPI）');}
+function meetingTag(x){
+  if(x.id.endsWith('-meeting')) return '會議已召開／工作未結案';
+  if(x.actualDate && /已解除列管/.test(x.status||'')) return '已解除列管';
+  return '持續列管';
+}
+function renderMeeting(){
+  $('viewTitle').textContent='115年11月2日研討會｜列管及解除';
+  $('viewHint').textContent='會議已召開不代表議題完成。只有具備成果及正式核定／結案證據的事項才可解除列管；日期未確認者不自行認列逾期。';
+  const cards=['north','south'].map(id=>{
+    const m=models[id],items=meetingItems(m);
+    const open=items.filter(x=>!x.id.endsWith('-meeting') && meetingTag(x)!=='已解除列管');
+    const closed=items.filter(x=>meetingTag(x)==='已解除列管');
+    const meeting=items.filter(x=>x.id.endsWith('-meeting'));
+    const lines=xs=>xs.map(x=>row(x.name,[x.status,x.source,x.note,x.actualNote].filter(Boolean).join('｜'),x.due,meetingTag(x),meetingTag(x)==='已解除列管'?'tag-ok':'tag-info'));
+    return projectListCard('11/2會議紀錄',m,lines(meeting))+projectListCard('持續列管（'+open.length+'項）',m,lines(open))+projectListCard('已解除列管（'+closed.length+'項）',m,lines(closed));
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
@@ -264,7 +283,7 @@ function renderPayment(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
-const renders={transfer:renderTransfer,overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
+const renders={meeting:renderMeeting,transfer:renderTransfer,overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
 
 function setView(view){
   currentView=view;
