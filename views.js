@@ -76,7 +76,7 @@ export function tableMarkup(model, editable = false) {
     fmt(item.targetDate),
     fmt(item.internalTargetDate),
     editable ? `<input type="date" data-kpi-id="${e(item.id)}" data-kpi-field="actualDate" value="${e(item.actualDate || '')}" max="${e(model.today)}" aria-label="${e(item.name)}實際完成日">` : fmt(item.actualDate),
-    `<span class="timeline-pill ${item.computedStatus === '逾期' ? 'tl-danger' : item.computedStatus === '30日內到期' ? 'tl-warning' : item.computedStatus === '待釐清' ? 'tl-external' : 'tl-normal'}">${e(item.computedStatus)}</span>`,
+    `<span class="timeline-pill ${item.computedStatus === '逾期' ? 'tl-danger' : item.computedStatus === '30日內到期' ? 'tl-warning' : item.computedStatus === '待釐清' ? 'tl-external' : 'tl-normal'}">${e(item.category==='會議追蹤（非KPI）' ? (item.id.endsWith('-meeting') ? '會議已召開（議題未結案）' : (item.status || '持續列管')) : item.computedStatus)}</span>`,
     e(item.source || '—'),
     `${editable ? `<textarea data-kpi-id="${e(item.id)}" data-kpi-field="actualNote" aria-label="${e(item.name)}實際辦理情形">${e(item.actualNote || '')}</textarea>` : e(item.actualNote || '')}<div class="small">${e(item.note || '')}</div>`
   ],`data-kpi-id="${e(item.id)}"`);
