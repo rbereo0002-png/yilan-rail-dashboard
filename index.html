@@ -98,7 +98,7 @@
         <button class="kpi kpi-danger"
                 type="button"
                 data-action="schedule">
-          <span class="kpi-label">已逾期</span>
+          <span class="kpi-label">契約逾期</span>
           <strong id="ovOverdue">0</strong>
           <small>項</small>
         </button>
@@ -500,6 +500,7 @@
       <div class="hd"><h2>管制中心：交辦、查核、介面及上級KPI</h2></div>
       <div class="bd">
         <div id="kpiControlSummary"></div>
+        <div id="overdueControlSummary" class="note"></div>
         <p class="small">本表專供116年度重點工作管考、預定發包管制及會議紀錄事項追蹤；與契約規定不符時仍獨立列管，不自行推論契約期限。</p>
         <details open><summary><strong>11月2日研討會與解除列管</strong></summary><p>會議召開與議題完成分別記錄；未有正式核定或完成證據前，持續列管，並不計入上級KPI。</p><div class="scroll"><table class="tbl package-table" id="meetingControlTable"></table></div></details><details open><summary><strong>交辦待辦</strong></summary><p>列有具體交辦事項；圖資主項目可展開5類子清單。</p><div class="scroll"><table class="tbl package-table" id="meetingTaskTable"></table></div></details><details ><summary><strong>設計查核</strong></summary><p>於相關成果審查節點確認，不當作每日逾期待辦。</p><div class="scroll"><table class="tbl package-table" id="designChecklistTable"></table></div></details><details ><summary><strong>介面決策</strong></summary><p>確認前置條件、協調窗口及決策時點。</p><div class="scroll"><table class="tbl package-table" id="interfaceControlTable"></table></div></details><details ><summary><strong>已結案</strong></summary><p>保留完成日、文號及辦理證據；清除完成日可重新開啟。</p><div class="scroll"><table class="tbl package-table" id="completedControlTable"></table></div></details><h3>上級KPI／其他外部管制</h3><div class="scroll">
           <table class="tbl package-table" id="kpiControlTable">
