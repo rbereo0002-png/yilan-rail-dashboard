@@ -29,16 +29,25 @@ async function loadJSON(path){
   return r.json();
 }
 
+// 分類僅供呈現，契約及審查期限仍由單一時程引擎計算。
+function isUpperKpi(x){return /^(116年度|上級KPI)/.test(x.category||'');}
+function overdueGroups(m){
+  const contract=m.schedule.list.filter(x=>x.contractRule && x.overdueDays>0 && !x.effectiveSubmit && !x.effectiveApproval);
+  const review=m.dashboard.reviewOverdueItems;
+  const targets=m.kpiControls.filter(x=>!x.actualDate && x.due && x.due<m.today && x.computedStatus==='逾期');
+  return {contract,review,management:targets.filter(x=>!isUpperKpi(x)),upperKpi:targets.filter(isUpperKpi)};
+}
+function totals(ms){return ms.reduce((a,m)=>{const v=overdueGroups(m);for(const k of Object.keys(a))a[k]+=v[k].length;return a;},{contract:0,management:0,review:0,upperKpi:0});}
 function projectFocus(m){
-  const kpi=m.kpiControls.find(x=>x.computedStatus==='逾期' || x.computedStatus==='30日內到期');
-  if(kpi) return `${kpi.name}：${kpi.computedStatus}${kpi.due ? `（${fmt(kpi.due)}）` : '，日期待確認'}`;
-  const special=m.dashboard.preSignSpecialItems[0];
-  if(special) return `${special.name}：期限 ${fmt(special.contractDue)}`;
+  const g=overdueGroups(m);
+  if(g.contract.length)return `契約逾期：${g.contract[0].name}（${g.contract[0].overdueDays}日）`;
+  if(g.management.length)return `管理目標逾期 ${g.management.length} 項，例如：${g.management[0].name}；不等於契約逾期`;
+  if(g.review.length)return `審查逾期 ${g.review.length} 項，例如：${g.review[0].name}`;
+  if(g.upperKpi.length)return `上級KPI逾期 ${g.upperKpi.length} 項，例如：${g.upperKpi[0].name}`;
   const att=m.dashboard.attention[0];
-  if(att) return `${att.name}：${att.attentionReason}`;
-  if(m.dashboard.phase==='awaiting-sign') return `目前待完成實際簽約；一般履約於簽約後正式起算。`;
-  if(m.dashboard.phase==='pre-award') return '目前待完成決標程序。';
-  return '目前無重大逾期或需主管立即處理事項。';
+  if(att)return `${att.name}：${att.attentionReason}`;
+  if(m.dashboard.phase==='awaiting-sign')return '實際簽約日待確認；不逕認簽約後契約成果逾期。';
+  return '目前無已確認逾期事項，請持續追蹤期限與待辦。';
 }
 
 function segmentCard(m){
@@ -51,10 +60,10 @@ function segmentCard(m){
       <div class="date-box"><span>實際簽約</span><b>${fmt(p.milestones.actualSignDate)}</b></div>
     </div>
     <div class="segment-stats">
-      <div class="stat-box"><span>逾期</span><b>${d.overdue}</b></div>
-      <div class="stat-box"><span>14日內</span><b>${d.executiveDue14}</b></div>
-      <div class="stat-box"><span>審查中</span><b>${d.underReview}</b></div>
-      <div class="stat-box"><span>完成</span><b>${d.completed}/${d.total}</b></div>
+      <div class="stat-box"><span>契約逾期</span><b>${overdueGroups(m).contract.length}</b></div>
+      <div class="stat-box"><span>管理目標逾期</span><b>${overdueGroups(m).management.length}</b></div>
+      <div class="stat-box"><span>審查逾期</span><b>${overdueGroups(m).review.length}</b></div>
+      <div class="stat-box"><span>上級KPI逾期</span><b>${overdueGroups(m).upperKpi.length}</b></div>
     </div>
     <div class="focus-box"><strong>目前重點</strong><p>${esc(projectFocus(m))}</p></div>
   </article>`;
@@ -80,13 +89,16 @@ function nextMilestone(m){
 }
 function managementBrief(){
   const ms=[models.south,models.north];
-  const overdue=ms.reduce((n,m)=>n+m.dashboard.overdue,0);
-  const reviewOverdue=ms.reduce((n,m)=>n+m.dashboard.reviewOverdue,0);
-  const overall=overdue>0
-    ? {label:'有逾期事項',cls:'brief-danger',desc:`目前共有 ${overdue} 項契約逾期，請優先處理。`,view:'attention'}
-    : reviewOverdue>0
-      ? {label:'審查需催辦',cls:'brief-warning',desc:`目前共有 ${reviewOverdue} 項審查超過期限／管理目標。`,view:'review'}
-      : {label:'目前無重大逾期',cls:'brief-ok',desc:'南、北段目前無契約逾期事項；請持續注意近期關鍵節點。',view:'overview'};
+  const c=totals(ms);
+  const overall=c.contract
+    ? {label:'契約逾期',cls:'brief-danger',desc:`契約期限逾期 ${c.contract} 項，請優先查核。`,view:'overdue'}
+    : c.management
+      ? {label:'管理目標需處理',cls:'brief-warning',desc:`管理目標逾期 ${c.management} 項（不屬契約逾期）。`,view:'overdue'}
+      : c.review
+        ? {label:'審查需催辦',cls:'brief-warning',desc:`審查逾期 ${c.review} 項，需區分PCM契約審查與管理預估。`,view:'overdue'}
+        : c.upperKpi
+          ? {label:'上級KPI需處理',cls:'brief-warning',desc:`上級KPI逾期 ${c.upperKpi} 項。`,view:'overdue'}
+          : {label:'目前無逾期',cls:'brief-ok',desc:'契約、管理目標、審查及上級KPI均無逾期紀錄。',view:'overview'};
   const segment=(m)=>{
     const next=nextMilestone(m);
     if(!next) return `<button type="button" class="brief-segment brief-action" data-view="progress"><span>${esc(m.project.name)}</span><b>目前無近期關鍵節點</b><small>${esc(m.dashboard.phaseLabel)}</small><em>查看進度 →</em></button>`;
@@ -190,6 +202,18 @@ function renderProgress(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
+function renderOverdue(){
+  $('viewTitle').textContent='逾期分類｜契約・管理・審查';
+  $('viewHint').textContent='以同一資料日期計算；管理及上級KPI採原管制目標日，不視為契約逾期；已提送待審查不得列為未提送逾期。';
+  $('viewBody').innerHTML='<div class="detail-grid">'+['south','north'].map(id=>{
+    const m=models[id],g=overdueGroups(m);
+    const contract=g.contract.map(x=>row(x.name,`契約期限 ${fmt(x.contractDue)}｜未提送，逾期 ${x.overdueDays} 日`,x.contractDue,'契約逾期','tag-danger'));
+    const management=g.management.map(x=>row(x.name,`原管理目標 ${fmt(x.due)}｜${x.actualNote||x.note||''}`,x.due,'管理目標逾期','tag-warn'));
+    const review=g.review.map(x=>row(x.name,`實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,'審查逾期','tag-warn'));
+    const kpi=g.upperKpi.map(x=>row(x.name,`上級管考目標 ${fmt(x.due)}｜${x.note||''}`,x.due,'上級KPI逾期','tag-warn'));
+    return projectListCard('契約逾期（'+contract.length+'）',m,contract)+projectListCard('管理目標逾期（'+management.length+'）',m,management)+projectListCard('審查逾期（'+review.length+'）',m,review)+projectListCard('上級KPI逾期（'+kpi.length+'）',m,kpi);
+  }).join('')+'</div>';
+}
 function renderAttention(){
   $('viewTitle').textContent='重要待辦';
   $('viewHint').textContent='依期限由近到遠排列，逾期事項在前、未訂期限事項在後；含契約、簽約前特別列管及會議／外部管制。';
@@ -283,7 +307,7 @@ function renderPayment(){
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
-const renders={meeting:renderMeeting,transfer:renderTransfer,overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
+const renders={overdue:renderOverdue,meeting:renderMeeting,transfer:renderTransfer,overview:renderOverview,progress:renderProgress,attention:renderAttention,kpi:renderKpi,review:renderReview,payment:renderPayment};
 
 function setView(view){
   currentView=view;
@@ -294,9 +318,12 @@ function setView(view){
 function updateTop(){
   const ms=Object.values(models);
   $('dashboardDate').textContent=fmt(todayLocal());
-  $('kpiOverdue').textContent=ms.reduce((n,m)=>n+m.dashboard.overdue,0);
+  const counts=totals(ms);
+  $('kpiContractOverdue').textContent=counts.contract;
+  $('kpiManagementOverdue').textContent=counts.management;
+  $('kpiReviewOverdue').textContent=counts.review;
+  $('kpiUpperKpiOverdue').textContent=counts.upperKpi;
   $('kpiDue14').textContent=ms.reduce((n,m)=>n+m.dashboard.executiveDue14,0);
-  $('kpiReview').textContent=ms.reduce((n,m)=>n+m.dashboard.underReview,0);
   $('kpiCompleted').textContent=ms.reduce((n,m)=>n+m.dashboard.completed,0);
 }
 
