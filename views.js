@@ -97,16 +97,17 @@ export function tableMarkup(model, editable = false) {
     transferStudyTable:tableHTML(['契約子成果','依據／期限','實際提送','實際核定','狀態'],(model.specialDeliverables || []).filter(isTransferControl).map(x=>tr([e(x.name),e(x.note)+'<br>'+fmt(x.parentDue),fmt(x.actualSubmitDate),fmt(x.actualApprovalDate),e(x.status)]))),
     transferControlTable:tableHTML(headers,model.kpiControls.filter(isTransferControl).map(item=>controlRow({...item,computedStatus:transferStatus(item)}))),
     } : {}),
+    meetingControlTable:tableHTML(headers,model.kpiControls.filter(x=>x.category==='會議追蹤（非KPI）').map(controlRow)),
     meetingTaskTable:grouped('交辦待辦'),
     designChecklistTable:grouped('設計查核'),
     interfaceControlTable:grouped('介面決策'),
     completedControlTable:tableHTML(headers,model.kpiControls.filter(x=>x.actualDate).map(controlRow)),
-    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && !['交辦待辦','設計查核','介面決策'].includes(x.category)).map(controlRow))
+    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category)).map(controlRow))
   };
 }
 
 export function exportHTML(model) {
-  const names = {transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
+  const names = {meetingControlTable:'115年11月2日研討會及解除列管',transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${e(model.project.name)}履約管制</title></head><body><h1>${e(model.project.name)}履約與付款管制</h1><p>資料日期：${fmt(model.today)}；用地及監造付款未納入本版年度彙整。</p>${Object.entries(tableMarkup(model)).map(([id,markup])=>`<h2>${names[id]}</h2><table border="1">${markup}</table>`).join('')}</body></html>`;
 }
 
@@ -164,7 +165,7 @@ function renderForms(model,readOnly,catalog) {
   const config=model.project.monthlyReportConfig || {};
   html('periodicConfig', ['firstMonth','lastMonth','calendarConfirmedThrough'].map((key,i)=>`<label>${['首期報告月份','末期月份（空白則動態顯示至本月後2個月）','假日及補班行事曆已核對至'][i]}${readOnly ? e(config[key] || '—') : `<input type="month" data-report-config="${key}" value="${e(config[key] || '')}">`}</label>`).join('')+['holidays','workingDates'].map(key=>`<label>${key==='holidays' ? '法定假日／補假 YYYY-MM-DD（空白分隔）' : '補班日期 YYYY-MM-DD（優先於週末）'}${readOnly ? e((model.project.settings[key] || []).join(' ')) : `<textarea data-calendar-field="${key}">${e((model.project.settings[key] || []).join(' '))}</textarea>`}</label>`).join(''));
   html('periodicSummary',`<p>保險 ${model.insuranceControls.length} 項；待審查 ${model.insuranceControls.filter(x=>x.status==='已提送待審查').length}；到期／續保提醒 ${model.insuranceControls.filter(x=>x.daysToExpiry!=null && x.daysToExpiry<=30).length}。月報 ${model.monthlyReports.length} 期；已核定 ${model.monthlyReports.filter(x=>x.status==='已核定／結案').length}；未核定事項持續追蹤。</p>`);
-  html('kpiControlSummary',`<div class="note">會議事項依交辦、查核及介面分流；完成後移至已結案。含KPI／外部管制共 <b>${model.kpiSummary.total}</b> 項，待釐清 <b>${model.kpiSummary.unclear}</b> 項。此區不連動契約期限、付款或履約逾期判讀。</div>`);
+  html('kpiControlSummary',`<div class="note">11月2日研討會獨立列管，召開不等於解除；其他會議事項依交辦、查核及介面分流。含KPI／外部管制共 <b>${model.kpiSummary.total}</b> 項，待釐清 <b>${model.kpiSummary.unclear}</b> 項。此區不連動契約期限、付款或履約逾期判讀。</div>`);
 
   const specialRows = model.specialDeliverables.map(item => tr([
     e(item.parentName),e(item.name),fmt(item.parentDue),
