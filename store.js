@@ -79,6 +79,9 @@ export function normalizeProject(input, expectedId) {
       status:String(item.status || ''),
       actualDate:item.actualDate || '',
       actualNote:String(item.actualNote || ''),
+      lastProgressDate:item.lastProgressDate || '',
+      progressStage:String(item.progressStage || ''),
+      progressEvidence:String(item.progressEvidence || ''),
       note:String(item.note || '')
     };
     for (const child of control.children) {
@@ -89,6 +92,7 @@ export function normalizeProject(input, expectedId) {
     if (control.targetDate && !validDate(control.targetDate)) throw new Error(`KPI管制日期格式錯誤：${control.name}`);
     if (control.internalTargetDate && !validDate(control.internalTargetDate)) throw new Error(`KPI局內管控日期格式錯誤：${control.name}`);
     if (control.actualDate && !validDate(control.actualDate)) throw new Error(`KPI實際完成日期格式錯誤：${control.name}`);
+    if (control.lastProgressDate && !validDate(control.lastProgressDate)) throw new Error(`管制事項實際辦理日期格式錯誤：${control.name}`);
     return control;
   });
   const date = (obj,key) => {
