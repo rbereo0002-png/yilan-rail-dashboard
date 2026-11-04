@@ -211,7 +211,9 @@ function renderOverdue(){
     const management=g.management.map(x=>row(x.name,`原管理目標 ${fmt(x.due)}｜實際研討／辦理 ${fmt(x.lastProgressDate)}｜${x.progressStage||'待確認'}｜${x.actualNote||x.note||''}`,x.due,x.lastProgressDate?'已研討／成果待確認':'管理目標逾期','tag-warn'));
     const review=g.review.map(x=>row(x.name,`實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,'審查逾期','tag-warn'));
     const kpi=g.upperKpi.map(x=>row(x.name,`上級管考目標 ${fmt(x.due)}｜${x.note||''}`,x.due,'上級KPI逾期','tag-warn'));
-    return projectListCard('契約逾期（'+contract.length+'）',m,contract)+projectListCard('管理目標逾期（'+management.length+'）',m,management)+projectListCard('審查逾期（'+review.length+'）',m,review)+projectListCard('上級KPI逾期（'+kpi.length+'）',m,kpi);
+    const historical=m.kpiControls.filter(x=>x.id.startsWith('north-kickoff-1151006-') && ['26','27','28'].some(n=>x.id.endsWith('-'+n)) && x.actualDate)
+      .map(x=>row(x.name,`原管理目標 ${fmt(x.targetDate)}｜實際研討提報 ${fmt(x.actualDate)}｜${x.status}｜${x.actualNote||''}`,x.actualDate,'已提報／後續續管','tag-ok'));
+    return projectListCard('契約逾期（'+contract.length+'）',m,contract)+projectListCard('管理目標逾期（'+management.length+'）',m,management)+projectListCard('審查逾期（'+review.length+'）',m,review)+projectListCard('上級KPI逾期（'+kpi.length+'）',m,kpi)+(historical.length?projectListCard('原目標已補登完成（後續仍列管）',m,historical):'');
   }).join('')+'</div>';
 }
 function renderAttention(){
