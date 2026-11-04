@@ -41,7 +41,7 @@ function totals(ms){return ms.reduce((a,m)=>{const v=overdueGroups(m);for(const 
 function projectFocus(m){
   const g=overdueGroups(m);
   if(g.contract.length)return `契約逾期：${g.contract[0].name}（${g.contract[0].overdueDays}日）`;
-  if(g.management.length)return `管理目標逾期 ${g.management.length} 項，例如：${g.management[0].name}；不等於契約逾期`;
+  if(g.management.length)return `管理目標逾期 ${g.management.length} 項；${g.management.filter(x=>x.lastProgressDate).length} 項已登錄研討日，例如：${g.management[0].name}（${fmt(g.management[0].lastProgressDate)}），後續待確認`;
   if(g.review.length)return `審查逾期 ${g.review.length} 項，例如：${g.review[0].name}`;
   if(g.upperKpi.length)return `上級KPI逾期 ${g.upperKpi.length} 項，例如：${g.upperKpi[0].name}`;
   const att=m.dashboard.attention[0];
@@ -208,7 +208,7 @@ function renderOverdue(){
   $('viewBody').innerHTML='<div class="detail-grid">'+['south','north'].map(id=>{
     const m=models[id],g=overdueGroups(m);
     const contract=g.contract.map(x=>row(x.name,`契約期限 ${fmt(x.contractDue)}｜未提送，逾期 ${x.overdueDays} 日`,x.contractDue,'契約逾期','tag-danger'));
-    const management=g.management.map(x=>row(x.name,`原管理目標 ${fmt(x.due)}｜${x.actualNote||x.note||''}`,x.due,'管理目標逾期','tag-warn'));
+    const management=g.management.map(x=>row(x.name,`原管理目標 ${fmt(x.due)}｜實際研討／辦理 ${fmt(x.lastProgressDate)}｜${x.progressStage||'待確認'}｜${x.actualNote||x.note||''}`,x.due,x.lastProgressDate?'已研討／成果待確認':'管理目標逾期','tag-warn'));
     const review=g.review.map(x=>row(x.name,`實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,'審查逾期','tag-warn'));
     const kpi=g.upperKpi.map(x=>row(x.name,`上級管考目標 ${fmt(x.due)}｜${x.note||''}`,x.due,'上級KPI逾期','tag-warn'));
     return projectListCard('契約逾期（'+contract.length+'）',m,contract)+projectListCard('管理目標逾期（'+management.length+'）',m,management)+projectListCard('審查逾期（'+review.length+'）',m,review)+projectListCard('上級KPI逾期（'+kpi.length+'）',m,kpi);
@@ -262,7 +262,7 @@ function renderMeeting(){
     const open=items.filter(x=>!x.id.endsWith('-meeting') && meetingTag(x)!=='已解除列管');
     const closed=items.filter(x=>meetingTag(x)==='已解除列管');
     const meeting=items.filter(x=>x.id.endsWith('-meeting'));
-    const lines=xs=>xs.map(x=>row(x.name,[x.status,x.source,x.note,x.actualNote].filter(Boolean).join('｜'),x.due,meetingTag(x),meetingTag(x)==='已解除列管'?'tag-ok':'tag-info'));
+    const lines=xs=>xs.map(x=>row(x.name,[x.status,x.lastProgressDate?`實際研討 ${fmt(x.lastProgressDate)}`:'',x.source,x.note,x.actualNote].filter(Boolean).join('｜'),x.due,meetingTag(x),meetingTag(x)==='已解除列管'?'tag-ok':'tag-info'));
     return projectListCard('11/2會議紀錄',m,lines(meeting))+projectListCard('持續列管（'+open.length+'項）',m,lines(open))+projectListCard('已解除列管（'+closed.length+'項）',m,lines(closed));
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
