@@ -78,7 +78,7 @@ export function tableMarkup(model, editable = false) {
     editable ? `<input type="date" data-kpi-id="${e(item.id)}" data-kpi-field="actualDate" value="${e(item.actualDate || '')}" max="${e(model.today)}" aria-label="${e(item.name)}實際完成日">` : fmt(item.actualDate),
     `<span class="timeline-pill ${item.computedStatus === '逾期' ? 'tl-danger' : item.computedStatus === '30日內到期' ? 'tl-warning' : item.computedStatus === '待釐清' ? 'tl-external' : 'tl-normal'}">${e(item.category==='會議追蹤（非KPI）' ? (item.id.endsWith('-meeting') ? '會議已召開（議題未結案）' : (item.status || '持續列管')) : (item.computedStatus==='逾期' && item.status ? '管理目標逾期／'+item.status : item.computedStatus))}</span>`,
     e(item.source || '—'),
-    `${editable ? `<textarea data-kpi-id="${e(item.id)}" data-kpi-field="actualNote" aria-label="${e(item.name)}實際辦理情形">${e(item.actualNote || '')}</textarea>` : e(item.actualNote || '')}<div class="small">${e(item.note || '')}</div>`
+    `${item.lastProgressDate ? `<div class="small"><b>實際研討／辦理日期：${fmt(item.lastProgressDate)}</b>｜${e(item.progressStage||'持續追蹤')}</div>` : ''}${editable ? `<textarea data-kpi-id="${e(item.id)}" data-kpi-field="actualNote" aria-label="${e(item.name)}實際辦理情形">${e(item.actualNote || '')}</textarea>` : e(item.actualNote || '')}<div class="small">${e(item.progressEvidence || '')}</div><div class="small">${e(item.note || '')}</div>`
   ],`data-kpi-id="${e(item.id)}"`);
   const headers=['類別','管制事項／子清單','來源目標日期','局內目標日期','實際完成日','狀態','依據','辦理情形／證據／備註'];
   const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && x.category===category).map(controlRow));
@@ -192,7 +192,7 @@ function renderDashboard(model) {
   const upper=pendingControls.filter(x=>/^(116年度|上級KPI)/.test(x.category||''));
   const counts=[['契約逾期',d.overdue],['管理目標逾期',mgt.length],['審查逾期',d.reviewOverdue],['上級KPI逾期',upper.length]];
   html('overviewOverdueClasses',counts.map(([label,n])=>`<div style="border:1px solid #e1e7ef;border-radius:9px;padding:10px"><span style="display:block;font-size:14px">${e(label)}</span><strong style="font-size:24px">${n}</strong><span> 項</span></div>`).join(''));
-  html('overviewManagementNotes',mgt.length ? `<strong>管理目標落後事項（原期限不展延）：</strong>${mgt.map(x=>`<p style="margin:6px 0"><b>${e(x.name)}</b>｜目標 ${fmt(x.due)}｜${e(x.status||'持續列管')}<br>${e(x.actualNote||'')}</p>`).join('')}` : '<span>目前無管理目標逾期。</span>');
+  html('overviewManagementNotes',mgt.length ? `<strong>管理目標落後事項（原期限不展延）：</strong>${mgt.map(x=>`<p style="margin:6px 0"><b>${e(x.name)}</b>｜目標 ${fmt(x.due)}｜${e(x.status||'持續列管')}｜實際研討 ${fmt(x.lastProgressDate)}<br>${e(x.actualNote||'')}</p>`).join('')}` : '<span>目前無管理目標逾期。</span>');
 
   const workViewMarkup = items => items.length ? items.slice(0,6).map(x=>`<div class="work-view-row"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span><b>${e(x.name)}</b><small>${e(x.attentionReason)}</small><time>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無列管事項</div>';
   html('preSignSpecialWorks',d.preSignSpecialItems.length ? d.preSignSpecialItems.map(x=>`<div class="work-view-row"><span class="timeline-pill tl-external">簽約前特別列管</span><b>${e(x.name)}</b><small>${e(x.note)}</small><time>${fmt(x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無簽約前特別列管事項</div>');
