@@ -273,3 +273,58 @@ html,body{min-width:0;overflow-x:hidden}
   .top-kpis{grid-template-columns:minmax(0,1fr)}
   .key-dates,.segment-stats{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* 2026-11-05 second repair: keep secondary KPIs and tab navigation
+   in separate normal-flow blocks on the live screen, as in print. */
+@media screen {
+  .exec-shell {
+    display:block;
+    height:auto;
+    max-height:none;
+    min-height:100vh;
+    overflow:visible;
+  }
+  .exec-shell > .exec-header,
+  .exec-shell > .top-kpis,
+  .exec-shell > .overdue-note,
+  .exec-shell > .exec-nav,
+  .exec-shell > .view-frame,
+  .exec-shell > .exec-footer {
+    position:relative;
+    float:none;
+    clear:both;
+    width:100%;
+    height:auto;
+    transform:none;
+  }
+  .exec-shell > .exec-header {margin:0 0 14px}
+  .exec-shell > .top-kpis {margin:0 0 12px}
+  .exec-shell > .overdue-note {margin:0 0 12px}
+  .exec-shell > .top-kpis.secondary-kpis {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+    margin:0 0 18px;
+    z-index:auto;
+  }
+  .exec-shell > .exec-nav {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+    gap:8px;
+    margin:0 0 14px;
+    padding:8px;
+    background:#eef3f9;
+    border-radius:12px;
+    z-index:1;
+  }
+  .exec-shell > .view-frame {margin:0 0 14px;min-height:400px}
+  .exec-shell > .exec-footer {margin-top:12px}
+  .secondary-kpis .top-kpi {min-width:0;min-height:86px}
+  @media(max-width:700px) {
+    .exec-shell > .top-kpis.secondary-kpis {gap:8px;margin-bottom:16px}
+    .exec-shell > .exec-nav {gap:6px;padding:6px}
+    .exec-shell > .view-frame {min-height:0}
+  }
+}
