@@ -213,3 +213,63 @@ body.font-large .brief-action em,body.font-xlarge .brief-action em{font-size:cal
 .secondary-kpis{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:8px}
 @media(max-width:640px){.secondary-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body.font-large .overdue-note,body.font-xlarge .overdue-note{font-size:calc(13px * var(--exec-text-scale))}
+
+
+/* 2026-11-05: executive dashboard overflow and responsive layout repair.
+   Allow the document to grow as KPI sections and font sizes increase. */
+html,body{min-width:0;overflow-x:hidden}
+.exec-shell{
+  height:auto;max-height:none;min-height:100vh;
+  display:flex;flex-direction:column;overflow:visible;
+}
+.exec-shell>*{min-width:0;flex-shrink:0}
+.exec-header{min-width:0;flex-wrap:wrap;gap:12px;overflow:visible}
+.brand-block{min-width:0;flex:1 1 330px}
+.exec-header h1,.exec-header p{overflow-wrap:anywhere}
+.header-actions{min-width:0;flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end}
+.top-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.top-kpi{min-width:0}
+.top-kpi span{overflow-wrap:anywhere}
+.exec-nav{min-width:0;flex-wrap:wrap;overflow:visible}
+.nav-btn{white-space:normal}
+.view-frame{flex:1 0 auto;min-height:400px;overflow:visible}
+.view-title{min-width:0;flex-wrap:wrap;gap:10px}
+.view-title>div{min-width:0;flex-wrap:wrap}
+.view-title>span{max-width:100%;overflow-wrap:anywhere}
+.view-body{min-height:0;overflow:visible}
+.segment-grid,.detail-grid,.overview-milestone-grid,.kpi-overview-grid,
+.management-brief,.payment-grid{min-width:0}
+.segment-grid{height:auto}
+.segment-card{overflow:visible}
+.overview-dashboard{height:auto;min-height:0;grid-template-rows:auto auto auto}
+.overview-milestones,.kpi-mini-card{min-width:0}
+.overview-milestone-row,.milestone-name,.milestone-dates{min-width:0}
+.milestone-name b,.milestone-name small,.brief-segment b,.brief-status b{overflow-wrap:anywhere}
+.list-row>*{min-width:0}
+.list-row b,.list-row small{overflow-wrap:anywhere}
+.progress-split{min-width:0}
+.variance-row{min-width:0}
+.exec-footer{flex-wrap:wrap}
+@media(max-width:1180px){
+  .exec-nav{position:static;overflow:visible;flex-wrap:wrap}
+  .view-frame{min-height:0}
+}
+@media(max-width:900px){
+  .exec-header{align-items:flex-start}
+  .header-actions{flex:1 1 100%;justify-content:flex-start;align-items:center;flex-direction:row}
+  .segment-grid,.detail-grid,.overview-milestone-grid,.kpi-overview-grid{grid-template-columns:minmax(0,1fr)}
+  .management-brief{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:700px){
+  .exec-header{flex-direction:column}
+  .brand-block,.header-actions{width:100%;flex:0 1 auto;margin-left:0}
+  .header-actions{justify-content:space-between}
+  .font-controls{order:0;width:auto;flex-wrap:wrap;justify-content:flex-start}
+  .top-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .view-title>div{width:100%}
+  .payment-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:380px){
+  .top-kpis{grid-template-columns:minmax(0,1fr)}
+  .key-dates,.segment-stats{grid-template-columns:minmax(0,1fr)}
+}
