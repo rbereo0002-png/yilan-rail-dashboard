@@ -242,7 +242,7 @@ function kpiMiniCard(m){
 }
 function renderKpi(){
   $('viewTitle').textContent='KPI／外部管制';
-  $('viewHint').textContent='此區「逾期」指會議交辦／管理目標或上級KPI到期未結案，並非設計契約成果逾期。115/10/31 PCM三項已於11/2研討，但仍待成果核定，不得逕行解除列管。';
+  $('viewHint').textContent='此區「逾期」指會議交辦／管理目標或上級KPI到期未結案，並非設計契約成果逾期。115/10/31 PCM三項已於11/2研討，11/5函送核定結論，但實質交辦仍待成果確認，不得逕行解除列管。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
     const items=m.kpiControls.filter(x=>!x.actualDate).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
@@ -257,15 +257,15 @@ function meetingTag(x){
   return '持續列管';
 }
 function renderMeeting(){
-  $('viewTitle').textContent='115年11月2日研討會｜列管及解除';
-  $('viewHint').textContent='會議已召開不代表議題完成。只有具備成果及正式核定／結案證據的事項才可解除列管；日期未確認者不自行認列逾期。';
+  $('viewTitle').textContent='115年11月2日分局長核定會議｜結論列管';
+  $('viewHint').textContent='115年11月5日鐵道東土字第1153201888號函已檢送核定12項結論；依北、南段權責分列，會議已召開不代表各項完成。第（五）項中間切換檢查採單一節點、不預留工期；實際完成或解除列管須有證據。';
   const cards=['north','south'].map(id=>{
     const m=models[id],items=meetingItems(m);
     const open=items.filter(x=>!x.id.endsWith('-meeting') && meetingTag(x)!=='已解除列管');
     const closed=items.filter(x=>meetingTag(x)==='已解除列管');
     const meeting=items.filter(x=>x.id.endsWith('-meeting'));
     const lines=xs=>xs.map(x=>row(x.name,[x.status,x.lastProgressDate?`實際研討 ${fmt(x.lastProgressDate)}`:'',x.source,x.note,x.actualNote].filter(Boolean).join('｜'),x.due,meetingTag(x),meetingTag(x)==='已解除列管'?'tag-ok':'tag-info'));
-    return projectListCard('11/2會議紀錄',m,lines(meeting))+projectListCard('持續列管（'+open.length+'項）',m,lines(open))+projectListCard('已解除列管（'+closed.length+'項）',m,lines(closed));
+    return projectListCard('11/2核定會議（11/5函送）',m,lines(meeting))+projectListCard('持續列管（'+open.length+'項）',m,lines(open))+projectListCard('已解除列管（'+closed.length+'項）',m,lines(closed));
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
