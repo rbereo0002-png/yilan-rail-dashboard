@@ -215,19 +215,6 @@
       "status": "持續列管／依核定紀錄辦理"
     },
     {
-      "id": "south-pcm-1151102-transfer-interface",
-      "category": "會議追蹤（非KPI）",
-      "targetDate": "2026-11-05",
-      "internalTargetDate": "",
-      "actualDate": "",
-      "actualNote": "",
-      "name": "宜蘭新站同月台轉乘之南段橋梁高程介面",
-      "note": "中興配合世曦及PCM提供蘭陽溪橋與公路橋高程、施工及費用影響；11月5日前整合供11月6日向局長報告。此為南段配合介面，不是南段同月台轉乘獨立議題。",
-      "source": "115年11月5日鐵道東土字第1153201888號函檢送分局長核定11月2日會議紀錄，第七點第9項",
-      "scope": "南段橋梁高程配合（北段轉乘議題）",
-      "status": "持續列管／依核定紀錄辦理"
-    },
-    {
       "id": "south-pcm-1151102-network",
       "category": "會議追蹤（非KPI）",
       "targetDate": "",
@@ -392,7 +379,6 @@
         "south-pcm-1151102-luodong",
         "south-pcm-1151102-station",
         "south-pcm-1151102-inspection",
-        "south-pcm-1151102-transfer-interface",
         "south-pcm-1151102-network"
       ]
     }
