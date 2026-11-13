@@ -119,6 +119,7 @@ async function init() {
     if ((input.dataset.insuranceId || input.dataset.reportMonth) && ['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(input.dataset.recordField) && input.value>todayLocal()) {
       fail(new Error('實際辦理日期不得晚於今日'));refresh();return;
     }
+    if (input.dataset.revisionId && input.dataset.revisionField === 'currentSubmittedDate' && input.value > todayLocal()) {fail(new Error('實際送審日不得晚於今日'));refresh();return;}
     if (input.dataset.row && ['submit','approval'].includes(input.dataset.kind) && input.value && input.value > todayLocal()) {
       const message='實際提送日／實際核定日不得晚於今日。';
       input.setCustomValidity(message);input.reportValidity();input.setCustomValidity('');
@@ -131,7 +132,24 @@ async function init() {
     }
     try {
       store.edit(p=>{
-        if (input.dataset.insuranceId) {
+        if (input.dataset.revisionId) {
+          const item=p.versionTracking?.[input.dataset.revisionId];
+          if(item){
+            const field=input.dataset.revisionField;
+            if(field==='currentVersion' && input.value && input.value!==item.currentVersion){
+              item.history ||= [];
+              item.history.push({version:item.currentVersion,submittedDate:item.currentSubmittedDate||'',reviewLetterDate:'',reviewLetterNumber:'',outcome:item.currentStatus||'前版已結束',source:'管制系統版本進版歷程',dueDate:item.currentDue||''});
+              item.currentVersion=input.value;
+              item.currentDue='';
+              item.currentSubmittedDate='';
+              item.currentStatus='待確認新版送審期限';
+            }else {
+              item[field]=input.value;
+              if(field==='currentSubmittedDate')item.currentStatus=input.value?'已提送／待審查':'待提送'+item.currentVersion+'版';
+              if(field==='currentDue' && !item.currentSubmittedDate)item.currentStatus='待提送'+item.currentVersion+'版';
+            }
+          }
+        } else if (input.dataset.insuranceId) {
           const item=p.insuranceRecords.find(x=>x.id===input.dataset.insuranceId);if(item)item[input.dataset.recordField]=input.value;
         } else if (input.dataset.reportMonth) {
           p.monthlyReports[input.dataset.reportMonth] ||= {};
