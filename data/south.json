@@ -239,6 +239,66 @@
       "actualDate": "",
       "actualNote": "",
       "note": "中興115/11/02軌道一字第1150118251號函提送A版。PCM及分局各科審查後要求逐項修正，併附ISO RBH-2-D09-03審查意見答覆表，於115/11/23前提送B版；PCM（林同棪）應會同檢討並實質審核。11/23為函稿要求期限，非A版核定日；須確認正式發文後始視為已正式通知廠商。契約第九條及品質缺失懲罰性違約金條款之適用須依實際通知、改善及歸責事實查核。"
+    },
+    {
+      "id": "south-revision-execPlan-B-1151123",
+      "category": "版本送審（非KPI）",
+      "name": "執行服務計畫書（含設計品質、技師簽證及BIM計畫）（B版）修正送審",
+      "targetDate": "2026-11-23",
+      "internalTargetDate": "",
+      "source": "1153201957-001簽暨1153201957-002函稿；115/11/12鐵道東土字第1153201957號（函稿）",
+      "scope": "南段",
+      "status": "待提送B版",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "A版於115/10/30提送，審查意見已彙整；請中興逐項檢討修正並附ISO RBH-2-D09-03答覆表，115/11/23前送B版複核。A版提送/期限保留歷史，不作本期催辦；正式發文狀態待查證。",
+      "revisionOf": "execPlan",
+      "version": "B"
+    },
+    {
+      "id": "south-revision-surveyPlan-B-1151123",
+      "category": "版本送審（非KPI）",
+      "name": "補充測量工作計畫書（B版）修正送審",
+      "targetDate": "2026-11-23",
+      "internalTargetDate": "",
+      "source": "1153201957-001簽暨1153201957-002函稿；115/11/12鐵道東土字第1153201957號（函稿）",
+      "scope": "南段",
+      "status": "待提送B版",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "A版於115/10/30提送，審查意見已彙整；請中興逐項檢討修正並附ISO RBH-2-D09-03答覆表，115/11/23前送B版複核。A版提送/期限保留歷史，不作本期催辦；正式發文狀態待查證。",
+      "revisionOf": "surveyPlan",
+      "version": "B"
+    },
+    {
+      "id": "south-revision-geoPlan-B-1151123",
+      "category": "版本送審（非KPI）",
+      "name": "補充地質調查工作計畫書（B版）修正送審",
+      "targetDate": "2026-11-23",
+      "internalTargetDate": "",
+      "source": "1153201957-001簽暨1153201957-002函稿；115/11/12鐵道東土字第1153201957號（函稿）",
+      "scope": "南段",
+      "status": "待提送B版",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "A版於115/10/30提送，審查意見已彙整；請中興逐項檢討修正並附ISO RBH-2-D09-03答覆表，115/11/23前送B版複核。A版提送/期限保留歷史，不作本期催辦；正式發文狀態待查證。",
+      "revisionOf": "geoPlan",
+      "version": "B"
+    },
+    {
+      "id": "south-revision-utilityPlan-B-1151123",
+      "category": "版本送審（非KPI）",
+      "name": "管線調查工作計畫書（B版）修正送審",
+      "targetDate": "2026-11-23",
+      "internalTargetDate": "",
+      "source": "1153201957-001簽暨1153201957-002函稿；115/11/12鐵道東土字第1153201957號（函稿）",
+      "scope": "南段",
+      "status": "待提送B版",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "A版於115/10/30提送，審查意見已彙整；請中興逐項檢討修正並附ISO RBH-2-D09-03答覆表，115/11/23前送B版複核。A版提送/期限保留歷史，不作本期催辦；正式發文狀態待查證。",
+      "revisionOf": "utilityPlan",
+      "version": "B"
     }
   ],
   "constructionPackages": [],
@@ -387,6 +447,24 @@
       ],
       "note": "簽稿1153201987-001（日期115/11/12）及函稿1153201987-002（日期115/11/13）。要求中興115/11/23前提B版及ISO RBH-2-D09-03審查意見答覆表；副本PCM協助實質審核。尚非正式發文證明，不可填寫發文字號或已通知完成。",
       "sourceFile": "1153201987-001.xml；1153201987-002.xml"
+    },
+    {
+      "id": "south-outgoing-draft-1153201957-002",
+      "direction": "outgoing-draft",
+      "documentDate": "2026-11-12",
+      "documentNumber": "鐵道東土字第1153201957號（函稿記載）",
+      "sender": "交通部鐵道局東部工程分局",
+      "recipient": "中興工程顧問股份有限公司（副本：林同棪工程顧問股份有限公司）",
+      "subject": "函送南段執行服務計畫書(A版)及補充測量、補充地質調查、管線調查工作計畫書(A版)審查意見，限期提送B版",
+      "status": "簽稿併陳／待查證正式發文",
+      "relatedRuleIds": [
+        "execPlan",
+        "surveyPlan",
+        "geoPlan",
+        "utilityPlan"
+      ],
+      "note": "簽115/11/10，函稿日期115/11/12，所載字號1153201957。4項審查意見表，要求115/11/23前提B版及ISO RBH-2-D09-03。未憑稿件認定已正式發文或核定。",
+      "sourceFile": "1153201957-001.xml；1153201957-002.xml"
     }
   ],
   "meetingRecords": [
@@ -410,5 +488,71 @@
         "south-pcm-1151102-network"
       ]
     }
-  ]
+  ],
+  "versionTracking": {
+    "execPlan": {
+      "currentVersion": "B",
+      "currentDue": "2026-11-23",
+      "currentStatus": "待提送B版複核",
+      "history": [
+        {
+          "version": "A",
+          "submittedDate": "2026-10-30",
+          "reviewLetterDate": "2026-11-12",
+          "reviewLetterNumber": "鐵道東土字第1153201957號（函稿所載；發文完成待確認）",
+          "outcome": "審查後須修正",
+          "source": "中興115/10/30軌道一字第1150117751號；1153201957-001簽、1153201957-002函稿"
+        }
+      ],
+      "requirement": "併送ISO RBH-2-D09-03審查意見答覆表；附各科及PCM審查意見；A版期限僅保留歷史，不納入現行待辦或甘特圖。"
+    },
+    "surveyPlan": {
+      "currentVersion": "B",
+      "currentDue": "2026-11-23",
+      "currentStatus": "待提送B版複核",
+      "history": [
+        {
+          "version": "A",
+          "submittedDate": "2026-10-30",
+          "reviewLetterDate": "2026-11-12",
+          "reviewLetterNumber": "鐵道東土字第1153201957號（函稿所載；發文完成待確認）",
+          "outcome": "審查後須修正",
+          "source": "中興115/10/30軌道一字第1150117751號；1153201957-001簽、1153201957-002函稿"
+        }
+      ],
+      "requirement": "併送ISO RBH-2-D09-03審查意見答覆表；附各科及PCM審查意見；A版期限僅保留歷史，不納入現行待辦或甘特圖。"
+    },
+    "geoPlan": {
+      "currentVersion": "B",
+      "currentDue": "2026-11-23",
+      "currentStatus": "待提送B版複核",
+      "history": [
+        {
+          "version": "A",
+          "submittedDate": "2026-10-30",
+          "reviewLetterDate": "2026-11-12",
+          "reviewLetterNumber": "鐵道東土字第1153201957號（函稿所載；發文完成待確認）",
+          "outcome": "審查後須修正",
+          "source": "中興115/10/30軌道一字第1150117751號；1153201957-001簽、1153201957-002函稿"
+        }
+      ],
+      "requirement": "併送ISO RBH-2-D09-03審查意見答覆表；附各科及PCM審查意見；A版期限僅保留歷史，不納入現行待辦或甘特圖。"
+    },
+    "utilityPlan": {
+      "currentVersion": "B",
+      "currentDue": "2026-11-23",
+      "currentStatus": "待提送B版複核",
+      "history": [
+        {
+          "version": "A",
+          "submittedDate": "2026-10-30",
+          "reviewLetterDate": "2026-11-12",
+          "reviewLetterNumber": "鐵道東土字第1153201957號（函稿所載；發文完成待確認）",
+          "outcome": "審查後須修正",
+          "source": "中興115/10/30軌道一字第1150117751號；1153201957-001簽、1153201957-002函稿"
+        }
+      ],
+      "requirement": "併送ISO RBH-2-D09-03審查意見答覆表；附各科及PCM審查意見；A版期限僅保留歷史，不納入現行待辦或甘特圖。"
+    }
+  }
 }
