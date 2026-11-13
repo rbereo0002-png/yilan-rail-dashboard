@@ -21,7 +21,7 @@ const tableHTML = (headers,rows) => `<thead><tr>${headers.map(x=>`<th>${e(x)}</t
 const tr = (cells,attrs='') => `<tr ${attrs}>${cells.map(x=>`<td>${x}</td>`).join('')}</tr>`;
 
 export function quickEntryMarkup(model, editable = false, filter = 'urgent') {
-  const items = model.dashboard.quickEntryItems;
+  const items = model.dashboard.quickEntryItems.filter(x => !model.project.versionTracking?.[x.id]);
   const source = filter === 'urgent'
     ? items.filter(x => x.attentionPriority <= 2)
     : filter === 'due14'
@@ -46,7 +46,7 @@ export function quickEntryMarkup(model, editable = false, filter = 'urgent') {
 
 // Used by the screen and Excel export. No DOM reads, no positional data parsing.
 export function tableMarkup(model, editable = false) {
-  const scheduleRows = model.schedule.list.map(item => tr([
+  const scheduleRows = model.schedule.list.filter(item => !model.project.versionTracking?.[item.id]).map(item => tr([
     e(item.group),e(item.name),duePill(item),e(pred(item,model)),
     item.days == null ? '—' : `${item.days}日`,fmt(item.contractDue),fmt(item.managementForecast),
     inputDate(item,'submit',editable),
@@ -82,10 +82,12 @@ export function tableMarkup(model, editable = false) {
   ],`data-kpi-id="${e(item.id)}"`);
   const headers=['類別','管制事項／子清單','來源目標日期','局內目標日期','實際完成日','狀態','依據','辦理情形／證據／備註'];
   const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && x.category===category).map(controlRow));
+  const revisionRows=Object.entries(model.project.versionTracking || {}).map(([id,version])=>{const base=model.schedule.model[id];const log=(version.history||[]).map(h=>`${e(h.version)}版：${fmt(h.submittedDate)}提送；${e(h.outcome||'審查中')}（${e(h.reviewLetterNumber||'')}）`).join('；');return tr([e(base?.name||id),`<b>${e(version.currentVersion)}版</b>`,fmt(version.currentDue),e(version.currentStatus||'待提送'),e(version.requirement||''),`<details><summary>查看舊版歷程與原契約基準</summary>${log}<div>契約原提送期限：${fmt(base?.contractDue)}；原提送日：${fmt(base?.actualSubmit)}；原核定日：${fmt(base?.actualApproval)}</div></details>`]);});
   const recordInput=(item,key,type,attribute,label)=>editable ? `<input type="${type}" ${attribute} data-record-field="${key}" value="${e(item[key] || '')}" ${['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(key) ? `max="${model.today}"` : ''} aria-label="${e(label)}">` : e(item[key] || '—');
   const insuranceRows=(model.insuranceControls || []).map(item=>{const attr=`data-insurance-id="${e(item.id)}"`;return tr([e(item.name),recordInput(item,'coverageStart','date',attr,'起保日'),recordInput(item,'coverageEnd','date',attr,'保期截止日'),recordInput(item,'submitDate','date',attr,'保單及收據提送日'),recordInput(item,'approvalDate','date',attr,'審查完成日'),recordInput(item,'renewalSubmitDate','date',attr,'續保提送日'),e(item.status),recordInput(item,'documentRef','text',attr,'保單／文號／收據'),recordInput(item,'note','text',attr,'保險審查及續保備註')]);});
   const reportRows=(model.monthlyReports || []).map(item=>{const attr=`data-report-month="${item.month}"`;return tr([e(item.month),`${fmt(item.baseDue)}<br>順延試算：${fmt(item.adjustedDue)}<br>${item.calendarVerified ? '行事曆已確認' : '假日行事曆待確認'}<br>${recordInput(item,'dueOverride','date',attr,'本期確認期限')}`,recordInput(item,'submitDate','date',attr,'實際收文日'),recordInput(item,'reviewDate','date',attr,'審查日'),recordInput(item,'revisionRequestDate','date',attr,'通知修正日'),recordInput(item,'resubmitDate','date',attr,'修正提送日'),recordInput(item,'approvalDate','date',attr,'核定日'),e(item.status),recordInput(item,'documentRef','text',attr,'收文／審查文號'),recordInput(item,'note','text',attr,'月報內容與缺失')]);});
   return {
+    revisionTrackingTable:tableHTML(['工作／成果','本次版本','B版送審期限','管制狀態','提送要求','歷史紀錄（展開查看）'],revisionRows),
     insuranceTable:tableHTML(['險種','起保日','保期截止','文件提送','審查完成','續保提送','狀態','保單／文號／收據','備註'],insuranceRows),
     monthlyReportTable:tableHTML(['報告月份','每月10日基準／假日順延／本期確認期限','收文日','審查日','通知修正','修正提送','核定日','狀態','文號','備註'],reportRows),
     scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
@@ -102,12 +104,12 @@ export function tableMarkup(model, editable = false) {
     designChecklistTable:grouped('設計查核'),
     interfaceControlTable:grouped('介面決策'),
     completedControlTable:tableHTML(headers,model.kpiControls.filter(x=>x.actualDate).map(controlRow)),
-    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category)).map(controlRow))
+    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）','版本送審（非KPI）','審查追蹤（非KPI）'].includes(x.category)).map(controlRow))
   };
 }
 
 export function exportHTML(model) {
-  const names = {meetingControlTable:'115年11月2日研討會及解除列管',transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
+  const names = {revisionTrackingTable:'版本送審現行管制及歷程',meetingControlTable:'115年11月2日研討會及解除列管',transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${e(model.project.name)}履約管制</title></head><body><h1>${e(model.project.name)}履約與付款管制</h1><p>資料日期：${fmt(model.today)}；用地及監造付款未納入本版年度彙整。</p>${Object.entries(tableMarkup(model)).map(([id,markup])=>`<h2>${names[id]}</h2><table border="1">${markup}</table>`).join('')}</body></html>`;
 }
 
@@ -223,7 +225,7 @@ function renderTimeline(model) {
   text('tlDelayDays',`${model.summary.maxShift} 日`);text('tlAffectedCount',`${model.summary.affected.length} 項`);
   html('delayImpactBox',model.summary.affected.length ? model.summary.affected.map(x=>`<div class="delay-item"><div><b>${e(x.name)}</b><span>提送逾期 ${x.submitDelay} 日；${x.pcmReviewContract ? 'PCM契約審查逾期' : '審查超過管理目標'} ${Math.max(x.reviewDelay,x.reviewOverdueDays || 0)} 日</span></div><strong>+${x.forecastShift} 日</strong><small>管理基準 ${fmt(x.baselineDue)} → 目前 ${fmt(x.forecastDue)}</small></div>`).join('') : '<div class="delay-ok">目前沒有已登錄日期造成的基準偏移或審查超時；未提送之契約逾期請見總覽。</div>');
   html('paymentMilestoneStrip',model.payments.list.map(p=>`<div class="pay-node payment-${p.tier}" data-payment-id="${e(p.paymentId)}"><div class="pay-dot"></div><b>${e(p.category)}｜${e(p.name)}</b><span>${percent(p.ratio)}｜${money(p.amount)} 元</span><small>條件：${fmt(p.triggerDate)}<br>付款：${fmt(p.payDate)}</small><em class="payment-tier-strip-tag">${tierNames[p.tier]}</em></div>`).join(''));
-  const items=model.schedule.list.filter(x=>x.baselineDue || x.forecastDue || x.actualApproval);
+  const items=model.schedule.list.filter(x=>!model.project.versionTracking?.[x.id] && (x.baselineDue || x.forecastDue || x.actualApproval));
   const dates=items.flatMap(x=>[x.baselineStart,x.baselineDue,x.forecastStart,x.forecastDue,x.actualApproval]).filter(Boolean).sort();
   if (!dates.length) {html('ganttChart','<div class="timeline-empty">尚無足夠日期可繪製甘特圖。</div>');return;}
   const min=addDays(dates[0],-10),max=addDays(dates.at(-1),20),total=Math.max(1,daysBetween(min,max));
