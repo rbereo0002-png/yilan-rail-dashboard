@@ -18,7 +18,7 @@ export function requireCentralLogin(store,onReady){
     </form>`;
     document.body.appendChild(panel);
   }
-  panel.hidden=false;
+  panel.hidden=false;panel.style.display='flex';
   panel.querySelector('form').addEventListener('submit',async event=>{
     event.preventDefault();
     const form=event.currentTarget,btn=form.querySelector('button'),error=form.querySelector('[role=alert]');
@@ -27,7 +27,7 @@ export function requireCentralLogin(store,onReady){
       await store.login(form.elements.email.value,form.elements.password.value);
       form.elements.password.value='';
       await onReady();
-      panel.hidden=true;
+      panel.hidden=true;panel.style.display='none';
     }catch(e){store.logout();error.textContent=e.message||'登入失敗';}
     finally{btn.disabled=false;}
   },{once:false});
