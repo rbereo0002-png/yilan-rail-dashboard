@@ -138,8 +138,8 @@ export function normalizeProject(input, expectedId) {
 }
 
 export class ProjectStore {
-  constructor({catalog, loader, storage, onChange = () => {}, readOnly = false}) {
-    Object.assign(this,{catalog,loader,storage,onChange,readOnly});
+  constructor({catalog, loader, storage, saver=null, onChange = () => {}, readOnly = false}) {
+    Object.assign(this,{catalog,loader,storage,saver,onChange,readOnly});
     this.project = null; this.loading = false; this.error = ''; this.notice = '';
     this.amountBaselines = new Map();
     this.request = 0; this.drafts = new Map(); this.dirty = new Set();
@@ -212,8 +212,15 @@ export class ProjectStore {
     this.project = project; this.drafts.set(project.id,project); this.dirty.add(project.id);
     this.error = ''; this.emit(); return true;
   }
-  save() {
-    throw new Error('已停用瀏覽器本機儲存。中央資料庫尚未啟用前不可寫入履約資料。');
+  async save(){
+    if(this.readOnly || this.loading || !this.project)return false;
+    if(!this.saver)throw new Error('中央資料庫未啟用，不可寫入');
+    const id=this.project.id;
+    const revision=await this.saver(structuredClone(this.project));
+    this.dirty.delete(id);
+    this.notice='中央資料庫已更新至第 '+revision+' 版';
+    this.emit();
+    return true;
   }
   async reset() {
     if (this.readOnly || !this.project || this.loading) return;
