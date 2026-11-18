@@ -26,7 +26,7 @@ jobs:
       - name: Entire existing regression suite
         run: node --test tests/*.test.js
   browser-qa:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: {contents: read}
     steps:
       - uses: actions/checkout@v4
