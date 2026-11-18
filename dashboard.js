@@ -127,7 +127,18 @@ function managementBrief(){
 }
 function overviewMilestones(m){
   const ids=['designRiskPlan','execPlan','basic','final'];
-  const items=ids.map(id=>m.schedule.model[id]).filter(x=>x && !m.project.versionTracking?.[x.id]).map(x=>{
+  const items=ids.map(id=>{
+    const review=m.currentReviews.find(v=>v.id===id);
+    if(review){
+      const reviewDate=review.submitted||review.due;
+      return `<div class="overview-milestone-row">
+        <div class="milestone-name"><b>${esc(review.name)}（${esc(review.version)}版）</b><small>${esc(review.label)}</small></div>
+        <div class="milestone-dates"><span>本版${review.submitted?'實際提送':'修正期限'} ${fmt(reviewDate)}</span><span>${review.evidenceStatus==='draft'?'函稿／待確認':'退回'} ${fmt(review.returnDate)}</span></div>
+        <div class="milestone-diff ${review.overdueDays>0?'late':'pending'}">${review.overdueDays>0?'+ '+review.overdueDays+'日':'目前版'}</div>
+      </div>`;
+    }
+    const x=m.schedule.model[id];
+    if(!x)return '';
     const planned=x.contractDue || x.managementForecast || null;
     const actual=x.effectiveApproval || null;
     const diff=planned&&actual ? daysBetween(planned,actual) : null;
@@ -168,14 +179,18 @@ function varianceLabel(diff){
 }
 function progressComparison(m){
   const preferred=['designRiskPlan','execPlan','basic','final','tender','worksAward'];
-  const rows=preferred.map(id=>m.schedule.model[id]).filter(x=>x && !m.project.versionTracking?.[x.id])
-    .map(x=>({
-      id:x.id,name:x.name,
-      start:x.forecastStart || x.baselineStart || null,
-      planned:x.contractDue || x.managementForecast || x.forecastDue || null,
-      actual:x.effectiveApproval || null
+  const rows=[
+    ...preferred.map(id=>m.schedule.model[id]).filter(x=>x && !m.project.versionTracking?.[x.id])
+      .map(x=>({id:x.id,name:x.name,start:x.forecastStart || x.baselineStart || null,
+        planned:x.contractDue || x.managementForecast || x.forecastDue || null,
+        actual:x.effectiveApproval || null})),
+    ...m.currentReviews.filter(x=>preferred.includes(x.id)).map(x=>({
+      id:'current-review-'+x.id,name:x.name+'（'+x.version+'版）',
+      start:x.returnDate || x.initialSubmit || x.contractDue || null,
+      planned:x.submitted || x.due || null,actual:x.approval || null,
+      dateLabel:x.submitted?'本版實際提送':'本版修正期限'
     }))
-    .filter(x=>x.start || x.planned || x.actual);
+  ].filter(x=>x.start || x.planned || x.actual);
   if(!rows.length) return '<div class="empty">目前尚無可比較之預定／實際日期。</div>';
   const allDates=rows.flatMap(x=>[x.start,x.planned,x.actual]).filter(Boolean).sort();
   const base=addDays(allDates[0] || m.today,-10);
@@ -189,7 +204,7 @@ function progressComparison(m){
     const actualPos=pos(x.actual);
     const plannedWidth=x.start && x.planned && x.planned>=x.start ? plannedPos-startPos : 0;
     return `<div class="variance-row">
-      <div class="variance-label"><b>${esc(x.name)}</b><small>預定起始／起算 ${fmt(x.start)}<br>預定提送 ${fmt(x.planned)}<br>實際核定 ${fmt(x.actual)}</small></div>
+      <div class="variance-label"><b>${esc(x.name)}</b><small>預定起始／起算 ${fmt(x.start)}<br>${esc(x.dateLabel||'預定提送')} ${fmt(x.planned)}<br>實際核定 ${fmt(x.actual)}</small></div>
       <div class="variance-bars range-bars">
         <div class="variance-track">${x.start && x.planned && x.planned>=x.start ? `<span class="variance-range planned" title="起始 ${fmt(x.start)} → 預定提送 ${fmt(x.planned)}" style="left:${startPos}%;width:${plannedWidth}%"></span>` : ''}${x.start ? `<i class="range-start" title="起始 ${fmt(x.start)}" style="left:${pos(x.start)}%"></i>` : ''}</div>
         <div class="variance-track">${x.actual ? `<i class="range-actual" title="實際核定 ${fmt(x.actual)}" style="left:${actualPos}%"></i>` : ''}</div>
