@@ -32,7 +32,7 @@ async function loadJSON(path){
 // 分類僅供呈現，契約及審查期限仍由單一時程引擎計算。
 function isUpperKpi(x){return /^(116年度|上級KPI)/.test(x.category||'');}
 function overdueGroups(m){
-  const contract=m.schedule.list.filter(x=>x.contractRule && x.overdueDays>0 && !x.effectiveSubmit && !x.effectiveApproval);
+  const contract=m.schedule.list.filter(x=>x.contractRule && !m.project.versionTracking?.[x.id] && x.overdueDays>0 && !x.effectiveSubmit && !x.effectiveApproval);
   const review=[...m.dashboard.reviewOverdueItems.filter(x=>!m.project.versionTracking?.[x.id]),...m.currentReviews.filter(x=>x.overdueDays>0 && !x.approval).map(x=>({...x,name:x.name,reviewOverdueDays:x.overdueDays,reviewTarget:x.due}))];
   const targets=m.kpiControls.filter(x=>!x.actualDate && x.due && x.due<m.today && x.computedStatus==='逾期');
   return {contract,review,management:targets.filter(x=>!isUpperKpi(x)),upperKpi:targets.filter(isUpperKpi)};
