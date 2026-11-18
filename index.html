@@ -31,15 +31,14 @@
   <!-- 工具列：全頁只能有一組 -->
   <div class="toolbar">
     <button class="btn primary edit-only" data-action="recalc">重新計算</button>
-    <button class="btn edit-only" data-action="save">儲存本機</button>
-    <button class="btn edit-only" data-action="json">匯出專案 JSON</button>
-    <button class="btn edit-only" data-action="import">匯入專案 JSON</button>
+    <button class="btn edit-only" data-action="save">儲存至中央資料庫</button>
+
     <button class="btn" data-action="excel">匯出 Excel 相容檔</button>
-    <button class="btn" data-action="view">切換公開檢視</button>
+
     <button class="btn" data-action="print">列印 / PDF</button>
     <a class="btn" id="transferControlLink" href="#transferControl" hidden>同月台轉乘</a>
     <a class="btn" href="dashboard.html">長官儀表板</a>
-    <button class="btn warn edit-only" data-action="reset">恢復 GitHub 資料</button>
+    <button class="btn warn edit-only" data-action="reset">重新載入中央資料</button>
 
     <div class="project-switch">
       <b>標段：</b>
@@ -170,7 +169,7 @@
                 <h3>實際履約工作台 <span id="quickPerformanceCount">0</span></h3>
                 <span>一般履約自實際簽約後開放；可直接登錄提送／核定並同步重算審查、付款與後續成果</span>
               </div>
-              <button class="mini-btn edit-only" type="button" data-action="save">儲存本機</button>
+              <button class="mini-btn edit-only" type="button" data-action="save">儲存至中央資料庫</button>
             </div>
 
             <div class="quick-filter-bar" role="group" aria-label="承辦工作台篩選">
@@ -190,7 +189,7 @@
                 <tbody id="quickPerformanceBody"></tbody>
               </table>
             </div>
-            <p class="small">「今日應辦／催辦」只列契約逾期、審查催辦及審查中案件；14日及30日到期另以分頁查看。誤登日期可清除後重填；修改完成後請儲存本機。</p>
+            <p class="small">「今日應辦／催辦」只列契約逾期、審查催辦及審查中案件；14日及30日到期另以分頁查看。誤登日期可清除後重填；修改完成後請儲存至中央資料庫。</p>
           </div>
 
         </div>
@@ -725,11 +724,7 @@
       <div class="bd">
 
         <div class="note">
-          目前採「GitHub Pages + JSON」：公開檢視讀取 GitHub 上同一份基準資料；編輯模式可套用本機草稿。
-          瀏覽器內的修改先存在本機。正式更新時，請匯出專案 JSON 後覆蓋
-          repository 的 <b>data/&lt;project&gt;.json</b>，
-          GitHub commit 會自然留下歷程。
-          若未來要多人直接在線編輯，再接 Supabase / Firebase 等後端資料庫。
+          目前測試版以經身分授權的中央資料庫作為南北段唯一資料來源；承辦人儲存後，長官版重新載入即讀取同一份最新版本。所有寫入均帶有版本號防止覆寫；不在瀏覽器儲存履約專案資料。未獲授權不得存取。
         </div>
 
       </div>
