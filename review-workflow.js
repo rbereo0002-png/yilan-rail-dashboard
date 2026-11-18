@@ -39,3 +39,18 @@ export function latestReviewItems(project,schedule,today){
     ...currentReviewState(record,schedule.model[id]||{},today)
   }));
 }
+
+export function currentReviewGanttRows(model){
+  return (model.currentReviews||[]).map(x=>{
+    const chartEnd=x.approval||x.submitted||x.due;
+    const chartStart=x.returnDate||x.initialSubmit||x.contractDue||chartEnd;
+    const start=chartStart && chartEnd && chartStart>chartEnd ? chartEnd : chartStart;
+    return {id:'current-review-'+x.id,group:'現行審查版本',
+      name:x.name+'（'+x.version+'版）',baselineStart:start,baselineDue:chartEnd,
+      forecastStart:start,forecastDue:chartEnd,
+      actualApproval:x.approval||'',effectiveApproval:x.approval||'',
+      status:{text:x.label,cls:x.overdueDays>0?'tl-danger':'tl-normal'},
+      dueType:x.deadlineConfirmed?(x.dueKind==='contract'?'contract':'management'):'external',
+      isReviewVersion:true};
+  });
+}
