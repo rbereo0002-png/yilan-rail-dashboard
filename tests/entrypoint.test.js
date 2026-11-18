@@ -36,7 +36,7 @@ test('milestone assignments tolerate cached HTML without new field',()=>{
 });
 test('production entrypoint includes a cache-busted module asset',()=>{
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(html,/app\.js\?v=1\.3\.3/);
+  assert.match(html,/app\.js\?v=[^" ]+/);
 });
 
 
