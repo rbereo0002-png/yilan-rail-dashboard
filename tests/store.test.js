@@ -2,99 +2,98 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ProjectStore} from '../store.js';
-const data=id=>{const p=JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url)));p.kpiControls=p.kpiControls.filter(x=>!x.id.includes('contract-budget-confirmation'));return p;};
+const fixture=id=>JSON.parse(readFileSync(new URL('../data/'+id+'.json',import.meta.url),'utf8'));
 const catalog={defaultProject:'south',projects:[{id:'north',data:'north'},{id:'south',data:'south'}]};
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
-function storage(){const m=new Map();return{getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};}
+const poisonedStorage=()=>({getItem:()=>{throw Error('local read attempted');},setItem:()=>{throw Error('local write attempted');},removeItem:()=>{throw Error('local delete attempted');}});
+const make=(options={})=>new ProjectStore({catalog,loader:async id=>fixture(id),storage:poisonedStorage(),...options});
 
-test('last selection wins even when old fetch resolves after new selection',async()=>{
-  const north=deferred(),south=deferred();
-  const store=new ProjectStore({catalog,loader:id=>({north,south})[id].promise,storage:storage()});
-  const a=store.select('north'),b=store.select('south');south.resolve(data('south'));await b;
-  north.resolve(data('north'));assert.equal(await a,false);assert.equal(store.project.id,'south');assert.equal(store.loading,false);
+test('out-of-order segment loads cannot overwrite the latest selected segment',async()=>{
+ const north=deferred(),south=deferred();
+ const store=make({loader:id=>({north,south})[id].promise});
+ const a=store.select('north'),b=store.select('south');
+ south.resolve(fixture('south'));await b;north.resolve(fixture('north'));
+ assert.equal(await a,false);assert.equal(store.project.id,'south');
 });
-test('stale rejection does not overwrite latest successful state',async()=>{
-  const north=deferred();const store=new ProjectStore({catalog,loader:id=>id==='north'?north.promise:Promise.resolve(data(id)),storage:storage()});
-  const a=store.select('north');await store.select('south');north.reject(new Error('old failure'));await a;
-  assert.equal(store.error,'');assert.equal(store.project.id,'south');
+test('failed stale request does not overwrite success or errors',async()=>{
+ const north=deferred();const store=make({loader:id=>id==='north'?north.promise:fixture(id)});
+ const a=store.select('north');await store.select('south');north.reject(new Error('stale'));await a;
+ assert.equal(store.project.id,'south');assert.equal(store.error,'');
 });
-test('draft retained separately for both segments and imported ID selects matching project',async()=>{
-  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:storage()});
-  await store.select('south');store.edit(p=>p.rows.execPlan_submit='2026-10-15');
-  await store.select('north');assert.equal(store.project.rows.execPlan_submit,undefined);
-  store.edit(p=>p.contract.design=123);await store.select('south');assert.equal(store.project.rows.execPlan_submit,'2026-10-15');
-  await store.select('north');assert.equal(store.project.contract.design,123);
-  await store.importProject(data('south'));assert.equal(store.project.id,'south');assert.equal(store.dirty.size,2);
+test('read only loads remote source and never reads local browser data',async()=>{
+ const store=make({readOnly:true});
+ assert.equal(await store.select('south'),true);
+ assert.equal(store.project.id,'south');
+ assert.equal(store.edit(p=>{p.name='fake';}),false);
 });
-test('edits blocked during fetch and in readonly mode',async()=>{
-  const pending=deferred();const store=new ProjectStore({catalog,loader:id=>id==='north'?pending.promise:Promise.resolve(data(id)),storage:storage()});
-  await store.select('south');const request=store.select('north');assert.equal(store.edit(p=>p.name='wrong'),false);
-  pending.resolve(data('north'));await request;store.readOnly=true;assert.equal(store.edit(p=>p.name='wrong'),false);
+test('local browser cache is always ignored in both reading and editing modes',async()=>{
+ const store=make();
+ assert.equal(await store.select('south'),true);
+ assert.equal(store.project.contract.design,fixture('south').contract.design);
+ assert.equal(store.error,'');
 });
-test('read only loads remote data and never reads the saved editing draft',async()=>{
-  const cache=storage(),local=data('south');local.contract.design=999;cache.setItem('yilan-dashboard-south',JSON.stringify(local));
-  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:cache,readOnly:true});
-  await store.select('south');assert.notEqual(store.project.contract.design,999);
-  store.readOnly=false;await store.select('south');assert.equal(store.project.contract.design,999);
+test('central save uses configured asynchronous backend and never uses browser storage',async()=>{
+ let saved;
+ const store=make({saver:async p=>{saved=structuredClone(p);return 2;}});
+ await store.select('south');
+ store.edit(p=>{p.rows.execPlan_approval='2026-11-15';p.settings.payWorkdays=0;});
+ assert.equal(await store.save(),true);
+ assert.equal(saved.rows.execPlan_approval,'2026-11-15');
+ assert.equal(saved.settings.payWorkdays,0);
+ assert.equal(store.dirty.size,0);
+ assert.match(store.notice,/中央資料庫已更新/);
 });
-test('invalid local data falls back to remote with visible notice',async()=>{
-  const cache=storage();cache.setItem('yilan-dashboard-south','bad json');
-  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:cache});
-  assert.equal(await store.select('south'),true);assert.match(store.notice,/本機資料未套用/);assert.equal(store.project.id,'south');
+test('save is rejected without a central database writer',async()=>{
+ const store=make();await store.select('south');
+ store.edit(p=>{p.rows.execPlan_submit='2026-11-01';});
+ await assert.rejects(store.save(),/中央資料庫未啟用/);
+ assert.equal(store.dirty.size,1);
 });
-test('save/restore retains actual rows and zero administrative workdays',async()=>{
-  const cache=storage(),store=new ProjectStore({catalog,loader:async id=>data(id),storage:cache});
-  await store.select('south');store.edit(p=>{p.settings.payWorkdays=0;p.rows.execPlan_approval='2026-11-15';});store.save();
-  const restored=new ProjectStore({catalog,loader:async id=>data(id),storage:cache});await restored.select('south');
-  assert.equal(restored.project.settings.payWorkdays,0);assert.equal(restored.project.rows.execPlan_approval,'2026-11-15');assert.equal(store.dirty.size,0);
+test('reset re-fetches remote source instead of local cache',async()=>{
+ const store=make();await store.select('south');
+ store.edit(p=>{p.name='local-only';});
+ await store.reset();
+ assert.equal(store.project.name,fixture('south').name);
+ assert.equal(store.dirty.size,0);
 });
-test('remote reset does not erase local data if fetch fails',async()=>{
-  const cache=storage(),store=new ProjectStore({catalog,loader:async id=>data(id),storage:cache});
-  await store.select('south');store.edit(p=>p.contract.design=321);store.save();
-  store.loader=async()=>{throw new Error('offline');};await store.reset();
-  assert.equal(JSON.parse(cache.getItem('yilan-dashboard-south')).contract.design,321);assert.equal(store.project.contract.design,321);
+test('failure to reload remote source cannot claim successful replacement',async()=>{
+ const store=make();await store.select('south');
+ store.edit(p=>{p.name='pending edit';});
+ store.loader=async()=>{throw new Error('offline');};
+ await store.reset();
+ assert.match(store.error,/offline/);
+ assert.equal(store.project.name,'pending edit');
+ assert.equal(store.dirty.has('south'),true);
 });
-test('external date cleared from both legacy alias and rows stays cleared after saving',async()=>{
-  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:storage()});await store.select('south');
-  store.edit(p=>{p.rows.pcc_approval='2026-11-15';p.dates.pccDate='2026-11-15';});
-  store.edit(p=>{p.rows.pcc_approval='';p.dates.pccDate='';});store.save();
-  assert.equal(store.project.rows.pcc_approval,'');assert.equal(store.project.dates.pccDate,'');
+test('cleared external dates remain cleared after normalization',async()=>{
+ const store=make();await store.select('south');
+ store.edit(p=>{p.rows.pcc_approval='2026-11-15';p.dates.pccDate='2026-11-15';});
+ store.edit(p=>{p.rows.pcc_approval='';p.dates.pccDate='';});
+ assert.equal(store.project.rows.pcc_approval,'');
+ assert.equal(store.project.dates.pccDate,'');
 });
-test('failed public-mode fetch never presents the editing draft as remote data',async()=>{
-  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:storage()});
-  await store.select('south');store.edit(p=>p.contract.design=999);
-  store.loader=async()=>{throw new Error('offline');};await store.setReadOnly(true);
-  assert.equal(store.project,null);assert.match(store.error,/offline/);
-  await store.setReadOnly(false);assert.equal(store.project.contract.design,999);
+test('in-memory drafts are separated by segment and never persisted',async()=>{
+ const store=make();await store.select('south');
+ store.edit(p=>{p.rows.uniqueSouth='2026-11-01';});
+ await store.select('north');assert.equal(store.project.rows.uniqueSouth,undefined);
+ await store.select('south');assert.equal(store.project.rows.uniqueSouth,'2026-11-01');
+ const fresh=make();await fresh.select('south');
+ assert.equal(fresh.project.rows.uniqueSouth,undefined);
 });
-test('legacy conflict warning survives repeated normalization and loading',async()=>{
-  const input=data('south');input.rows.pcc_approval='2026-11-15';input.dates.pccDate='2026-10-10';
-  const store=new ProjectStore({catalog,loader:async()=>input,storage:storage()});await store.select('south');
-  assert.equal(store.project.migrationWarnings.length,1);store.edit(p=>p.settings.payWorkdays=0);
-  assert.equal(store.project.migrationWarnings.length,1);
+test('amounts confirmed in master cannot be overwritten by a local edit or imported file',async()=>{
+ for(const id of ['north','south']){
+   const store=make();await store.select(id);
+   const baseline=structuredClone(store.project.contract),budget=structuredClone(store.project.budget);
+   store.edit(p=>{p.contract.design=3;p.budget.total=4;});
+   assert.deepEqual(store.project.contract,baseline);
+   assert.deepEqual(store.project.budget,budget);
+   const altered=fixture(id);altered.contract.design=999;altered.budget.total=999;
+   await store.importProject(altered);
+   assert.deepEqual(store.project.contract,baseline);
+   assert.deepEqual(store.project.budget,budget);
+ }
 });
-
-test('construction packages remain isolated by segment and validate dates',async()=>{
-  const store=new ProjectStore({catalog,loader:async id=>data(id),storage:storage()});
-  await store.select('south');store.edit(p=>p.constructionPackages.push({id:'s1',code:'S1',name:'南段一標',scope:'',plannedTenderDate:'2027-01-01',actualAwardDate:''}));
-  await store.select('north');assert.equal(store.project.constructionPackages.length,0);
-  await store.select('south');assert.equal(store.project.constructionPackages[0].code,'S1');
-  assert.throws(()=>store.edit(p=>p.constructionPackages[0].actualAwardDate='2027-02-30'));
-});
-
-for (const id of ['north','south']) test(`${id}: confirmed amounts survive edits, saved drafts and imports while actual dates remain editable`,async()=>{
-  const original=JSON.parse(readFileSync(new URL(`../data/${id}.json`,import.meta.url)));
-  const cache=storage(), local=structuredClone(original);
-  local.contract.design=1;local.budget.design=2;local.kpiControls=[];local.rows.execPlan_submit='2026-10-20';
-  cache.setItem(`yilan-dashboard-${id}`,JSON.stringify(local));
-  const store=new ProjectStore({catalog,loader:async()=>structuredClone(original),storage:cache});
-  await store.select(id);
-  assert.deepEqual(store.project.contract,original.contract);assert.deepEqual(store.project.budget,original.budget);
-  assert.equal(store.project.amountsLocked,true);assert.equal(store.project.rows.execPlan_submit,'2026-10-20');
-  store.edit(p=>{p.contract.design=3;p.budget.total=4;p.amountsLocked=false;p.rows.execPlan_submit='2026-10-21';});
-  assert.deepEqual(store.project.contract,original.contract);assert.deepEqual(store.project.budget,original.budget);
-  assert.equal(store.project.rows.execPlan_submit,'2026-10-21');
-  await store.importProject(local);
-  assert.deepEqual(store.project.contract,original.contract);assert.deepEqual(store.project.budget,original.budget);
-  assert.equal(store.project.rows.execPlan_submit,'2026-10-20');
+test('the north-only transfer topic never appears in south data',async()=>{
+ const store=make();await store.select('south');
+ assert.equal(store.project.kpiControls.some(x=>x.id.includes('same-platform')),false);
 });
