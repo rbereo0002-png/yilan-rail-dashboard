@@ -1,10 +1,10 @@
-// Authenticated central store. Nothing (neither project data nor tokens) is persisted locally.
-// Only the public Supabase publishable key is embedded; never put a secret/service_role key here.
-export const CENTRAL_API='https://gpxnervtwrancfrukdba.supabase.co';
-export const CENTRAL_PUBLISHABLE_KEY='sb_publishable_2TaZAQtvOrOGqTqD7kOMkw_JtIDcbYk';
+// Dormant development adapter: not imported by the no-account production UI.
+// The assistant uses server-side connected tools to maintain the central database.
+// Do not embed database endpoint, public credentials or secret/service keys in the site.
 const allowed=new Set(['north','south']);
 function projectId(id){if(!allowed.has(id))throw new Error('不支援的標段');return id;}
-export function createCentralStore({api=CENTRAL_API,key=CENTRAL_PUBLISHABLE_KEY,transport=fetch}={}){
+export function createCentralStore({api,key,transport=fetch}={}){
+  if(!api||!key)throw new Error('中央資料庫設定未提供');
   let token=null,refreshToken=null,expiry=0;
   const headers=(prefer)=>({'apikey':key,'Authorization':'Bearer '+(token||key),
     'Content-Type':'application/json',...(prefer?{'Prefer':prefer}:{})});
