@@ -1,30 +1,41 @@
-// Single current-state projection for a deliverable's review lifecycle.
-// Historical revisions remain queryable; they never become a second current task.
-export function currentReviewState(record = {}, base = {}, today = '') {
-  const version = String(record.currentVersion || 'A').trim();
-  const history = Array.isArray(record.history) ? record.history : [];
-  const last = history.at(-1) || {};
-  const submitted = record.currentSubmittedDate || '';
-  const due = record.currentDue || base.contractDue || '';
-  const approval = record.currentApprovalDate || '';
-  const returned = record.currentReturnedDate || '';
-  const lastReturn = last.reviewLetterDate || '';
-  const isRevision = history.length > 0 || version !== 'A';
-  const overdueDays = !submitted && due && today && due < today
-    ? Math.round((Date.parse(today+'T00:00:00Z') - Date.parse(due+'T00:00:00Z')) / 86400000) : 0;
-  let code, label;
-  if (approval) { code='approved'; label=version+'版已核定'; }
-  else if (submitted) { code='under-review'; label=version+'版已提送／審查中'; }
-  else if (isRevision) { code=overdueDays>0?'revision-overdue':'awaiting-revision'; label='待提送'+version+'版'+(overdueDays>0?'（逾期'+overdueDays+'日）':''); }
-  else { code=overdueDays>0?'initial-overdue':'awaiting-initial'; label='待首次提送'+(overdueDays>0?'（逾期'+overdueDays+'日）':''); }
-  return {version,code,label,due,submitted,approval,returnDate:returned || (isRevision?lastReturn:''),overdueDays,
-    contractDue:base.contractDue || record.contractDue || '',initialSubmit:base.actualSubmit || history[0]?.submittedDate || '',
-    history};
+// Current-state projection only. Historical records are never replaced by display state.
+// A draft review letter is not evidence of an issued return or a binding correction due date.
+const utcDays=(from,to)=>Math.round((Date.parse(to+'T00:00:00Z')-Date.parse(from+'T00:00:00Z'))/86400000);
+const isDraftEvidence = value=>/函稿|草稿|擬稿|待確認|待核定|待決行|發文完成待確認|正式發文字號待確認/.test(String(value||''));
+export function currentReviewState(record={},base={},today=''){
+  const version=String(record.currentVersion||'A').trim();
+  const history=Array.isArray(record.history)?record.history:[];
+  const last=history.at(-1)||{};
+  const submitted=record.currentSubmittedDate||'';
+  const approval=record.currentApprovalDate||'';
+  const returnDate=record.currentReturnedDate||last.reviewLetterDate||'';
+  const returnRef=record.currentReturnRef||last.reviewLetterNumber||'';
+  const draftReturn=Boolean(returnDate && !record.currentReturnedDate && isDraftEvidence(returnRef));
+  const evidenceStatus=record.returnEvidenceStatus || (draftReturn?'draft':returnDate?'unverified':'not-applicable');
+  const due=record.currentDue||base.contractDue||'';
+  const dueKind=history.length>0 || version!=='A'?'revision':'contract';
+  const deadlineConfirmed=dueKind==='contract' || record.deadlineConfirmed===true || (evidenceStatus==='issued' && record.deadlineConfirmed!==false);
+  const overdueDays=!submitted && !approval && deadlineConfirmed && due && today && due<today?utcDays(due,today):0;
+  let code,label;
+  if(approval){code='approved';label=version+'版已核定';}
+  else if(submitted){code='under-review';label=version+'版已提送／審查中';}
+  else if(dueKind==='revision'){
+    code=overdueDays>0?'revision-overdue':'awaiting-revision';
+    label='待提送'+version+'版'+(overdueDays>0?'（修正逾期'+overdueDays+'日）':'');
+    if(!deadlineConfirmed)label+='（修正期限待正式確認）';
+  } else {
+    code=overdueDays>0?'initial-overdue':'awaiting-initial';
+    label='待首次提送'+(overdueDays>0?'（逾期'+overdueDays+'日）':'');
+  }
+  return {version,code,label,due,dueKind,deadlineConfirmed,evidenceStatus,
+    submitted,approval,returnDate,returnRef,overdueDays,
+    contractDue:base.contractDue||record.contractDue||'',
+    initialSubmit:base.actualSubmit||history[0]?.submittedDate||'',history};
 }
-export function latestReviewItems(project, schedule, today) {
-  const tracking = project.versionTracking || {};
-  return Object.entries(tracking).map(([id, record]) => {
-    const base=schedule.model[id] || {};
-    return {id,name:base.name || id,...currentReviewState(record,base,today)};
-  });
+export function latestReviewItems(project,schedule,today){
+  const tracking=project.versionTracking||{};
+  return Object.entries(tracking).map(([id,record])=>({
+    id,name:schedule.model[id]?.name||id,
+    ...currentReviewState(record,schedule.model[id]||{},today)
+  }));
 }
