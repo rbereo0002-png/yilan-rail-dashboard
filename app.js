@@ -7,6 +7,24 @@ const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
 const dateKeys = new Set(['noticeDate','pccDate','tenderApprovalDate','allWorksAwardDate','allWorksCloseDate']);
 const milestoneKeys = new Set(['awardDate','evaluationDate','workStartDate','signDate','actualSignDate']);
+const subsystems=new Set(['overview','schedule','review','kpi','payment','transfer']);
+let activeSubsystem='overview';
+function setSubsystem(next){
+  if(!subsystems.has(next))return;
+  if(next==='transfer' && store?.project?.id!=='north')next='overview';
+  activeSubsystem=next;
+  for(const section of document.querySelectorAll('section[data-subsystem]')){
+    const show=section.dataset.subsystem===next;
+    section.hidden=!show || section.id==='supervisionSection';
+  }
+  for(const button of document.querySelectorAll('[data-module]')){
+    button.hidden=button.dataset.module==='transfer' && store?.project?.id!=='north';
+    const selected=button.dataset.module===next;
+    button.classList.toggle('is-active',selected);
+    button.setAttribute('aria-pressed',String(selected));
+  }
+}
+
 async function loadJSON(path) {
   const response = await fetch(path,{cache:'no-store'});
   if (!response.ok) throw new Error(`HTTP ${response.status}：${path}`);
@@ -26,6 +44,7 @@ function refresh() {
   if (store.project && !store.loading) {
     model = calculateModel(store.project,todayLocal());
     renderModel(model,{readOnly:store.readOnly,catalog:store.catalog});
+    setSubsystem(activeSubsystem);
   }
   showState();
 }
@@ -59,8 +78,8 @@ async function action(name) {
     refresh();
     download('\ufeff'+exportHTML(model),`宜蘭高架_${store.project.name}_履約付款管制_${model.today}.xls`,'application/vnd.ms-excel;charset=utf-8');
   } else if (name === 'print') {refresh();window.print();}
-  else if (name === 'schedule') $('scheduleTable').scrollIntoView({behavior:'smooth'});
-  else if (name === 'payment') $('paymentTable').scrollIntoView({behavior:'smooth'});
+  else if (name === 'schedule') {setSubsystem('schedule');$('scheduleTable').scrollIntoView({behavior:'smooth'});}
+  else if (name === 'payment') {setSubsystem('payment');$('paymentTable').scrollIntoView({behavior:'smooth'});}
 }
 async function init() {
   const catalog=await loadJSON('projects.json');
@@ -71,6 +90,10 @@ async function init() {
   store=new ProjectStore({catalog,loader:loadJSON,storage:null,readOnly:true,onChange:refresh});
   renderNavigation(catalog,catalog.defaultProject);
   document.addEventListener('click',event=>{
+    const tab=event.target.closest('[data-module]');
+    if(tab){setSubsystem(tab.dataset.module);return;}
+    const transferLink=event.target.closest('#transferControlLink');
+    if(transferLink){event.preventDefault();setSubsystem('transfer');return;}
     const project=event.target.closest('[data-project]');
     if (project) {void store.select(project.dataset.project).catch(fail);return;}
     const quickFilter=event.target.closest('[data-quick-filter]');
