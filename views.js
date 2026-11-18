@@ -1,3 +1,4 @@
+import {latestReviewItems} from './review-workflow.js';
 import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {formatDate as fmt, daysBetween, addDays} from './dates.js';
 
@@ -82,12 +83,21 @@ export function tableMarkup(model, editable = false) {
   ],`data-kpi-id="${e(item.id)}"`);
   const headers=['類別','管制事項／子清單','來源目標日期','局內目標日期','實際完成日','狀態','依據','辦理情形／證據／備註'];
   const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && x.category===category).map(controlRow));
-  const revisionRows=Object.entries(model.project.versionTracking || {}).map(([id,version])=>{const base=model.schedule.model[id];const log=(version.history||[]).map(h=>`${e(h.version)}版：${fmt(h.submittedDate)}提送；${e(h.outcome||'審查中')}（${e(h.reviewLetterNumber||'')}）`).join('；');return tr([e(base?.name||id),editable ? `<input type="text" data-revision-id="${e(id)}" data-revision-field="currentVersion" value="${e(version.currentVersion||'')}" aria-label="目前送審版次">` : `<b>${e(version.currentVersion)}版</b>`,editable ? `<input type="date" data-revision-id="${e(id)}" data-revision-field="currentDue" value="${e(version.currentDue||'')}" aria-label="目前版本送審期限">` : fmt(version.currentDue),`${editable ? `<input type="date" data-revision-id="${e(id)}" data-revision-field="currentSubmittedDate" value="${e(version.currentSubmittedDate||'')}" max="${e(model.today)}" aria-label="目前版本實際送審日">` : fmt(version.currentSubmittedDate)}<div class="small">${e(version.currentStatus||'待提送')}</div>`,e(version.requirement||''),`<details><summary>查看舊版歷程與原契約基準</summary>${log}<div>契約原提送期限：${fmt(base?.contractDue)}；原提送日：${fmt(base?.actualSubmit)}；原核定日：${fmt(base?.actualApproval)}</div></details>`]);});
+  const revisionRows=latestReviewItems(model.project,model.schedule,model.today).map(item=>{
+    const source=model.project.versionTracking[item.id] || {};
+    const showHistory=(item.history||[]).map(h=>`<div><b>${e(h.version||'')}版</b>｜提送 ${fmt(h.submittedDate)}｜退回／審查 ${fmt(h.reviewLetterDate)}｜${e(h.outcome||'')}｜${e(h.reviewLetterNumber||'')}</div>`).join('');
+    const dueEdit=editable ? `<input type="date" data-revision-id="${e(item.id)}" data-revision-field="currentDue" value="${e(source.currentDue||'')}" aria-label="目前版本送審期限">` : fmt(item.due);
+    const submitEdit=editable ? `<input type="date" data-revision-id="${e(item.id)}" data-revision-field="currentSubmittedDate" value="${e(item.submitted)}" max="${e(model.today)}" aria-label="目前版本實際送審日">` : fmt(item.submitted);
+    const verEdit=editable ? `<input type="text" data-revision-id="${e(item.id)}" data-revision-field="currentVersion" value="${e(item.version)}" aria-label="目前送審版次">` : `${e(item.version)}版`;
+    return tr([e(item.name),verEdit,`<b>${e(item.label)}</b>`,`退回／審查日期：${fmt(item.returnDate)}`,dueEdit,submitEdit,
+      `<details><summary>查詢歷次審查及原契約基準</summary>${showHistory}<div>原契約期限：${fmt(item.contractDue)}；首次提送：${fmt(item.initialSubmit)}</div><div>${e(source.requirement||'')}</div></details>`],
+      `data-revision-node-id="${e(item.id)}"`);
+  });
   const recordInput=(item,key,type,attribute,label)=>editable ? `<input type="${type}" ${attribute} data-record-field="${key}" value="${e(item[key] || '')}" ${['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(key) ? `max="${model.today}"` : ''} aria-label="${e(label)}">` : e(item[key] || '—');
   const insuranceRows=(model.insuranceControls || []).map(item=>{const attr=`data-insurance-id="${e(item.id)}"`;return tr([e(item.name),recordInput(item,'coverageStart','date',attr,'起保日'),recordInput(item,'coverageEnd','date',attr,'保期截止日'),recordInput(item,'submitDate','date',attr,'保單及收據提送日'),recordInput(item,'approvalDate','date',attr,'審查完成日'),recordInput(item,'renewalSubmitDate','date',attr,'續保提送日'),e(item.status),recordInput(item,'documentRef','text',attr,'保單／文號／收據'),recordInput(item,'note','text',attr,'保險審查及續保備註')]);});
   const reportRows=(model.monthlyReports || []).map(item=>{const attr=`data-report-month="${item.month}"`;return tr([e(item.month),`${fmt(item.baseDue)}<br>順延試算：${fmt(item.adjustedDue)}<br>${item.calendarVerified ? '行事曆已確認' : '假日行事曆待確認'}<br>${recordInput(item,'dueOverride','date',attr,'本期確認期限')}`,recordInput(item,'submitDate','date',attr,'實際收文日'),recordInput(item,'reviewDate','date',attr,'審查日'),recordInput(item,'revisionRequestDate','date',attr,'通知修正日'),recordInput(item,'resubmitDate','date',attr,'修正提送日'),recordInput(item,'approvalDate','date',attr,'核定日'),e(item.status),recordInput(item,'documentRef','text',attr,'收文／審查文號'),recordInput(item,'note','text',attr,'月報內容與缺失')]);});
   return {
-    revisionTrackingTable:tableHTML(['工作／成果','目前版次（可更新）','目前版本送審期限','實際送審日／狀態','提送要求','歷史紀錄（展開查看）'],revisionRows),
+    revisionTrackingTable:tableHTML(['工作／成果','目前版次','目前狀態','退回／審查日期','本次修正期限','本版實際提送','完整歷史'],revisionRows),
     insuranceTable:tableHTML(['險種','起保日','保期截止','文件提送','審查完成','續保提送','狀態','保單／文號／收據','備註'],insuranceRows),
     monthlyReportTable:tableHTML(['報告月份','每月10日基準／假日順延／本期確認期限','收文日','審查日','通知修正','修正提送','核定日','狀態','文號','備註'],reportRows),
     scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
