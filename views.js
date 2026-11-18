@@ -1,4 +1,4 @@
-import {latestReviewItems} from './review-workflow.js';
+import {latestReviewItems,currentReviewGanttRows} from './review-workflow.js';
 import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {formatDate as fmt, daysBetween, addDays} from './dates.js';
 
@@ -235,7 +235,7 @@ function renderTimeline(model) {
   text('tlDelayDays',`${model.summary.maxShift} 日`);text('tlAffectedCount',`${model.summary.affected.length} 項`);
   html('delayImpactBox',model.summary.affected.length ? model.summary.affected.map(x=>`<div class="delay-item"><div><b>${e(x.name)}</b><span>提送逾期 ${x.submitDelay} 日；${x.pcmReviewContract ? 'PCM契約審查逾期' : '審查超過管理目標'} ${Math.max(x.reviewDelay,x.reviewOverdueDays || 0)} 日</span></div><strong>+${x.forecastShift} 日</strong><small>管理基準 ${fmt(x.baselineDue)} → 目前 ${fmt(x.forecastDue)}</small></div>`).join('') : '<div class="delay-ok">目前沒有已登錄日期造成的基準偏移或審查超時；未提送之契約逾期請見總覽。</div>');
   html('paymentMilestoneStrip',model.payments.list.map(p=>`<div class="pay-node payment-${p.tier}" data-payment-id="${e(p.paymentId)}"><div class="pay-dot"></div><b>${e(p.category)}｜${e(p.name)}</b><span>${percent(p.ratio)}｜${money(p.amount)} 元</span><small>條件：${fmt(p.triggerDate)}<br>付款：${fmt(p.payDate)}</small><em class="payment-tier-strip-tag">${tierNames[p.tier]}</em></div>`).join(''));
-  const items=model.schedule.list.filter(x=>!model.project.versionTracking?.[x.id] && (x.baselineDue || x.forecastDue || x.actualApproval));
+  const items=[...model.schedule.list.filter(x=>!model.project.versionTracking?.[x.id] && (x.baselineDue || x.forecastDue || x.actualApproval)), ...currentReviewGanttRows(model)];
   const dates=items.flatMap(x=>[x.baselineStart,x.baselineDue,x.forecastStart,x.forecastDue,x.actualApproval]).filter(Boolean).sort();
   if (!dates.length) {html('ganttChart','<div class="timeline-empty">尚無足夠日期可繪製甘特圖。</div>');return;}
   const min=addDays(dates[0],-10),max=addDays(dates.at(-1),20),total=Math.max(1,daysBetween(min,max));
