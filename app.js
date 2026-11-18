@@ -7,6 +7,24 @@ const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
 const dateKeys = new Set(['noticeDate','pccDate','tenderApprovalDate','allWorksAwardDate','allWorksCloseDate']);
 const milestoneKeys = new Set(['awardDate','evaluationDate','workStartDate','signDate','actualSignDate']);
+const subsystems=new Set(['overview','schedule','review','kpi','payment','transfer']);
+let activeSubsystem='overview';
+function setSubsystem(next){
+  if(!subsystems.has(next))return;
+  if(next==='transfer' && store?.project?.id!=='north')next='overview';
+  activeSubsystem=next;
+  for(const section of document.querySelectorAll('section[data-subsystem]')){
+    const show=section.dataset.subsystem===next;
+    section.hidden=!show || section.id==='supervisionSection';
+  }
+  for(const button of document.querySelectorAll('[data-module]')){
+    button.hidden=button.dataset.module==='transfer' && store?.project?.id!=='north';
+    const selected=button.dataset.module===next;
+    button.classList.toggle('is-active',selected);
+    button.setAttribute('aria-pressed',String(selected));
+  }
+}
+
 async function loadJSON(path) {
   const response = await fetch(path,{cache:'no-store'});
   if (!response.ok) throw new Error(`HTTP ${response.status}：${path}`);
@@ -26,6 +44,7 @@ function refresh() {
   if (store.project && !store.loading) {
     model = calculateModel(store.project,todayLocal());
     renderModel(model,{readOnly:store.readOnly,catalog:store.catalog});
+    setSubsystem(activeSubsystem);
   }
   showState();
 }
@@ -43,40 +62,40 @@ function download(content,name,type) {
 async function action(name) {
   if (!store) return;
   if (store.loading && name !== 'view') return;
-  if (name === 'view') {
-    const readOnly=!store.readOnly;
-    const query=new URLSearchParams(location.search);
-    if (readOnly) query.set('view','1'); else query.delete('view');
-    history.replaceState(null,'',`${location.pathname}${query.size ? `?${query}` : ''}`);
-    await store.setReadOnly(readOnly);
-    return;
-  }
+  if (['save','reset','import','json','add-package'].includes(name)) return;
+  if (name === 'view') return; // Assistant-managed read-only mode.
   if (!store.project) return;
   if (name === 'recalc') refresh();
   else if (name === 'add-package' && !store.readOnly) store.edit(p=>{
     const stamp=Date.now().toString(36);
     p.constructionPackages.push({id:`pkg-${stamp}`,code:'',name:'',scope:'',plannedTenderDate:'',actualAwardDate:''});
   });
-  else if (name === 'save' && !store.readOnly) store.save();
-  else if (name === 'reset' && !store.readOnly && confirm('放棄目前標段本機修改並重新載入 GitHub 資料？')) await store.reset();
+  else if (name === 'save' && !store.readOnly) await store.save();
+  else if (name === 'reset' && !store.readOnly && confirm('放棄目前未儲存的修改並重新載入中央資料？')) await store.reset();
   else if (name === 'json' && !store.readOnly) download(JSON.stringify(store.project,null,2),`${store.project.id}.json`,'application/json;charset=utf-8');
   else if (name === 'import' && !store.readOnly) $('importFile').click();
   else if (name === 'excel') {
     refresh();
     download('\ufeff'+exportHTML(model),`宜蘭高架_${store.project.name}_履約付款管制_${model.today}.xls`,'application/vnd.ms-excel;charset=utf-8');
   } else if (name === 'print') {refresh();window.print();}
-  else if (name === 'schedule') $('scheduleTable').scrollIntoView({behavior:'smooth'});
-  else if (name === 'payment') $('paymentTable').scrollIntoView({behavior:'smooth'});
+  else if (name === 'schedule') {setSubsystem('schedule');$('scheduleTable').scrollIntoView({behavior:'smooth'});}
+  else if (name === 'payment') {setSubsystem('payment');$('paymentTable').scrollIntoView({behavior:'smooth'});}
 }
 async function init() {
   const catalog=await loadJSON('projects.json');
-  let storage;
-  try {storage=window.localStorage;} catch {storage=null;}
-  store=new ProjectStore({catalog,loader:loadJSON,storage,onChange:refresh,readOnly:new URLSearchParams(location.search).get('view') === '1'});
+  // No browser persistence or public write API. Data are a read-only GitHub
+  // publication of the centrally maintained database, released after review.
+  try { for(const id of ['north','south'])window.localStorage.removeItem('yilan-dashboard-'+id);
+        window.localStorage.removeItem('yilan-dashboard-last-project'); } catch {}
+  store=new ProjectStore({catalog,loader:loadJSON,storage:null,readOnly:true,onChange:refresh});
   renderNavigation(catalog,catalog.defaultProject);
   document.addEventListener('click',event=>{
+    const tab=event.target.closest('[data-module]');
+    if(tab){setSubsystem(tab.dataset.module);return;}
+    const transferLink=event.target.closest('#transferControlLink');
+    if(transferLink){event.preventDefault();setSubsystem('transfer');return;}
     const project=event.target.closest('[data-project]');
-    if (project) {void store.select(project.dataset.project);return;}
+    if (project) {void store.select(project.dataset.project).catch(fail);return;}
     const quickFilter=event.target.closest('[data-quick-filter]');
     if (quickFilter) {
       document.querySelectorAll('[data-quick-filter]').forEach(x=>x.classList.toggle('active',x===quickFilter));
@@ -100,7 +119,7 @@ async function init() {
   });
   document.addEventListener('change',event=>{
     const input=event.target;
-    if (input.id === 'projectSelect') {void store.select(input.value);return;}
+    if (input.id === 'projectSelect') {void store.select(input.value).catch(fail);return;}
     if (input.id === 'importFile') {
       const file=input.files?.[0];input.value='';
       const request=store.request;
@@ -192,9 +211,9 @@ async function init() {
   window.addEventListener('beforeunload',event=>{if (store.dirty.size) {event.preventDefault();event.returnValue='';}});
   window.addEventListener('pagehide',()=>{if(lastDownloadURL)URL.revokeObjectURL(lastDownloadURL);});
   window.addEventListener('focus',()=>{if(model && model.today !== todayLocal() && !store.loading)refresh();});
-  let last;
-  try {last=storage?.getItem('yilan-dashboard-last-project');} catch { /* remote defaults remain usable */ }
-  await store.select(catalog.projects.some(p=>p.id === last) ? last : catalog.defaultProject);
+  await store.select(catalog.defaultProject);
+  store.notice='資料由中央資料庫維護；目前顯示已發布的唯讀快照，修改請由承辦資料審查後統一登錄。';
+  showState();
 }
-init().catch(error=>{$('appStatus').textContent=`無法載入資料：${error.message}。請透過 HTTP／GitHub Pages 開啟本頁。`;});
+init().catch(error=>{$('appStatus').textContent='載入失敗：'+error.message;});
 

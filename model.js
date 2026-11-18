@@ -1,3 +1,4 @@
+import {latestReviewItems} from './review-workflow.js';
 import {calculateSchedule} from './schedule-engine.js';
 import {calculatePayments} from './payment-engine.js';
 import {daysBetween, todayLocal, SIGN_DATE_WARNING} from './dates.js';
@@ -21,6 +22,7 @@ export function calculateModel(project, today = todayLocal()) {
   }
   const schedule = calculateSchedule(source,today);
   const payments = calculatePayments(source,schedule);
+  const currentReviews = latestReviewItems(source,schedule,today);
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
   const deliverables = schedule.list.filter(x => x.contractRule);
   const completed = deliverables.filter(x => x.effectiveApproval).length;
@@ -38,12 +40,13 @@ export function calculateModel(project, today = todayLocal()) {
   const phaseLabel = phase === 'pre-award' ? '尚未決標' : phase === 'awaiting-sign' ? '已決標／待簽約（履約尚未起算）' : '實際履約中';
   const started = formalDeliverables.filter(x => x.contractDue).length;
   const notStarted = deliverables.length - started;
-  const underReviewItems = formalDeliverables.filter(x => x.effectiveSubmit && !x.effectiveApproval);
+  const underReviewItems = formalDeliverables.filter(x => !source.versionTracking?.[x.id] && x.effectiveSubmit && !x.effectiveApproval);
   const reviewOverdueItems = underReviewItems.filter(x => x.reviewOverdueDays > 0);
-  const reviewOverdue = reviewOverdueItems.length;
-  const underReview = underReviewItems.length;
+  const correctionOverdueItems = currentReviews.filter(x => x.code === 'revision-overdue');
+  const reviewOverdue = reviewOverdueItems.length + correctionOverdueItems.length;
+  const underReview = underReviewItems.length + currentReviews.filter(x => x.code === 'under-review').length;
   const overall = !schedule.awardEffective ? '尚未決標' : !signedEffective ? '已決標／待簽約' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : '實際履約中';
-  const attention = formalDeliverables.map(x => {
+  const attention = formalDeliverables.filter(x=>!source.versionTracking?.[x.id]).map(x => {
     const remaining = x.contractDue ? daysBetween(today,x.contractDue) : null;
     let priority = 99, priorityLabel = '', reason = '';
     if (x.overdueDays > 0) {priority=0;priorityLabel='立即處理';reason=`尚未提送，契約逾期 ${x.overdueDays} 日`;}
@@ -65,6 +68,7 @@ export function calculateModel(project, today = todayLocal()) {
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
   const quickEntryItems = deliverables
+    .filter(x => !source.versionTracking?.[x.id])
     .filter(x => (signedEffective && x.contractDue) || x.effectiveSubmit || x.effectiveApproval)
     .sort((a,b) => {
       const ar = a.attentionPriority ?? 99, br = b.attentionPriority ?? 99;
@@ -78,7 +82,7 @@ export function calculateModel(project, today = todayLocal()) {
     open: quickEntryItems.filter(x => !x.effectiveApproval).length,
     completed: quickEntryItems.filter(x => x.effectiveApproval).length
   };
-  const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
+  const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,correctionOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
     progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
@@ -104,7 +108,7 @@ export function calculateModel(project, today = todayLocal()) {
   const kpiControls = (source.kpiControls || []).map(item => {
     const due = item.internalTargetDate || item.targetDate || null;
     const remaining = due ? daysBetween(today,due) : null;
-    const completed = Boolean(item.actualDate);
+    const completed = Boolean(item.actualDate && item.actualDate <= today);
     const computedStatus = completed ? '已完成' : remaining != null && remaining < 0 ? '逾期' : item.status || (remaining == null ? (item.category === '設計查核' ? '待審查確認' : item.category === '介面決策' ? '待協調／決策' : item.category === '交辦待辦' ? '待確認期限' : '待釐清') : remaining <= 30 ? '30日內到期' : '列管中');
     const priority = computedStatus === '逾期' ? 0 : computedStatus === '30日內到期' ? 1 : computedStatus === '待釐清' ? 2 : computedStatus === '已完成' ? 10 : 9;
     return {...item,due,remainingDays:remaining,computedStatus,priority};
@@ -120,7 +124,7 @@ export function calculateModel(project, today = todayLocal()) {
   const executiveItems = [
     ...preSignSpecialItems.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.contractDue,label:'簽約前特別列管',description:x.note,kind:'special'})),
     ...attention.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,label:x.attentionLabel,description:x.attentionReason,kind:'contract'})),
-    ...kpiControls.filter(x=>!x.actualDate && (['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (x.remainingDays!=null && x.remainingDays<=30)))
+    ...kpiControls.filter(x=>x.computedStatus!=='已完成' && (['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (x.remainingDays!=null && x.remainingDays<=30)))
       .map(x=>({...x,label:x.computedStatus,description:`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source || ''}`,kind:'control'}))
   ].filter((x,i,all)=>all.findIndex(y=>y.id===x.id)===i)
     .sort((a,b)=>(a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
@@ -148,5 +152,5 @@ export function calculateModel(project, today = todayLocal()) {
     const status=actual(record.approvalDate) ? '已核定／結案' : actual(record.resubmitDate) ? '已修正待審查' : actual(record.revisionRequestDate) ? '待修正' : actual(record.submitDate) ? '已提送待審查' : due<today ? (calendarVerified || record.dueOverride ? '逾期未提送' : '超過暫定日期／假日待核') : '待提送';
     monthlyReports.push({...record,month,baseDue,adjustedDue,due,calendarVerified,status,remainingDays:daysBetween(today,due)});
   }
-  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary,insuranceControls,monthlyReports});
+  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary,insuranceControls,monthlyReports,currentReviews});
 }

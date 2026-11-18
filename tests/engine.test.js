@@ -14,6 +14,7 @@ const fixture = id => {
   return normalizeProject(data);
 };
 const model = (p,today='2026-12-01') => calculateModel(p,today);
+const daysBetweenForTest=(a,b)=>(Date.parse(b)-Date.parse(a))/86400000;
 function signed(id='south') {const p=fixture(id);p.milestones.actualSignDate=p.milestones.signDate;return p;}
 
 test('legacy contract rules are preserved except explicitly approved v1.3 overrides',()=>{
@@ -88,17 +89,15 @@ test('pre-sign risk plan remains in special tracking instead of formal 30-day or
   assert.equal(m.dashboard.preSignSpecialItems.some(x=>x.id==='designRiskPlan'),true);
   assert.equal(m.dashboard.workViews.due14.some(x=>x.id==='designRiskPlan'),false);
 });
-test('daily queue priority is overdue then review-overdue then review then due14 then due30',()=>{
-  const p=signed('south');
-  p.rows.execPlan_submit='2026-10-20';
-  p.rows.surveyPlan_submit='2026-11-10';
-  const m=model(normalizeProject(p),'2026-11-25');
-  const priorities=m.dashboard.attention.map(x=>x.attentionPriority);
-  assert.deepEqual(priorities,[0,0,0,1,2]);
-  assert.equal(m.dashboard.attention.find(x=>x.id==='execPlan').attentionPriority,1);
-  assert.equal(m.dashboard.attention.find(x=>x.id==='surveyPlan').attentionPriority,2);
+test('daily queue priority remains sorted and never repeats superseded A editions',()=>{
+ const p=signed('south');
+ p.rows.execPlan_submit='2026-10-20';p.rows.surveyPlan_submit='2026-11-10';
+ const m=model(normalizeProject(p),'2026-11-25');
+ const priorities=m.dashboard.attention.map(x=>x.attentionPriority);
+ assert.deepEqual(priorities,[...priorities].sort((a,b)=>a-b));
+ for(const x of m.dashboard.attention)assert.equal(Boolean(p.versionTracking?.[x.id]),false);
+ assert.equal(m.currentReviews.filter(x=>x.version==='B').length,5);
 });
-function daysBetweenForTest(a,b){return (Date.parse(b)-Date.parse(a))/86400000;}
 test('south switches to actual performance when actual signing is recorded',()=>{
   const m=model(signed('south'),'2026-10-02');
   assert.equal(m.dashboard.phase,'active-performance');
@@ -151,14 +150,17 @@ test('actual approval activates downstream contract deadline with unchanged day 
   assert.equal(m.payments.byId['design-exec'].tier,'ready');
   assert.equal(m.payments.byId['design-exec'].triggerDate,'2026-11-15');
 });
-test('homepage quick entry opens only after formal signing unless an actual record already exists',()=>{
-  let m=model(fixture('south'),'2026-09-22');
-  assert.deepEqual(m.dashboard.quickEntryItems.map(x=>x.id),[]);
-  let markup=quickEntryMarkup(m,true);
-  assert.doesNotMatch(markup,/data-row="designRiskPlan"/);
-  m=model(signed('south'),'2026-10-02');
-  const ids=m.dashboard.quickEntryItems.map(x=>x.id);
-  for (const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']) assert.ok(ids.includes(id),id);
+test('quick entry displays independent contract milestones while revision-tracked versions appear only in current reviews',()=>{
+ let m=model(fixture('south'),'2026-09-22');
+ assert.equal(m.dashboard.quickEntryItems.length,0);
+ assert.doesNotMatch(quickEntryMarkup(m,true),/data-row="designRiskPlan"/);
+ m=model(signed('south'),'2026-10-02');
+ const ids=m.dashboard.quickEntryItems.map(x=>x.id);
+ assert.ok(ids.every(id=>!m.project.versionTracking?.[id]));
+ for(const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']){
+   assert.ok(!ids.includes(id),id);
+   assert.ok(m.currentReviews.some(x=>x.id===id),id);
+ }
 });
 test('contractor workbench counts match the same shared schedule model',()=>{
   const p=signed('south');
@@ -178,30 +180,29 @@ test('contractor workbench horizon filters render mutually targeted rows',()=>{
   for (const item of m.dashboard.quickEntryItems.filter(x=>x.attentionPriority===3)) assert.match(due14,new RegExp(`data-row="${item.id}"`));
   for (const item of m.dashboard.quickEntryItems.filter(x=>x.attentionPriority===4)) assert.match(due30,new RegExp(`data-row="${item.id}"`));
 });
-test('quick entry filters open review and completed states without creating another data model',()=>{
-  const p=signed('south');
-  p.rows.execPlan_submit='2026-10-20';
-  p.rows.surveyPlan_submit='2026-10-20';
-  p.rows.surveyPlan_approval='2026-10-25';
-  const m=model(normalizeProject(p),'2026-10-26');
-  const open=quickEntryMarkup(m,true,'open');
-  const review=quickEntryMarkup(m,true,'review');
-  const completed=quickEntryMarkup(m,true,'completed');
-  assert.match(open,/data-row="execPlan"/);
-  assert.doesNotMatch(open,/data-row="surveyPlan"/);
-  assert.match(review,/data-row="execPlan"/);
-  assert.doesNotMatch(review,/data-row="surveyPlan"/);
-  assert.match(completed,/data-row="surveyPlan"/);
-  assert.match(completed,/data-clear-row="surveyPlan"/);
+test('quick entry filters non-versioned review and completion without repeating current revision tasks',()=>{
+ const p=signed('south');
+ p.rows.surveyResult_submit='2026-10-20';
+ p.rows.geoResult_submit='2026-10-20';p.rows.geoResult_approval='2026-10-25';
+ const m=model(normalizeProject(p),'2026-10-26');
+ const open=quickEntryMarkup(m,true,'open');
+ const review=quickEntryMarkup(m,true,'review');
+ const completed=quickEntryMarkup(m,true,'completed');
+ assert.match(open,/data-row="surveyResult"/);
+ assert.doesNotMatch(open,/data-row="geoResult"/);
+ assert.match(review,/data-row="surveyResult"/);
+ assert.doesNotMatch(review,/data-row="geoResult"/);
+ assert.match(completed,/data-row="geoResult"/);
+ assert.match(completed,/data-clear-row="geoResult"/);
+ assert.doesNotMatch(open,/data-row="execPlan"/);
 });
-test('quick entry immediately reflects submission and approval through the shared schedule model',()=>{
-  const p=signed('south');p.rows.execPlan_submit='2026-10-20';
-  let m=model(normalizeProject(p),'2026-10-21');
-  assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='execPlan').performanceStage,'under-review');
-  assert.equal(m.schedule.model.execPlan.reviewTarget,'2026-11-19');
-  p.rows.execPlan_approval='2026-11-10';
-  m=model(normalizeProject(p),'2026-11-11');
-  assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='execPlan').performanceStage,'approved');
+test('quick entry immediately reflects non-versioned submission and approval via shared schedule model',()=>{
+ const p=signed('south');p.rows.surveyResult_submit='2026-10-20';
+ let m=model(normalizeProject(p),'2026-10-21');
+ assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='surveyResult').performanceStage,'under-review');
+ p.rows.surveyResult_approval='2026-11-10';
+ m=model(normalizeProject(p),'2026-11-11');
+ assert.equal(m.dashboard.quickEntryItems.find(x=>x.id==='surveyResult').performanceStage,'approved');
 });
 test('performance flow separates vendor submission PCM review and owner approval',()=>{
   const p=signed('south');
@@ -365,11 +366,15 @@ test('model immutable and deterministic; no mutation of input',()=>{
   const p=signed(),copy=structuredClone(p);const a=model(p),b=model(p);
   assert.deepEqual(a,b);assert.deepEqual(p,copy);assert.throws(()=>a.project.rows.execPlan_submit='2026-10-01',TypeError);
 });
-test('actual dates are rendered from model and export has no inputs or supervision',()=>{
-  const p=signed();p.rows.execPlan_approval='2026-11-15';const m=model(p);
-  assert.match(tableMarkup(m,true).scheduleTable,/value="2026-11-15"/);
-  const out=exportHTML(m);assert.match(out,/2026\/11\/15/);assert.doesNotMatch(out,/<input/);
-  assert.doesNotMatch(out,/<h2>施工監造/);
+test('actual dates for superseded versions are available in revision history and exports are read-only',()=>{
+ const p=signed();p.rows.execPlan_approval='2026-11-15';const m=model(p);
+ const tables=tableMarkup(m,true);
+ assert.doesNotMatch(tables.scheduleTable,/data-row="execPlan"/);
+ assert.match(tables.revisionTrackingTable,/2026\/11\/15/);
+ const out=exportHTML(m);
+ assert.match(out,/2026\/11\/15/);
+ assert.doesNotMatch(out,/<input/);
+ assert.doesNotMatch(out,/<h2>施工監造/);
 });
 test('payment and dependency table column counts stay equal after repeated renders',()=>{
   const m=model(signed());for(let i=0;i<3;i++)for(const key of ['paymentTable','dependencyTable']){

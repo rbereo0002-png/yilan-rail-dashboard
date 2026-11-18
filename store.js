@@ -138,8 +138,8 @@ export function normalizeProject(input, expectedId) {
 }
 
 export class ProjectStore {
-  constructor({catalog, loader, storage, onChange = () => {}, readOnly = false}) {
-    Object.assign(this,{catalog,loader,storage,onChange,readOnly});
+  constructor({catalog, loader, storage, saver=null, onChange = () => {}, readOnly = false}) {
+    Object.assign(this,{catalog,loader,storage,saver,onChange,readOnly});
     this.project = null; this.loading = false; this.error = ''; this.notice = '';
     this.amountBaselines = new Map();
     this.request = 0; this.drafts = new Map(); this.dirty = new Set();
@@ -180,18 +180,11 @@ export class ProjectStore {
         data = normalizeProject(await this.loader(entry.data), id);
         if (request !== this.request) return false;
         this.rememberAmounts(data);
-        if (!this.readOnly && !remoteOnly) {
-          try {
-            const saved = this.storage?.getItem(this.key(id));
-            if (saved) data = normalizeProject(JSON.parse(saved), id);
-          } catch (error) { this.notice = `本機資料未套用：${error.message}；已載入遠端資料。`; }
-        }
       }
       if (request !== this.request) return false;
       this.project = normalizeProject(this.protectAmounts(data), id);
       if (!this.readOnly) this.drafts.set(id,this.project);
       this.loading = false;
-      try { this.storage?.setItem('yilan-dashboard-last-project',id); } catch { this.notice = '瀏覽器無法記住標段；目前資料仍可使用。'; }
       this.emit(); return true;
     } catch (error) {
       if (request !== this.request) return false;
@@ -219,18 +212,22 @@ export class ProjectStore {
     this.project = project; this.drafts.set(project.id,project); this.dirty.add(project.id);
     this.error = ''; this.emit(); return true;
   }
-  save() {
-    if (this.readOnly || !this.project || this.loading) return;
-    if (!this.storage) throw new Error('此瀏覽器無法儲存本機資料，請匯出專案 JSON 保存。');
-    this.storage.setItem(this.key(this.project.id),JSON.stringify(this.project));
-    this.dirty.delete(this.project.id); this.notice = '已儲存在此瀏覽器。'; this.emit();
+  async save(){
+    if(this.readOnly || this.loading || !this.project)return false;
+    if(!this.saver)throw new Error('中央資料庫未啟用，不可寫入');
+    const id=this.project.id;
+    const revision=await this.saver(structuredClone(this.project));
+    this.dirty.delete(id);
+    this.notice='中央資料庫已更新至第 '+revision+' 版';
+    this.emit();
+    return true;
   }
   async reset() {
     if (this.readOnly || !this.project || this.loading) return;
     const id = this.project.id;
     // Do not erase the saved copy until the remote replacement loads successfully.
     if (await this.select(id,{remoteOnly:true})) {
-      this.storage?.removeItem(this.key(id)); this.dirty.delete(id); this.emit();
+      this.dirty.delete(id); this.emit();
     }
   }
 }

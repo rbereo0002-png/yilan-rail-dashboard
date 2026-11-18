@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.10/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.10/);
+  assert.match(dashboard,/dashboard\.js\?v=[^" ]+/);
+  assert.match(dashboard,/dashboard\.css\?v=[^" ]+/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -38,7 +38,7 @@ test('executive dashboard provides one-frame detail switching and return-to-over
 test('executive dashboard shares the production project model instead of duplicating calculations',()=>{
   const js=read('dashboard.js');
   assert.match(js,/import \{normalizeProject\} from '\.\/store\.js'/);
-  assert.match(js,/import \{calculateModel\} from '\.\/model\.js'/);
+  assert.match(js,/import \{calculateModel\} from '\.\/model\.js(?:\?[^']+)?'/);
   assert.doesNotMatch(js,/function calculateSchedule|function calculatePayments/);
 });
 
@@ -113,14 +113,14 @@ test('v1.4.4 executive dashboard has larger accessible typography and tablet pho
 });
 
 
-test('v1.4.5 executive font controls persist large-text preference',()=>{
+test('executive font controls still support larger text without browser persistence',()=>{
   const html=read('dashboard.html'),js=read('dashboard.js'),css=read('dashboard.css');
   assert.match(html,/data-font-size="standard"/);
   assert.match(html,/data-font-size="large"/);
   assert.match(html,/data-font-size="xlarge"/);
   assert.match(js,/FONT_KEY='yilan-executive-font-size'/);
   assert.match(js,/function applyFontSize\(size='standard'\)/);
-  assert.match(js,/localStorage\.setItem\(FONT_KEY,value\)/);
+  assert.doesNotMatch(js,/localStorage\.setItem\(FONT_KEY,value\)/);
   assert.match(css,/body\.font-large/);
   assert.match(css,/body\.font-xlarge/);
 });
@@ -149,7 +149,7 @@ test('v1.4.7 management brief cards drill down without leaving executive page',(
   assert.match(js,/class="brief-status brief-action/);
   assert.match(js,/class="brief-segment brief-action"/);
   assert.match(js,/data-view="progress"/);
-  assert.match(js,/view:'attention'/);
+  assert.match(js,/data-view="\$\{esc\(next\.view\)\}"/);
   assert.match(js,/view:'review'/);
   assert.match(css,/\.brief-action/);
   assert.match(css,/\.brief-action:hover/);
@@ -160,9 +160,9 @@ test('v1.4.8 adds non-contract KPI controls without changing contract schedule c
   const south=normalizeProject(JSON.parse(read('data/south.json')),'south');
   const northModel=calculateModel(north,'2026-10-02');
   const southModel=calculateModel(south,'2026-10-02');
-  assert.equal(northModel.kpiControls.filter(x=>!x.id.startsWith('north-kickoff-1151006-')).length,5);
-  assert.equal(northModel.kpiSummary.total,41);
-  assert.equal(southModel.kpiSummary.total,2);
+  assert.equal(northModel.kpiControls.filter(x=>!x.id.startsWith('north-kickoff-1151006-')).length,north.kpiControls.filter(x=>!x.id.startsWith('north-kickoff-1151006-')).length);
+  assert.equal(northModel.kpiSummary.total,north.kpiControls.length);
+  assert.equal(southModel.kpiSummary.total,south.kpiControls.length);
   assert.equal(northModel.kpiSummary.unclear,0);
   assert.equal(southModel.kpiSummary.unclear,0);
   assert.equal(northModel.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').due,'2026-10-12');

@@ -1,3 +1,4 @@
+import {sharedTopicKey,groupSharedControls,uniqueControlKey} from './shared-controls.js';
 import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {normalizeProject} from './store.js';
 import {calculateModel} from './model.js?v=20261103-north-consistency';
@@ -9,17 +10,18 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 
 let models={}, currentView='overview';
+
 const FONT_KEY='yilan-executive-font-size';
 function applyFontSize(size='standard'){
   const value=['standard','large','xlarge'].includes(size)?size:'standard';
   document.body.classList.toggle('font-large',value==='large');
   document.body.classList.toggle('font-xlarge',value==='xlarge');
   document.querySelectorAll('[data-font-size]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.fontSize===value)));
-  try{localStorage.setItem(FONT_KEY,value);}catch{}
+
 }
 function restoreFontSize(){
   let size='standard';
-  try{size=localStorage.getItem(FONT_KEY)||'standard';}catch{}
+
   applyFontSize(size);
 }
 
@@ -32,12 +34,23 @@ async function loadJSON(path){
 // 分類僅供呈現，契約及審查期限仍由單一時程引擎計算。
 function isUpperKpi(x){return /^(116年度|上級KPI)/.test(x.category||'');}
 function overdueGroups(m){
-  const contract=m.schedule.list.filter(x=>x.contractRule && x.overdueDays>0 && !x.effectiveSubmit && !x.effectiveApproval);
-  const review=m.dashboard.reviewOverdueItems;
+  const contract=m.schedule.list.filter(x=>x.contractRule && !m.project.versionTracking?.[x.id] && x.overdueDays>0 && !x.effectiveSubmit && !x.effectiveApproval);
+  const review=[...m.dashboard.reviewOverdueItems.filter(x=>!m.project.versionTracking?.[x.id]),...m.currentReviews.filter(x=>x.overdueDays>0 && !x.approval).map(x=>({...x,name:x.name,reviewOverdueDays:x.overdueDays,reviewTarget:x.due}))];
   const targets=m.kpiControls.filter(x=>!x.actualDate && x.due && x.due<m.today && x.computedStatus==='逾期');
   return {contract,review,management:targets.filter(x=>!isUpperKpi(x)),upperKpi:targets.filter(isUpperKpi)};
 }
-function totals(ms){return ms.reduce((a,m)=>{const v=overdueGroups(m);for(const k of Object.keys(a))a[k]+=v[k].length;return a;},{contract:0,management:0,review:0,upperKpi:0});}
+function totals(ms){
+  const result={contract:0,management:0,review:0,upperKpi:0};
+  const seen={management:new Set(),upperKpi:new Set()};
+  for(const m of ms){
+    const g=overdueGroups(m);
+    result.contract+=g.contract.length;result.review+=g.review.length;
+    for(const key of ['management','upperKpi'])
+      for(const item of g[key])seen[key].add(uniqueControlKey(item,m.project.id));
+  }
+  result.management=seen.management.size;result.upperKpi=seen.upperKpi.size;
+  return result;
+}
 function projectFocus(m){
   const g=overdueGroups(m);
   if(g.contract.length)return `契約逾期：${g.contract[0].name}（${g.contract[0].overdueDays}日）`;
@@ -114,7 +127,18 @@ function managementBrief(){
 }
 function overviewMilestones(m){
   const ids=['designRiskPlan','execPlan','basic','final'];
-  const items=ids.map(id=>m.schedule.model[id]).filter(x=>x && !m.project.versionTracking?.[x.id]).map(x=>{
+  const items=ids.map(id=>{
+    const review=m.currentReviews.find(v=>v.id===id);
+    if(review){
+      const reviewDate=review.submitted||review.due;
+      return `<div class="overview-milestone-row">
+        <div class="milestone-name"><b>${esc(review.name)}（${esc(review.version)}版）</b><small>${esc(review.label)}</small></div>
+        <div class="milestone-dates"><span>本版${review.submitted?'實際提送':'修正期限'} ${fmt(reviewDate)}</span><span>${review.evidenceStatus==='draft'?'函稿／待確認':'退回'} ${fmt(review.returnDate)}</span></div>
+        <div class="milestone-diff ${review.overdueDays>0?'late':'pending'}">${review.overdueDays>0?'+ '+review.overdueDays+'日':'目前版'}</div>
+      </div>`;
+    }
+    const x=m.schedule.model[id];
+    if(!x)return '';
     const planned=x.contractDue || x.managementForecast || null;
     const actual=x.effectiveApproval || null;
     const diff=planned&&actual ? daysBetween(planned,actual) : null;
@@ -155,14 +179,18 @@ function varianceLabel(diff){
 }
 function progressComparison(m){
   const preferred=['designRiskPlan','execPlan','basic','final','tender','worksAward'];
-  const rows=preferred.map(id=>m.schedule.model[id]).filter(x=>x && !m.project.versionTracking?.[x.id])
-    .map(x=>({
-      id:x.id,name:x.name,
-      start:x.forecastStart || x.baselineStart || null,
-      planned:x.contractDue || x.managementForecast || x.forecastDue || null,
-      actual:x.effectiveApproval || null
+  const rows=[
+    ...preferred.map(id=>m.schedule.model[id]).filter(x=>x && !m.project.versionTracking?.[x.id])
+      .map(x=>({id:x.id,name:x.name,start:x.forecastStart || x.baselineStart || null,
+        planned:x.contractDue || x.managementForecast || x.forecastDue || null,
+        actual:x.effectiveApproval || null})),
+    ...m.currentReviews.filter(x=>preferred.includes(x.id)).map(x=>({
+      id:'current-review-'+x.id,name:x.name+'（'+x.version+'版）',
+      start:x.returnDate || x.initialSubmit || x.contractDue || null,
+      planned:x.submitted || x.due || null,actual:x.approval || null,
+      dateLabel:x.submitted?'本版實際提送':'本版修正期限'
     }))
-    .filter(x=>x.start || x.planned || x.actual);
+  ].filter(x=>x.start || x.planned || x.actual);
   if(!rows.length) return '<div class="empty">目前尚無可比較之預定／實際日期。</div>';
   const allDates=rows.flatMap(x=>[x.start,x.planned,x.actual]).filter(Boolean).sort();
   const base=addDays(allDates[0] || m.today,-10);
@@ -176,7 +204,7 @@ function progressComparison(m){
     const actualPos=pos(x.actual);
     const plannedWidth=x.start && x.planned && x.planned>=x.start ? plannedPos-startPos : 0;
     return `<div class="variance-row">
-      <div class="variance-label"><b>${esc(x.name)}</b><small>預定起始／起算 ${fmt(x.start)}<br>預定提送 ${fmt(x.planned)}<br>實際核定 ${fmt(x.actual)}</small></div>
+      <div class="variance-label"><b>${esc(x.name)}</b><small>預定起始／起算 ${fmt(x.start)}<br>${esc(x.dateLabel||'預定提送')} ${fmt(x.planned)}<br>實際核定 ${fmt(x.actual)}</small></div>
       <div class="variance-bars range-bars">
         <div class="variance-track">${x.start && x.planned && x.planned>=x.start ? `<span class="variance-range planned" title="起始 ${fmt(x.start)} → 預定提送 ${fmt(x.planned)}" style="left:${startPos}%;width:${plannedWidth}%"></span>` : ''}${x.start ? `<i class="range-start" title="起始 ${fmt(x.start)}" style="left:${pos(x.start)}%"></i>` : ''}</div>
         <div class="variance-track">${x.actual ? `<i class="range-actual" title="實際核定 ${fmt(x.actual)}" style="left:${actualPos}%"></i>` : ''}</div>
@@ -210,7 +238,7 @@ function renderOverdue(){
     const m=models[id],g=overdueGroups(m);
     const contract=g.contract.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`契約期限 ${fmt(x.contractDue)}｜未提送，逾期 ${x.overdueDays} 日`,x.contractDue,'契約逾期','tag-danger'));
     const management=g.management.map(x=>row(x.name,`原管理目標 ${fmt(x.due)}｜實際研討／辦理 ${fmt(x.lastProgressDate)}｜${x.progressStage||'待確認'}｜${x.actualNote||x.note||''}`,x.due,x.lastProgressDate?'已研討／成果待確認':'管理目標逾期','tag-warn'));
-    const review=g.review.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,'審查逾期','tag-warn'));
+    const review=g.review.map(x=>row(x.name, x.version ? `待提${x.version}版｜退回 ${fmt(x.returnDate)}｜修正逾期 ${x.overdueDays} 日` : `實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,x.version?'修正提送逾期':'審查逾期','tag-warn'));
     const kpi=g.upperKpi.map(x=>row(x.name,`上級管考目標 ${fmt(x.due)}｜${x.note||''}`,x.due,'上級KPI逾期','tag-warn'));
     const historical=m.kpiControls.filter(x=>x.id.startsWith('north-kickoff-1151006-') && ['26','27','28'].some(n=>x.id.endsWith('-'+n)) && x.actualDate)
       .map(x=>row(x.name,`原管理目標 ${fmt(x.targetDate)}｜實際研討提報 ${fmt(x.actualDate)}｜${x.status}｜${x.actualNote||''}`,x.actualDate,'已提報／後續續管','tag-ok'));
@@ -258,17 +286,24 @@ function meetingTag(x){
   return '持續列管';
 }
 function renderMeeting(){
-  $('viewTitle').textContent='115年11月2日分局長核定會議｜結論列管';
-  $('viewHint').textContent='115年11月5日鐵道東土字第1153201888號函已檢送核定12項結論；依北、南段權責分列，會議已召開不代表各項完成。第（五）項中間切換檢查採單一節點、不預留工期；實際完成或解除列管須有證據。';
-  const cards=['north','south'].map(id=>{
-    const m=models[id],items=meetingItems(m);
-    const open=items.filter(x=>!x.id.endsWith('-meeting') && meetingTag(x)!=='已解除列管');
-    const closed=items.filter(x=>meetingTag(x)==='已解除列管');
-    const meeting=items.filter(x=>x.id.endsWith('-meeting'));
-    const lines=xs=>xs.map(x=>row(x.name,[x.status,x.lastProgressDate?`實際研討 ${fmt(x.lastProgressDate)}`:'',x.source,x.note,x.actualNote].filter(Boolean).join('｜'),x.due,meetingTag(x),meetingTag(x)==='已解除列管'?'tag-ok':'tag-info'));
-    return projectListCard('11/2核定會議（11/5函送）',m,lines(meeting))+projectListCard('持續列管（'+open.length+'項）',m,lines(open))+projectListCard('已解除列管（'+closed.length+'項）',m,lines(closed));
+  $('viewTitle').textContent='115年11月2日分局長核定會議｜全案共管及分段執行';
+  $('viewHint').textContent='全案共同議題只列一次；北南段差異與辦理情形各自保留。會議召開及紀錄函送不代表交辦工作已完成。';
+  const groups=groupSharedControls([models.north,models.south]).filter(g=>g.key.startsWith('pcm-1151102-'));
+  const sections=groups.map(group=>{
+    const children=group.segments.map(x=>row(
+      (x.segment==='north'?'北段':'南段')+'｜'+x.name,
+      [x.scope,x.status,x.note].filter(Boolean).join('｜'),x.due,x.actualDate?'已有實績':'持續列管',
+      x.actualDate?'tag-ok':'tag-info')).join('');
+    return '<section class="detail-card"><h3>'+esc(group.title)+'</h3>'+children+'</section>';
   }).join('');
-  $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
+  const ungrouped=['north','south'].map(id=>{
+    const m=models[id];
+    const items=meetingItems(m).filter(x=>!sharedTopicKey(x.id));
+    return projectListCard('其他'+(id==='north'?'北段':'南段')+'專屬事項',m,items.map(x=>row(x.name,
+      [x.status,x.source,x.note,x.actualNote].filter(Boolean).join('｜'),x.due,meetingTag(x),
+      meetingTag(x)==='已解除列管'?'tag-ok':'tag-info')));
+  }).join('');
+  $('viewBody').innerHTML='<div class="detail-grid">'+sections+ungrouped+'</div>';
 }
 function renderTransfer(){
   $('viewTitle').textContent='同月台轉乘';
@@ -290,7 +325,7 @@ function renderReview(){
     const m=models[id];
     const items=m.dashboard.underReviewItems.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`${x.pcmReviewContract?'PCM契約':'管理預估'} ${x.reviewDays}日；${x.reviewOverdueDays>0?`逾期 ${x.reviewOverdueDays}日`:'審查中'}`,x.reviewTarget,x.reviewOverdueDays>0?'催辦':'審查中',x.reviewOverdueDays>0?'tag-danger':'tag-info'));
     const periodic=[...(m.insuranceControls || []).filter(x=>x.status!=='已審查／持續保期追蹤').map(x=>row(x.name,x.note,x.coverageEnd || x.coverageStart,x.status,'tag-info')),...(m.monthlyReports || []).filter(x=>x.status!=='已核定／結案').map(x=>row(`${x.month}工作月報`,`${x.documentRef || ''} ${x.calendarVerified ? '' : '假日行事曆待確認'}`,x.due,x.status,x.status==='逾期未提送' ? 'tag-danger' : 'tag-info'))];
-    const versions=Object.entries(m.project.versionTracking||{}).map(([id,v])=>row(`${m.schedule.model[id]?.name||id}（${v.currentVersion}版）`,`送審期限 ${fmt(v.currentDue)}｜${v.currentStatus||'待提送'}｜${v.requirement||''}`,v.currentDue,v.currentSubmittedDate?'已提送待審查':'待提送',v.currentSubmittedDate?'tag-ok':v.currentDue<m.today?'tag-danger':'tag-warn'));
+    const versions=m.currentReviews.filter(x=>!x.approval).map(x=>row(`${x.name}（${x.version}版）`,`${x.evidenceStatus==='draft'?'函稿日期（未確認正式發文）':'退回／審查日期'} ${fmt(x.returnDate)}｜${x.label}`,x.due,x.label,x.overdueDays>0?'tag-danger':x.submitted?'tag-info':'tag-warn'));
     return projectListCard('現行版本送審（歷史A版不列入）',m,versions)+projectListCard('其他審查中',m,items)+projectListCard('保險／逐月月報',m,periodic);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
@@ -349,8 +384,5 @@ async function init(){
     if(e.target.closest('#backButton')) setView('overview');
   });
 }
-init().catch(err=>{
-  $('dashboardStatus').textContent=`載入失敗：${err.message}`;
-  $('viewBody').innerHTML=`<div class="empty">無法載入儀表板資料：${esc(err.message)}</div>`;
-});
+init().catch(err=>{$('dashboardStatus').textContent='載入失敗：'+err.message;$('viewBody').textContent='無法載入已發布的管制資料';});
 
