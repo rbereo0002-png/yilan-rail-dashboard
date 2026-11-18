@@ -30,7 +30,7 @@ export function currentReviewState(record={},base={},today=''){
   return {version,code,label,due,dueKind,deadlineConfirmed,evidenceStatus,
     submitted,approval,returnDate,returnRef,overdueDays,
     contractDue:base.contractDue||record.contractDue||'',
-    initialSubmit:base.actualSubmit||history[0]?.submittedDate||'',history};
+    initialSubmit:base.actualSubmit||history[0]?.submittedDate||'',originalApproval:base.actualApproval||'',history};
 }
 export function latestReviewItems(project,schedule,today){
   const tracking=project.versionTracking||{};
