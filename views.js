@@ -90,7 +90,7 @@ export function tableMarkup(model, editable = false) {
     const submitEdit=editable ? `<input type="date" data-revision-id="${e(item.id)}" data-revision-field="currentSubmittedDate" value="${e(item.submitted)}" max="${e(model.today)}" aria-label="目前版本實際送審日">` : fmt(item.submitted);
     const verEdit=editable ? `<input type="text" data-revision-id="${e(item.id)}" data-revision-field="currentVersion" value="${e(item.version)}" aria-label="目前送審版次">` : `${e(item.version)}版`;
     return tr([e(item.name),verEdit,`<b>${e(item.label)}</b>`,`退回／審查日期：${fmt(item.returnDate)}`,dueEdit,submitEdit,
-      `<details><summary>查詢歷次審查及原契約基準</summary>${showHistory}<div>原契約期限：${fmt(item.contractDue)}；首次提送：${fmt(item.initialSubmit)}</div><div>${e(source.requirement||'')}</div></details>`],
+      `<details><summary>查詢歷次審查及原契約基準</summary>${showHistory}<div>原契約期限：${fmt(item.contractDue)}；首次提送：${fmt(item.initialSubmit)}；原核定：${fmt(item.originalApproval)}</div><div>${e(source.requirement||'')}</div></details>`],
       `data-revision-node-id="${e(item.id)}"`);
   });
   const recordInput=(item,key,type,attribute,label)=>editable ? `<input type="${type}" ${attribute} data-record-field="${key}" value="${e(item[key] || '')}" ${['submitDate','reviewDate','revisionRequestDate','resubmitDate','approvalDate','renewalSubmitDate'].includes(key) ? `max="${model.today}"` : ''} aria-label="${e(label)}">` : e(item[key] || '—');
