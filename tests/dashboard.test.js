@@ -8,8 +8,8 @@ const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 
 test('executive dashboard is a separate standalone read-only entrypoint',()=>{
   const dashboard=read('dashboard.html'), workbench=read('index.html');
-  assert.match(dashboard,/dashboard\.js\?v=1\.4\.10/);
-  assert.match(dashboard,/dashboard\.css\?v=1\.4\.10/);
+  assert.match(dashboard,/dashboard\.js\?v=[^" ]+/);
+  assert.match(dashboard,/dashboard\.css\?v=[^" ]+/);
   assert.doesNotMatch(dashboard,/href="\.\/"|承辦工作台/);
   assert.match(workbench,/href="dashboard\.html">長官儀表板<\/a>/);
   assert.doesNotMatch(dashboard,/<input\b|<textarea\b|<select\b/);
@@ -38,7 +38,7 @@ test('executive dashboard provides one-frame detail switching and return-to-over
 test('executive dashboard shares the production project model instead of duplicating calculations',()=>{
   const js=read('dashboard.js');
   assert.match(js,/import \{normalizeProject\} from '\.\/store\.js'/);
-  assert.match(js,/import \{calculateModel\} from '\.\/model\.js'/);
+  assert.match(js,/import \{calculateModel\} from '\.\/model\.js(?:\?[^']+)?'/);
   assert.doesNotMatch(js,/function calculateSchedule|function calculatePayments/);
 });
 
@@ -120,7 +120,7 @@ test('executive font controls still support larger text without browser persiste
   assert.match(html,/data-font-size="xlarge"/);
   assert.match(js,/FONT_KEY='yilan-executive-font-size'/);
   assert.match(js,/function applyFontSize\(size='standard'\)/);
-  assert.match(js,/localStorage\.setItem\(FONT_KEY,value\)/);
+  assert.doesNotMatch(js,/localStorage\.setItem\(FONT_KEY,value\)/);
   assert.match(css,/body\.font-large/);
   assert.match(css,/body\.font-xlarge/);
 });
@@ -149,7 +149,7 @@ test('v1.4.7 management brief cards drill down without leaving executive page',(
   assert.match(js,/class="brief-status brief-action/);
   assert.match(js,/class="brief-segment brief-action"/);
   assert.match(js,/data-view="progress"/);
-  assert.match(js,/view:'progress'/);
+  assert.match(js,/data-view="\$\{esc\(next\.view\)\}"/);
   assert.match(js,/view:'review'/);
   assert.match(css,/\.brief-action/);
   assert.match(css,/\.brief-action:hover/);
