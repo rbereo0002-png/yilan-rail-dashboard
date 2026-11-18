@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {currentReviewState, latestReviewItems} from '../review-workflow.js';
 
 test('A版如期提送退回後，主畫面只列 B 版當前待辦，歷史 A 版仍保留',()=>{
-  const record={currentVersion:'B',currentDue:'2026-11-23',history:[{version:'A',submittedDate:'2026-10-30',reviewLetterDate:'2026-11-12',outcome:'審查後須修正'}]};
+  const record={currentVersion:'B',currentDue:'2026-11-23',deadlineConfirmed:true,history:[{version:'A',submittedDate:'2026-10-30',reviewLetterDate:'2026-11-12',outcome:'審查後須修正'}]};
   const state=currentReviewState(record,{contractDue:'2026-10-31',actualSubmit:'2026-10-30'},'2026-11-18');
   assert.equal(state.label,'待提送B版');
   assert.equal(state.returnDate,'2026-11-12');
