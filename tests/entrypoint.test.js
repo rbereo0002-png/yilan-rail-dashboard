@@ -34,7 +34,7 @@ test('milestone assignments tolerate cached HTML without new field',()=>{
   const views=readFileSync(new URL('../views.js',import.meta.url),'utf8');
   assert.match(views,/const el=\$\(key\);\s*if \(el\) el\.value=/);
 });
-test('production entrypoint cache-busts v1.3 assets',()=>{
+test('production entrypoint includes a cache-busted module asset',()=>{
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
   assert.match(html,/app\.js\?v=1\.3\.3/);
 });
