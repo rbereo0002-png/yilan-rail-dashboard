@@ -7,14 +7,21 @@ on:
     branches:
       - main
 jobs:
-  test:
+  focused-review:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    permissions: {contents: read}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: All contract and review tests
+        with: {node-version: '22'}
+      - name: Central store and review lifecycle
+        run: node --test tests/central-store.test.js tests/review-workflow.test.js
+  full-regression:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Entire existing regression suite
         run: node --test tests/*.test.js
