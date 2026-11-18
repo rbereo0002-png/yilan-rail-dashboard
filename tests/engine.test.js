@@ -14,6 +14,7 @@ const fixture = id => {
   return normalizeProject(data);
 };
 const model = (p,today='2026-12-01') => calculateModel(p,today);
+const daysBetweenForTest=(a,b)=>(Date.parse(b)-Date.parse(a))/86400000;
 function signed(id='south') {const p=fixture(id);p.milestones.actualSignDate=p.milestones.signDate;return p;}
 
 test('legacy contract rules are preserved except explicitly approved v1.3 overrides',()=>{
@@ -155,7 +156,7 @@ test('quick entry displays independent contract milestones while revision-tracke
  assert.doesNotMatch(quickEntryMarkup(m,true),/data-row="designRiskPlan"/);
  m=model(signed('south'),'2026-10-02');
  const ids=m.dashboard.quickEntryItems.map(x=>x.id);
- assert.ok(ids.includes('surveyResult'));
+ assert.ok(ids.every(id=>!m.project.versionTracking?.[id]));
  for(const id of ['execPlan','surveyPlan','geoPlan','utilityPlan','designRiskPlan']){
    assert.ok(!ids.includes(id),id);
    assert.ok(m.currentReviews.some(x=>x.id===id),id);
