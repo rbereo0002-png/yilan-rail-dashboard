@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {currentReviewState, latestReviewItems} from '../review-workflow.js';
+import {currentReviewState, latestReviewItems, currentReviewGanttRows} from '../review-workflow.js';
 
 test('A版如期提送退回後，主畫面只列 B 版當前待辦，歷史 A 版仍保留',()=>{
   const record={currentVersion:'B',currentDue:'2026-11-23',deadlineConfirmed:true,history:[{version:'A',submittedDate:'2026-10-30',reviewLetterDate:'2026-11-12',outcome:'審查後須修正'}]};
@@ -40,4 +40,17 @@ test('未核實發文的函稿只能標為待確認，不直接推定逾期',()=
   assert.equal(review.deadlineConfirmed,false);
   assert.equal(review.overdueDays,0);
   assert.match(review.label,/待正式確認/);
+});
+
+test('current Gantt displays only B review action, with A edition reachable via history',()=>{
+ const tracking={execPlan:{currentVersion:'B',currentDue:'2026-11-23',
+   history:[{version:'A',submittedDate:'2026-10-30',reviewLetterDate:'2026-11-12',reviewLetterNumber:'1153201957-002函稿'}]}};
+ const items=latestReviewItems({versionTracking:tracking},{model:{execPlan:{name:'執行服務計畫書',contractDue:'2026-10-31'}}},'2026-11-18');
+ const gantt=currentReviewGanttRows({currentReviews:items});
+ assert.equal(gantt.length,1);
+ assert.equal(gantt[0].id,'current-review-execPlan');
+ assert.match(gantt[0].name,/B版/);
+ assert.equal(gantt[0].forecastDue,'2026-11-23');
+ assert.equal(gantt[0].dueType,'external');
+ assert.equal(items[0].history[0].version,'A');
 });
