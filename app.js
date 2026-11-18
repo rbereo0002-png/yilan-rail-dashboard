@@ -43,15 +43,7 @@ function download(content,name,type) {
 async function action(name) {
   if (!store) return;
   if (store.loading && name !== 'view') return;
-  if (name === 'view') {
-    throw new Error('中央資料庫未啟用前，僅提供唯讀檢視。');
-    const readOnly=!store.readOnly;
-    const query=new URLSearchParams(location.search);
-    if (readOnly) query.set('view','1'); else query.delete('view');
-    history.replaceState(null,'',`${location.pathname}${query.size ? `?${query}` : ''}`);
-    await store.setReadOnly(readOnly);
-    return;
-  }
+  if (name === 'view') return; // Central writes are not active in preview.
   if (!store.project) return;
   if (name === 'recalc') refresh();
   else if (name === 'add-package' && !store.readOnly) store.edit(p=>{
@@ -195,7 +187,8 @@ async function init() {
   window.addEventListener('pagehide',()=>{if(lastDownloadURL)URL.revokeObjectURL(lastDownloadURL);});
   window.addEventListener('focus',()=>{if(model && model.today !== todayLocal() && !store.loading)refresh();});
   await store.select(catalog.defaultProject);
-  $('appStatus').textContent='共用資料唯讀檢視；中央資料庫未啟用前停用資料寫入，本機履約資料不再保存。';
+  store.notice='共用資料唯讀檢視；中央資料庫未啟用前停用資料寫入，本機履約資料不再保存。';
+  showState();
 }
 init().catch(error=>{$('appStatus').textContent=`無法載入資料：${error.message}。請透過 HTTP／GitHub Pages 開啟本頁。`;});
 
