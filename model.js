@@ -108,7 +108,7 @@ export function calculateModel(project, today = todayLocal()) {
   const kpiControls = (source.kpiControls || []).map(item => {
     const due = item.internalTargetDate || item.targetDate || null;
     const remaining = due ? daysBetween(today,due) : null;
-    const completed = Boolean(item.actualDate);
+    const completed = Boolean(item.actualDate && item.actualDate <= today);
     const computedStatus = completed ? '已完成' : remaining != null && remaining < 0 ? '逾期' : item.status || (remaining == null ? (item.category === '設計查核' ? '待審查確認' : item.category === '介面決策' ? '待協調／決策' : item.category === '交辦待辦' ? '待確認期限' : '待釐清') : remaining <= 30 ? '30日內到期' : '列管中');
     const priority = computedStatus === '逾期' ? 0 : computedStatus === '30日內到期' ? 1 : computedStatus === '待釐清' ? 2 : computedStatus === '已完成' ? 10 : 9;
     return {...item,due,remainingDays:remaining,computedStatus,priority};
@@ -124,7 +124,7 @@ export function calculateModel(project, today = todayLocal()) {
   const executiveItems = [
     ...preSignSpecialItems.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.contractDue,label:'簽約前特別列管',description:x.note,kind:'special'})),
     ...attention.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,label:x.attentionLabel,description:x.attentionReason,kind:'contract'})),
-    ...kpiControls.filter(x=>!x.actualDate && (['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (x.remainingDays!=null && x.remainingDays<=30)))
+    ...kpiControls.filter(x=>x.computedStatus!=='已完成' && (['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (x.remainingDays!=null && x.remainingDays<=30)))
       .map(x=>({...x,label:x.computedStatus,description:`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source || ''}`,kind:'control'}))
   ].filter((x,i,all)=>all.findIndex(y=>y.id===x.id)===i)
     .sort((a,b)=>(a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
