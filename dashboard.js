@@ -33,7 +33,7 @@ async function loadJSON(path){
 function isUpperKpi(x){return /^(116年度|上級KPI)/.test(x.category||'');}
 function overdueGroups(m){
   const contract=m.schedule.list.filter(x=>x.contractRule && x.overdueDays>0 && !x.effectiveSubmit && !x.effectiveApproval);
-  const review=m.dashboard.reviewOverdueItems;
+  const review=[...m.dashboard.reviewOverdueItems.filter(x=>!m.project.versionTracking?.[x.id]),...m.currentReviews.filter(x=>x.overdueDays>0 && !x.approval).map(x=>({...x,name:x.name,reviewOverdueDays:x.overdueDays,reviewTarget:x.due}))];
   const targets=m.kpiControls.filter(x=>!x.actualDate && x.due && x.due<m.today && x.computedStatus==='逾期');
   return {contract,review,management:targets.filter(x=>!isUpperKpi(x)),upperKpi:targets.filter(isUpperKpi)};
 }
@@ -210,7 +210,7 @@ function renderOverdue(){
     const m=models[id],g=overdueGroups(m);
     const contract=g.contract.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`契約期限 ${fmt(x.contractDue)}｜未提送，逾期 ${x.overdueDays} 日`,x.contractDue,'契約逾期','tag-danger'));
     const management=g.management.map(x=>row(x.name,`原管理目標 ${fmt(x.due)}｜實際研討／辦理 ${fmt(x.lastProgressDate)}｜${x.progressStage||'待確認'}｜${x.actualNote||x.note||''}`,x.due,x.lastProgressDate?'已研討／成果待確認':'管理目標逾期','tag-warn'));
-    const review=g.review.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,'審查逾期','tag-warn'));
+    const review=g.review.map(x=>row(x.name, x.version ? `待提${x.version}版｜退回 ${fmt(x.returnDate)}｜修正逾期 ${x.overdueDays} 日` : `實際提送 ${fmt(x.effectiveSubmit)}｜${x.pcmReviewContract?'PCM契約審查':'審查管理預估'} ${x.reviewDays}日｜逾期 ${x.reviewOverdueDays} 日`,x.reviewTarget,x.version?'修正提送逾期':'審查逾期','tag-warn'));
     const kpi=g.upperKpi.map(x=>row(x.name,`上級管考目標 ${fmt(x.due)}｜${x.note||''}`,x.due,'上級KPI逾期','tag-warn'));
     const historical=m.kpiControls.filter(x=>x.id.startsWith('north-kickoff-1151006-') && ['26','27','28'].some(n=>x.id.endsWith('-'+n)) && x.actualDate)
       .map(x=>row(x.name,`原管理目標 ${fmt(x.targetDate)}｜實際研討提報 ${fmt(x.actualDate)}｜${x.status}｜${x.actualNote||''}`,x.actualDate,'已提報／後續續管','tag-ok'));
@@ -290,7 +290,7 @@ function renderReview(){
     const m=models[id];
     const items=m.dashboard.underReviewItems.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`${x.pcmReviewContract?'PCM契約':'管理預估'} ${x.reviewDays}日；${x.reviewOverdueDays>0?`逾期 ${x.reviewOverdueDays}日`:'審查中'}`,x.reviewTarget,x.reviewOverdueDays>0?'催辦':'審查中',x.reviewOverdueDays>0?'tag-danger':'tag-info'));
     const periodic=[...(m.insuranceControls || []).filter(x=>x.status!=='已審查／持續保期追蹤').map(x=>row(x.name,x.note,x.coverageEnd || x.coverageStart,x.status,'tag-info')),...(m.monthlyReports || []).filter(x=>x.status!=='已核定／結案').map(x=>row(`${x.month}工作月報`,`${x.documentRef || ''} ${x.calendarVerified ? '' : '假日行事曆待確認'}`,x.due,x.status,x.status==='逾期未提送' ? 'tag-danger' : 'tag-info'))];
-    const versions=Object.entries(m.project.versionTracking||{}).map(([id,v])=>row(`${m.schedule.model[id]?.name||id}（${v.currentVersion}版）`,`送審期限 ${fmt(v.currentDue)}｜${v.currentStatus||'待提送'}｜${v.requirement||''}`,v.currentDue,v.currentSubmittedDate?'已提送待審查':'待提送',v.currentSubmittedDate?'tag-ok':v.currentDue<m.today?'tag-danger':'tag-warn'));
+    const versions=m.currentReviews.filter(x=>!x.approval).map(x=>row(`${x.name}（${x.version}版）`,`退回／審查 ${fmt(x.returnDate)}｜${x.label}`,x.due,x.label,x.overdueDays>0?'tag-danger':x.submitted?'tag-info':'tag-warn'));
     return projectListCard('現行版本送審（歷史A版不列入）',m,versions)+projectListCard('其他審查中',m,items)+projectListCard('保險／逐月月報',m,periodic);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
