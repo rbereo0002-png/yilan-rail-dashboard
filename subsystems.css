@@ -1,0 +1,12 @@
+/* Independent contractor modules share a single readonly project model. */
+.module-nav{display:flex;gap:10px;align-items:center;overflow-x:auto;position:sticky;top:0;z-index:30;
+  background:var(--surface,#f7f9fc);border:1px solid #d5dfeb;border-radius:12px;
+  padding:10px;margin:12px 0 16px;scrollbar-width:thin}
+.module-tab{white-space:nowrap;flex:0 0 auto;border:1px solid #bdcbdc;background:#fff;color:#253750;
+  padding:12px 17px;border-radius:9px;font-size:16px;font-weight:700;cursor:pointer;line-height:1.4}
+.module-tab.is-active{background:#153b63;color:#fff;border-color:#153b63;box-shadow:0 2px 8px #153b632a}
+.module-tab:focus-visible{outline:3px solid #547fba;outline-offset:2px}
+.module-tab[hidden],section[data-subsystem][hidden]{display:none!important}
+@media(max-width:700px){.module-nav{margin:8px -6px 12px;padding:8px;gap:6px;border-radius:8px}
+ .module-tab{font-size:16px;padding:12px 14px}}
+@media print{.module-nav{display:none!important}}
