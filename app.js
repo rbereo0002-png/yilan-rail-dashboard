@@ -1,5 +1,3 @@
-import {createCentralStore} from './central-store.js';
-import {requireCentralLogin} from './central-auth-ui.js';
 import {ProjectStore} from './store.js';
 import {calculateModel} from './model.js?v=20261103-north-consistency';
 import {todayLocal, signingState, SIGN_DATE_WARNING} from './dates.js';
@@ -7,10 +5,6 @@ import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261113-v
 
 const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;
-const central=createCentralStore();
-const centralRevisions=new Map();
-let roleMap=new Map();
-const selectAuthorized=async id=>{if(!roleMap.has(id))throw new Error('未授權標段');store.readOnly=roleMap.get(id)==='viewer';return store.select(id);};
 const dateKeys = new Set(['noticeDate','pccDate','tenderApprovalDate','allWorksAwardDate','allWorksCloseDate']);
 const milestoneKeys = new Set(['awardDate','evaluationDate','workStartDate','signDate','actualSignDate']);
 async function loadJSON(path) {
@@ -49,7 +43,8 @@ function download(content,name,type) {
 async function action(name) {
   if (!store) return;
   if (store.loading && name !== 'view') return;
-  if (name === 'view') return; // Central writes are not active in preview.
+  if (['save','reset','import','json','add-package'].includes(name)) return;
+  if (name === 'view') return; // Assistant-managed read-only mode.
   if (!store.project) return;
   if (name === 'recalc') refresh();
   else if (name === 'add-package' && !store.readOnly) store.edit(p=>{
@@ -69,28 +64,15 @@ async function action(name) {
 }
 async function init() {
   const catalog=await loadJSON('projects.json');
-  const memberships=await central.memberships();
-  roleMap=new Map(memberships.map(x=>[x.project_key,x.role]));
-  catalog.projects=catalog.projects.filter(p=>roleMap.has(p.id));
-  if(!catalog.projects.length)throw new Error('此帳號尚未獲得南段或北段的資料讀取授權');
-  catalog.defaultProject=catalog.projects[0].id;
-  // Remove old project browser caches once. Never persist project data or login tokens.
-  try{for(const id of ['north','south'])window.localStorage.removeItem('yilan-dashboard-'+id);
-    window.localStorage.removeItem('yilan-dashboard-last-project');}catch{}
-  const loader=async path=>{
-    const id=path.includes('/north.json')?'north':path.includes('/south.json')?'south':null;
-    if(!id)throw new Error('找不到標段資料');
-    const record=await central.load(id);centralRevisions.set(id,record.revision);return record.document;
-  };
-  const saver=async project=>{
-    const id=project.id,version=await central.save(id,project,centralRevisions.get(id));
-    centralRevisions.set(id,version);return version;
-  };
-  store=new ProjectStore({catalog,loader,saver,storage:null,onChange:refresh,readOnly:roleMap.get(catalog.defaultProject)==='viewer'});
+  // No browser persistence or public write API. Data are a read-only GitHub
+  // publication of the centrally maintained database, released after review.
+  try { for(const id of ['north','south'])window.localStorage.removeItem('yilan-dashboard-'+id);
+        window.localStorage.removeItem('yilan-dashboard-last-project'); } catch {}
+  store=new ProjectStore({catalog,loader:loadJSON,storage:null,readOnly:true,onChange:refresh});
   renderNavigation(catalog,catalog.defaultProject);
   document.addEventListener('click',event=>{
     const project=event.target.closest('[data-project]');
-    if (project) {void selectAuthorized(project.dataset.project).catch(fail);return;}
+    if (project) {void store.select(project.dataset.project).catch(fail);return;}
     const quickFilter=event.target.closest('[data-quick-filter]');
     if (quickFilter) {
       document.querySelectorAll('[data-quick-filter]').forEach(x=>x.classList.toggle('active',x===quickFilter));
@@ -114,7 +96,7 @@ async function init() {
   });
   document.addEventListener('change',event=>{
     const input=event.target;
-    if (input.id === 'projectSelect') {void selectAuthorized(input.value).catch(fail);return;}
+    if (input.id === 'projectSelect') {void store.select(input.value).catch(fail);return;}
     if (input.id === 'importFile') {
       const file=input.files?.[0];input.value='';
       const request=store.request;
@@ -206,9 +188,9 @@ async function init() {
   window.addEventListener('beforeunload',event=>{if (store.dirty.size) {event.preventDefault();event.returnValue='';}});
   window.addEventListener('pagehide',()=>{if(lastDownloadURL)URL.revokeObjectURL(lastDownloadURL);});
   window.addEventListener('focus',()=>{if(model && model.today !== todayLocal() && !store.loading)refresh();});
-  await selectAuthorized(catalog.defaultProject);
-  if(!store.project)throw new Error('載入中央資料失敗');
-  store.notice='中央資料庫已連線；本機不留存履約資料。';showState();
+  await store.select(catalog.defaultProject);
+  store.notice='資料由中央資料庫維護；目前顯示已發布的唯讀快照，修改請由承辦資料審查後統一登錄。';
+  showState();
 }
-requireCentralLogin(central,init);
+init().catch(error=>{$('appStatus').textContent='載入失敗：'+error.message;});
 
