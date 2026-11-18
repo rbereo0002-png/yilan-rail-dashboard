@@ -40,12 +40,13 @@ export function calculateModel(project, today = todayLocal()) {
   const phaseLabel = phase === 'pre-award' ? '尚未決標' : phase === 'awaiting-sign' ? '已決標／待簽約（履約尚未起算）' : '實際履約中';
   const started = formalDeliverables.filter(x => x.contractDue).length;
   const notStarted = deliverables.length - started;
-  const underReviewItems = formalDeliverables.filter(x => x.effectiveSubmit && !x.effectiveApproval);
+  const underReviewItems = formalDeliverables.filter(x => !source.versionTracking?.[x.id] && x.effectiveSubmit && !x.effectiveApproval);
   const reviewOverdueItems = underReviewItems.filter(x => x.reviewOverdueDays > 0);
-  const reviewOverdue = reviewOverdueItems.length;
-  const underReview = underReviewItems.length;
+  const correctionOverdueItems = currentReviews.filter(x => x.code === 'revision-overdue');
+  const reviewOverdue = reviewOverdueItems.length + correctionOverdueItems.length;
+  const underReview = underReviewItems.length + currentReviews.filter(x => x.code === 'under-review').length;
   const overall = !schedule.awardEffective ? '尚未決標' : !signedEffective ? '已決標／待簽約' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : '實際履約中';
-  const attention = formalDeliverables.map(x => {
+  const attention = formalDeliverables.filter(x=>!source.versionTracking?.[x.id]).map(x => {
     const remaining = x.contractDue ? daysBetween(today,x.contractDue) : null;
     let priority = 99, priorityLabel = '', reason = '';
     if (x.overdueDays > 0) {priority=0;priorityLabel='立即處理';reason=`尚未提送，契約逾期 ${x.overdueDays} 日`;}
@@ -67,6 +68,7 @@ export function calculateModel(project, today = todayLocal()) {
     stage.total++; if (item.effectiveApproval) stage.completed++; return acc;
   },{}));
   const quickEntryItems = deliverables
+    .filter(x => !source.versionTracking?.[x.id])
     .filter(x => (signedEffective && x.contractDue) || x.effectiveSubmit || x.effectiveApproval)
     .sort((a,b) => {
       const ar = a.attentionPriority ?? 99, br = b.attentionPriority ?? 99;
@@ -80,7 +82,7 @@ export function calculateModel(project, today = todayLocal()) {
     open: quickEntryItems.filter(x => !x.effectiveApproval).length,
     completed: quickEntryItems.filter(x => x.effectiveApproval).length
   };
-  const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
+  const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,correctionOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
     progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
