@@ -44,6 +44,7 @@ async function action(name) {
   if (!store) return;
   if (store.loading && name !== 'view') return;
   if (name === 'view') {
+    throw new Error('中央資料庫未啟用前，僅提供唯讀檢視。');
     const readOnly=!store.readOnly;
     const query=new URLSearchParams(location.search);
     if (readOnly) query.set('view','1'); else query.delete('view');
@@ -70,9 +71,10 @@ async function action(name) {
 }
 async function init() {
   const catalog=await loadJSON('projects.json');
-  let storage;
-  try {storage=window.localStorage;} catch {storage=null;}
-  store=new ProjectStore({catalog,loader:loadJSON,storage,onChange:refresh,readOnly:new URLSearchParams(location.search).get('view') === '1'});
+  // No project data is retained in the browser. The central write backend is not yet active.
+  try { for (const id of ['north','south']) window.localStorage.removeItem(`yilan-dashboard-${id}`); window.localStorage.removeItem('yilan-dashboard-last-project'); } catch {}
+  store=new ProjectStore({catalog,loader:loadJSON,storage:null,onChange:refresh,readOnly:true});
+  document.body.classList.add('view-mode');
   renderNavigation(catalog,catalog.defaultProject);
   document.addEventListener('click',event=>{
     const project=event.target.closest('[data-project]');
@@ -192,9 +194,8 @@ async function init() {
   window.addEventListener('beforeunload',event=>{if (store.dirty.size) {event.preventDefault();event.returnValue='';}});
   window.addEventListener('pagehide',()=>{if(lastDownloadURL)URL.revokeObjectURL(lastDownloadURL);});
   window.addEventListener('focus',()=>{if(model && model.today !== todayLocal() && !store.loading)refresh();});
-  let last;
-  try {last=storage?.getItem('yilan-dashboard-last-project');} catch { /* remote defaults remain usable */ }
-  await store.select(catalog.projects.some(p=>p.id === last) ? last : catalog.defaultProject);
+  await store.select(catalog.defaultProject);
+  $('appStatus').textContent='共用資料唯讀檢視；中央資料庫未啟用前停用資料寫入，本機履約資料不再保存。';
 }
 init().catch(error=>{$('appStatus').textContent=`無法載入資料：${error.message}。請透過 HTTP／GitHub Pages 開啟本頁。`;});
 
