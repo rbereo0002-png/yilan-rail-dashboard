@@ -1,3 +1,5 @@
+import {createCentralStore} from './central-store.js';
+import {requireCentralLogin} from './central-auth-ui.js';
 import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {normalizeProject} from './store.js';
 import {calculateModel} from './model.js?v=20261103-north-consistency';
@@ -9,17 +11,18 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 
 let models={}, currentView='overview';
+const central=createCentralStore();
 const FONT_KEY='yilan-executive-font-size';
 function applyFontSize(size='standard'){
   const value=['standard','large','xlarge'].includes(size)?size:'standard';
   document.body.classList.toggle('font-large',value==='large');
   document.body.classList.toggle('font-xlarge',value==='xlarge');
   document.querySelectorAll('[data-font-size]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.fontSize===value)));
-  try{localStorage.setItem(FONT_KEY,value);}catch{}
+
 }
 function restoreFontSize(){
   let size='standard';
-  try{size=localStorage.getItem(FONT_KEY)||'standard';}catch{}
+
   applyFontSize(size);
 }
 
@@ -333,10 +336,13 @@ function updateTop(){
 
 async function init(){
   const catalog=await loadJSON('projects.json');
+  const grants=await central.memberships();
+  const authorized=new Set(grants.map(x=>x.project_key));
+  if(!authorized.has('north')||!authorized.has('south'))throw new Error('長官跨標段儀表板須取得南、北段兩標段讀取授權');
   const today=todayLocal();
   for(const p of catalog.projects){
-    const data=normalizeProject(await loadJSON(p.data),p.id);
-    models[p.id]=calculateModel(data,today);
+    const row=await central.load(p.id);
+    models[p.id]=calculateModel(normalizeProject(row.document,p.id),today);
   }
   restoreFontSize();
   updateTop();setView('overview');
@@ -349,8 +355,5 @@ async function init(){
     if(e.target.closest('#backButton')) setView('overview');
   });
 }
-init().catch(err=>{
-  $('dashboardStatus').textContent=`載入失敗：${err.message}`;
-  $('viewBody').innerHTML=`<div class="empty">無法載入儀表板資料：${esc(err.message)}</div>`;
-});
+requireCentralLogin(central,init);
 
