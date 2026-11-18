@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css?v=1.3.3">
   <link rel="stylesheet" href="timeline.css?v=20261021-start">
   <link rel="stylesheet" href="unified.css">
+  <link rel="stylesheet" href="subsystems.css?v=20261118">
 </head>
 
 <body>
@@ -46,13 +47,22 @@
     </div>
   </div>
 
+  <nav class="module-nav" aria-label="承辦管制子系統">
+    <button type="button" class="module-tab is-active" data-module="overview" aria-pressed="true">履約總覽</button>
+    <button type="button" class="module-tab" data-module="schedule" aria-pressed="false">契約與時程</button>
+    <button type="button" class="module-tab" data-module="review" aria-pressed="false">送審與月報</button>
+    <button type="button" class="module-tab" data-module="kpi" aria-pressed="false">交辦・介面・KPI</button>
+    <button type="button" class="module-tab" data-module="payment" aria-pressed="false">估驗與付款</button>
+    <button type="button" class="module-tab" data-module="transfer" aria-pressed="false">同月臺轉乘</button>
+  </nav>
+
   <div class="grid">
 
     <!-- =====================================================
          履約管制總覽
          注意：這裡與「一、基準日」是同一層
          ===================================================== -->
-    <section class="overview" id="overview">
+    <section data-subsystem="overview" class="overview" id="overview">
 
       <div class="overview-head">
         <div>
@@ -290,8 +300,8 @@
 
     </section>
 <!-- 第二階段：時程關聯／甘特圖／延誤／付款 -->
-<section class="card" id="revisionTrackingControl"><div class="hd"><h2>目前版本送審管制｜舊版歷程留存</h2></div><div class="bd"><p>只將目前應送審的最新版列為管制期限；歷史版本與原契約期限可展開查閱。版本修正期限不取代原契約提送期限，亦不影響計價。</p><div class="scroll"><table class="tbl" id="revisionTrackingTable"></table></div></div></section>
-<section class="card schedule-control" id="scheduleControl">
+<section data-subsystem="review" class="card" id="revisionTrackingControl"><div class="hd"><h2>目前版本送審管制｜舊版歷程留存</h2></div><div class="bd"><p>只將目前應送審的最新版列為管制期限；歷史版本與原契約期限可展開查閱。版本修正期限不取代原契約提送期限，亦不影響計價。</p><div class="scroll"><table class="tbl" id="revisionTrackingTable"></table></div></div></section>
+<section data-subsystem="schedule" class="card schedule-control" id="scheduleControl">
   <div class="hd"><h2>時程關聯、甘特圖與付款里程碑</h2></div>
   <div class="bd">
 
@@ -351,7 +361,7 @@
   </div>
 </section>
 <!-- 第3階段：契約時限主檔 -->
-<section class="card schedule-control" id="contractRuleControl">
+<section data-subsystem="schedule" class="card schedule-control" id="contractRuleControl">
   <div class="hd"><h2>契約時限主檔（設計階段）</h2></div>
   <div class="bd">
     <div class="timeline-note"><b>目前階段：</b>先處理設計及設計配套工作。施工監造時限規則已保留於程式，但依目前執行策略暫不顯示、不納入畫面管制。</div>
@@ -371,7 +381,7 @@
 </section>
 
     <!-- 一、基準日 -->
-    <section class="card">
+    <section data-subsystem="schedule" class="card">
       <div class="hd">
         <h2>一、基準日與管制假設</h2>
       </div>
@@ -470,7 +480,7 @@
     </section>
 
 
-    <section class="card" id="packageControl">
+    <section data-subsystem="schedule" class="card" id="packageControl">
       <div class="hd"><h2>施工分標與標段特有成果</h2></div>
       <div class="bd">
         <div class="timeline-note">
@@ -499,9 +509,9 @@
       </div>
     </section>
 
-    <section class="card" id="periodicControl"><div class="hd"><h2>契約履約：保險及逐月工作月報</h2></div><div class="bd"><div id="periodicSummary"></div><h3>保險文件及保期</h3><p>起保日依開始服務通知；追蹤保單、收據、審查與續保。審查完成不代表保期追蹤結束；未與付款引擎自動連動。</p><div class="scroll"><table class="tbl" id="insuranceTable"></table></div><h3>逐月工作月報</h3><p>第九條第十七款（二）：每月10日前，遇假日得順延。次月10日作上月月報的管制基準，首期及含當日問題請確認。週末、登錄假日及補班共同試算；行事曆未核對前不認定契約逾期。可填本期確認期限，不改寫原基準。</p><details><summary>月份及假日設定</summary><div class="formgrid" id="periodicConfig"></div></details><div class="scroll"><table class="tbl" id="monthlyReportTable"></table></div></div></section>
-    <section class="card" id="transferControl" hidden><div class="hd"><h2>同月台轉乘</h2></div><div class="bd"><p>集中追蹤宜蘭新站與高鐵宜蘭站同月台轉乘之方案、會議紀錄、交辦及相關介面事項，包含已辦理紀錄。已函送或紀錄發送不代表方案核定；本議題於北段列管。</p><div class="scroll"><table class="tbl package-table" id="transferStudyTable"></table></div><h3>會議、交辦與介面追蹤</h3><div class="scroll"><table class="tbl package-table" id="transferControlTable"></table></div></div></section>
-    <section class="card" id="kpiControl">
+    <section data-subsystem="review" class="card" id="periodicControl"><div class="hd"><h2>契約履約：保險及逐月工作月報</h2></div><div class="bd"><div id="periodicSummary"></div><h3>保險文件及保期</h3><p>起保日依開始服務通知；追蹤保單、收據、審查與續保。審查完成不代表保期追蹤結束；未與付款引擎自動連動。</p><div class="scroll"><table class="tbl" id="insuranceTable"></table></div><h3>逐月工作月報</h3><p>第九條第十七款（二）：每月10日前，遇假日得順延。次月10日作上月月報的管制基準，首期及含當日問題請確認。週末、登錄假日及補班共同試算；行事曆未核對前不認定契約逾期。可填本期確認期限，不改寫原基準。</p><details><summary>月份及假日設定</summary><div class="formgrid" id="periodicConfig"></div></details><div class="scroll"><table class="tbl" id="monthlyReportTable"></table></div></div></section>
+    <section data-subsystem="transfer" class="card" id="transferControl" hidden><div class="hd"><h2>同月台轉乘</h2></div><div class="bd"><p>集中追蹤宜蘭新站與高鐵宜蘭站同月台轉乘之方案、會議紀錄、交辦及相關介面事項，包含已辦理紀錄。已函送或紀錄發送不代表方案核定；本議題於北段列管。</p><div class="scroll"><table class="tbl package-table" id="transferStudyTable"></table></div><h3>會議、交辦與介面追蹤</h3><div class="scroll"><table class="tbl package-table" id="transferControlTable"></table></div></div></section>
+    <section data-subsystem="kpi" class="card" id="kpiControl">
       <div class="hd"><h2>管制中心：交辦、查核、介面及上級KPI</h2></div>
       <div class="bd">
         <div id="kpiControlSummary"></div>
@@ -516,10 +526,10 @@
       </div>
     </section>
 
-    <section class="card"><div class="hd"><h2>通知與條件式工作</h2></div><div class="bd"><div class="formgrid" id="noticeInputs"></div><label class="condition-toggle"><input id="soilWaterEnabled" type="checkbox"> 啟用水土保持計畫（確認適用時勾選）</label><p class="small">出流管制維持條件式，不自行補入固定期限；水保停用不刪除已登錄資料。</p></div></section>
+    <section data-subsystem="schedule" class="card"><div class="hd"><h2>通知與條件式工作</h2></div><div class="bd"><div class="formgrid" id="noticeInputs"></div><label class="condition-toggle"><input id="soilWaterEnabled" type="checkbox"> 啟用水土保持計畫（確認適用時勾選）</label><p class="small">出流管制維持條件式，不自行補入固定期限；水保停用不刪除已登錄資料。</p></div></section>
 
     <!-- 二 -->
-    <section class="card">
+    <section data-subsystem="payment" class="card">
       <div class="hd">
         <h2>二、預算 / 契約金額基準</h2>
       </div>
@@ -555,7 +565,7 @@
 
 
     <!-- 三 -->
-    <section class="card">
+    <section data-subsystem="schedule" class="card">
       <div class="hd">
         <h2>三、設計階段履約主時程</h2>
       </div>
@@ -591,7 +601,7 @@
 
 
     <!-- 四 -->
-    <section class="card">
+    <section data-subsystem="payment" class="card">
       <div class="hd">
         <h2>四、付款預測與年度資金需求</h2>
       </div>
@@ -627,7 +637,7 @@
 
 
     <!-- 五 -->
-    <section class="card half">
+    <section data-subsystem="payment" class="card half">
       <div class="hd">
         <h2>五、年度資金需求彙整</h2>
       </div>
@@ -652,7 +662,7 @@
 
 
     <!-- 六 -->
-    <section class="card half" id="supervisionSection" hidden>
+    <section data-subsystem="payment" class="card half" id="supervisionSection" hidden>
 
       <div class="hd">
         <h2>六、施工監造付款模擬</h2>
@@ -715,7 +725,7 @@
 
 
     <!-- 七 -->
-    <section class="card print-omit" id="publicDataSection">
+    <section data-subsystem="overview" class="card print-omit" id="publicDataSection">
 
       <div class="hd">
         <h2>六、網路公開與資料保存</h2>
