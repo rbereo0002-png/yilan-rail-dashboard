@@ -1,5 +1,3 @@
-import {createCentralStore} from './central-store.js';
-import {requireCentralLogin} from './central-auth-ui.js';
 import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {normalizeProject} from './store.js';
 import {calculateModel} from './model.js?v=20261103-north-consistency';
@@ -11,7 +9,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 
 let models={}, currentView='overview';
-const central=createCentralStore();
+
 const FONT_KEY='yilan-executive-font-size';
 function applyFontSize(size='standard'){
   const value=['standard','large','xlarge'].includes(size)?size:'standard';
@@ -336,13 +334,10 @@ function updateTop(){
 
 async function init(){
   const catalog=await loadJSON('projects.json');
-  const grants=await central.memberships();
-  const authorized=new Set(grants.map(x=>x.project_key));
-  if(!authorized.has('north')||!authorized.has('south'))throw new Error('長官跨標段儀表板須取得南、北段兩標段讀取授權');
   const today=todayLocal();
   for(const p of catalog.projects){
-    const row=await central.load(p.id);
-    models[p.id]=calculateModel(normalizeProject(row.document,p.id),today);
+    const data=normalizeProject(await loadJSON(p.data),p.id);
+    models[p.id]=calculateModel(data,today);
   }
   restoreFontSize();
   updateTop();setView('overview');
@@ -355,5 +350,5 @@ async function init(){
     if(e.target.closest('#backButton')) setView('overview');
   });
 }
-requireCentralLogin(central,init);
+init().catch(err=>{$('dashboardStatus').textContent='載入失敗：'+err.message;$('viewBody').textContent='無法載入已發布的管制資料';});
 
