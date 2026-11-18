@@ -56,11 +56,11 @@ export function tableMarkup(model, editable = false) {
     `${statusPill(item)}${item.holiday ? '<div class="small">期限逢假日，不順延</div>' : ''}`,
     e(item.note)
   ],`data-node-id="${e(item.id)}"`));
-  const ruleRows = model.schedule.list.map(item => tr([
+  const ruleRows = model.schedule.list.filter(item => !model.project.versionTracking?.[item.id]).map(item => tr([
     e(item.group),e(item.name),e(pred(item,model)),duePill(item),fmt(item.forecastStart),
     fmt(item.contractDue),fmt(item.managementForecast),fmt(item.actualSubmit),fmt(item.actualApproval),statusPill(item),e(item.payment || '—')
   ],`data-node-id="${e(item.id)}"`));
-  const dependencyRows = model.schedule.list.map(item => tr([
+  const dependencyRows = model.schedule.list.filter(item => !model.project.versionTracking?.[item.id]).map(item => tr([
     e(item.group),`${e(item.name)}<div class="small">${e(item.note)}</div>`,e(pred(item,model)),duePill(item),
     item.days == null ? '—' : `${item.days}日`,fmt(item.baselineDue),fmt(item.forecastDue),
     `基準偏移 ${item.forecastShift} 日<br>${statusPill(item)}`,e(item.payment || '—')
