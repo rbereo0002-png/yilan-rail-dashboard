@@ -1,3 +1,4 @@
+import {latestReviewItems} from './review-workflow.js';
 import {calculateSchedule} from './schedule-engine.js';
 import {calculatePayments} from './payment-engine.js';
 import {daysBetween, todayLocal, SIGN_DATE_WARNING} from './dates.js';
@@ -21,6 +22,7 @@ export function calculateModel(project, today = todayLocal()) {
   }
   const schedule = calculateSchedule(source,today);
   const payments = calculatePayments(source,schedule);
+  const currentReviews = latestReviewItems(source,schedule,today);
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
   const deliverables = schedule.list.filter(x => x.contractRule);
   const completed = deliverables.filter(x => x.effectiveApproval).length;
@@ -148,5 +150,5 @@ export function calculateModel(project, today = todayLocal()) {
     const status=actual(record.approvalDate) ? '已核定／結案' : actual(record.resubmitDate) ? '已修正待審查' : actual(record.revisionRequestDate) ? '待修正' : actual(record.submitDate) ? '已提送待審查' : due<today ? (calendarVerified || record.dueOverride ? '逾期未提送' : '超過暫定日期／假日待核') : '待提送';
     monthlyReports.push({...record,month,baseDue,adjustedDue,due,calendarVerified,status,remainingDays:daysBetween(today,due)});
   }
-  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary,insuranceControls,monthlyReports});
+  return freeze({project:source,today,schedule,payments,dashboard,summary,construction,specialDeliverables,kpiControls,kpiSummary,insuranceControls,monthlyReports,currentReviews});
 }
