@@ -25,3 +25,23 @@ jobs:
         with: {node-version: '22'}
       - name: Entire existing regression suite
         run: node --test tests/*.test.js
+  browser-qa:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install Playwright browser dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser smoke and responsive QA
+        run: node tests/browser-qa.mjs
+      - name: Archive QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-responsive-qa
+          path: browser-qa-*.png
+          if-no-files-found: ignore
