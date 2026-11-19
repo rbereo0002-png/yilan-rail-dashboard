@@ -137,7 +137,7 @@ function overviewMilestones(m){
       return `<div class="overview-milestone-row">
         <div class="milestone-name"><b>${esc(review.name)}（${esc(review.version)}版）</b><small>${esc(review.label)}</small></div>
         <div class="milestone-dates"><span>${review.actionDue?'意見回復期限':review.submitted?'本版實際提送':'本版修正期限'} ${fmt(reviewDate)}</span><span>${review.evidenceStatus==='draft'?'函稿／待確認':'退回'} ${fmt(review.returnDate)}</span></div>
-        <div class="milestone-diff ${review.overdueDays>0?'late':'pending'}">${review.overdueDays>0?'+ '+review.overdueDays+'日':'目前版'}</div>
+        <div class="milestone-diff ${review.overdueDays>0?'late':'pending'}">${review.actionOverdueDays>0?'+ '+review.actionOverdueDays+'日':review.overdueDays>0?'+ '+review.overdueDays+'日':'目前版'}</div>
       </div>`;
     }
     const x=m.schedule.model[id];
@@ -278,8 +278,8 @@ function renderKpi(){
   $('viewHint').textContent='此區「逾期」指會議交辦／管理目標或上級KPI到期未結案，並非設計契約成果逾期。115/10/31 PCM三項已於11/2研討，11/5函送核定結論，但實質交辦仍待成果確認，不得逕行解除列管。';
   const cards=['south','north'].map(id=>{
     const m=models[id];
-    const items=m.kpiControls.filter(x=>!x.actualDate).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
-    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!x.linkedReview && !isTransferControl(x) && !x.actualDate && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,(x.computedStatus==='逾期'?'管理目標逾期':x.computedStatus),kpiStatusClass(x.computedStatus))))).join('');
+    const items=m.kpiControls.filter(x=>!x.linkedReview && (!x.actualMilestoneReached || x.followUpOpen)).map(x=>row(x.name,`${x.category}｜${x.scope || '範圍待確認'}｜${x.actualDate ? `實際 ${fmt(x.actualDate)}；` : ''}${x.actualNote || x.note || x.source}`,x.due,x.computedStatus,kpiStatusClass(x.computedStatus)));
+    return ['交辦待辦','設計查核','介面決策','上級KPI／外部管制'].map(category=>projectListCard(category,m,m.kpiControls.filter(x=>!x.linkedReview && !isTransferControl(x) && (!x.actualMilestoneReached || x.followUpOpen) && (category==='上級KPI／外部管制' ? !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）'].includes(x.category) : x.category===category)).map(x=>row(x.name,`${x.scope}｜${x.actualNote || x.note}`,x.due,(x.computedStatus==='逾期'?'管理目標逾期':x.computedStatus),kpiStatusClass(x.computedStatus))))).join('');
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
 }
