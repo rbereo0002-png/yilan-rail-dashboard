@@ -26,6 +26,16 @@ export function calculateModel(project, today = todayLocal()) {
   const linkedReviewIds=new Set(currentReviews.map(x=>source.versionTracking?.[x.id]?.activeReview?.linkedControlId).filter(Boolean));
   const reviewActionItems=currentReviews.filter(x=>x.actionDue && !x.actionCompleted);
   const currentReviewActionOverdueItems=reviewActionItems.filter(x=>x.actionOverdueDays>0);
+  const reviewAttention=reviewActionItems.map(x=>{
+    const remainingDays=daysBetween(today,x.actionDue);
+    const attentionPriority=remainingDays<0?1:remainingDays<=14?3:remainingDays<=30?4:5;
+    return {id:'review-action-'+x.id,name:x.name+'（'+x.version+'版）',kind:'review-action',
+      due:x.actionDue,contractDue:x.actionDue,reviewTarget:x.actionDue,effectiveSubmit:x.submitted,
+      label:remainingDays<0?'審查意見逾期':'審查意見回復',
+      attentionLabel:'審查意見回復',attentionReason:x.label,
+      description:x.label+'｜'+x.actionSource,remainingDays,attentionPriority,reviewId:x.id,
+      actionOverdueDays:x.actionOverdueDays};
+  });
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
   const deliverables = schedule.list.filter(x => x.contractRule);
   const completed = deliverables.filter(x => x.effectiveApproval).length;
@@ -62,9 +72,9 @@ export function calculateModel(project, today = todayLocal()) {
     .sort((a,b)=>a.attentionPriority-b.attentionPriority || (b.overdueDays-a.overdueDays) || (b.reviewOverdueDays-a.reviewOverdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999'));
   const important = attention.slice(0,8);
   const workViews = {
-    today: attention.filter(x => x.attentionPriority <= 2),
-    due14: attention.filter(x => x.attentionPriority === 3),
-    due30: attention.filter(x => x.attentionPriority === 4)
+    today: [...attention.filter(x => x.attentionPriority <= 2),...reviewAttention.filter(x=>x.attentionPriority<=2)],
+    due14: [...attention.filter(x => x.attentionPriority === 3),...reviewAttention.filter(x=>x.attentionPriority===3)],
+    due30: [...attention.filter(x => x.attentionPriority === 4),...reviewAttention.filter(x=>x.attentionPriority===4)]
   };
   const stages = Object.values(deliverables.reduce((acc,item) => {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
@@ -86,7 +96,7 @@ export function calculateModel(project, today = todayLocal()) {
     completed: quickEntryItems.filter(x => x.effectiveApproval).length
   };
   const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,correctionOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
-    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages, reviewActionItems, currentReviewActionOverdueItems};
+    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages, reviewActionItems, reviewAttention, currentReviewActionOverdueItems};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
   const latest = values => values.filter(Boolean).sort().at(-1) || null;
@@ -130,6 +140,7 @@ export function calculateModel(project, today = todayLocal()) {
   };
   // Executive reminders also include dated meeting / external controls, independently of signing.
   const executiveItems = [
+    ...reviewAttention,
     ...preSignSpecialItems.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.contractDue,label:'簽約前特別列管',description:x.note,kind:'special'})),
     ...attention.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,label:x.attentionLabel,description:x.attentionReason,kind:'contract'})),
     ...kpiControls.filter(x=>!x.linkedReview && x.computedStatus!=='已完成' && (x.followUpOpen || ['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (!x.actualMilestoneReached && x.remainingDays!=null && x.remainingDays<=30)))
