@@ -1,4 +1,4 @@
-import {latestReviewItems} from './review-workflow.js';
+import {latestReviewItems} from './review-workflow.js?v=20261119-review-sync';
 import {calculateSchedule} from './schedule-engine.js';
 import {calculatePayments} from './payment-engine.js';
 import {daysBetween, todayLocal, SIGN_DATE_WARNING} from './dates.js';
