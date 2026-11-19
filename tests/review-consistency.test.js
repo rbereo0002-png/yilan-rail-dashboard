@@ -20,6 +20,9 @@ test('north A-version risk: 11/16 received, 11/17 contract deadline, 11/26 opini
  assert.equal(review.actionOverdueDays,0);
  assert.equal(review.actionSource.includes('正式發文日期及文號待補'),true);
  assert.ok(model.dashboard.reviewActionItems.some(x=>x.id==='designRiskPlan'));
+ assert.ok(model.dashboard.workViews.due14.some(x=>x.reviewId==='designRiskPlan'));
+ assert.ok(model.dashboard.executiveItems.some(x=>x.reviewId==='designRiskPlan'));
+ assert.ok(model.dashboard.executiveDue14>=1);
  const legacy=model.kpiControls.find(x=>x.id==='north-risk-plan-A-review-1151126');
  assert.equal(legacy.linkedReview,true);
  assert.equal(model.kpiSummary.total,model.kpiControls.length-1);
@@ -61,4 +64,15 @@ test('south review B histories retain their current B submission deadline withou
    assert.equal(review.history.length,1);
    assert.equal(review.due,'2026-11-23');
  }
+});
+
+test('one agency review response deadline has one consistent current-action ID in both dashboard work streams',()=>{
+ const model=m('north');
+ const ids=model.dashboard.executiveItems.filter(x=>x.reviewId==='designRiskPlan');
+ const work=model.dashboard.workViews.due14.filter(x=>x.reviewId==='designRiskPlan');
+ assert.equal(ids.length,1);
+ assert.equal(work.length,1);
+ assert.equal(ids[0].id,work[0].id);
+ assert.equal(ids[0].due,work[0].due);
+ assert.equal(ids[0].due,'2026-11-26');
 });
