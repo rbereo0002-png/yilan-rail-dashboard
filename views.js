@@ -114,8 +114,8 @@ export function tableMarkup(model, editable = false) {
     meetingTaskTable:grouped('交辦待辦'),
     designChecklistTable:grouped('設計查核'),
     interfaceControlTable:grouped('介面決策'),
-    completedControlTable:tableHTML(headers,model.kpiControls.filter(x=>x.actualDate).map(controlRow)),
-    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）','版本送審（非KPI）','審查追蹤（非KPI）'].includes(x.category)).map(controlRow))
+    completedControlTable:tableHTML(headers,model.kpiControls.filter(x=>!x.linkedReview && x.computedStatus==='已完成').map(controlRow)),
+    kpiControlTable:tableHTML(['類別','管制事項','計畫管控達成時間','局內管控達成時間','實際完成日','狀態','來源','實際辦理情形／備註'],model.kpiControls.filter(x=>!x.linkedReview && !isTransferControl(x) && (!x.actualMilestoneReached || x.followUpOpen) && !['交辦待辦','設計查核','介面決策','會議追蹤（非KPI）','版本送審（非KPI）','審查追蹤（非KPI）'].includes(x.category)).map(controlRow))
   };
 }
 
