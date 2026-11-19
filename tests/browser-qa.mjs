@@ -36,6 +36,9 @@ async function operator(width,height){
  assert.ok(await page.locator('#transferControl').isVisible());
  await page.locator('[data-module="review"]').click();
  assert.ok(await page.locator('#revisionTrackingControl').isVisible());
+ const reviewText=await page.locator('#revisionTrackingControl').innerText();
+ assert.match(reviewText,/11\/26/,'north risk review due date visible in operator page');
+ assert.match(reviewText,/已函送/,'north actual review stage visible in operator page');
  await page.screenshot({path:'browser-qa-workbench-'+width+'.png',fullPage:true});
  assert.equal(await page.evaluate(()=>Object.keys(localStorage).some(k=>k.startsWith('yilan-dashboard-'))),false);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+4);
@@ -51,6 +54,10 @@ async function executive(width,height){
    await page.locator('.exec-nav [data-view="'+view+'"]').click();
    assert.ok((await page.locator('#viewBody').innerText()).length>30,view+' should render content');
  }
+ await page.locator('.exec-nav [data-view="review"]').click();
+ const reviewText=await page.locator('#viewBody').innerText();
+ assert.match(reviewText,/11\/26/,'north risk review due date visible in executive page');
+ assert.match(reviewText,/已函送/,'north risk review stage visible in executive page');
  await page.locator('.exec-nav [data-view="overview"]').click();
  await page.screenshot({path:'browser-qa-executive-'+width+'.png',fullPage:true});
  await page.close();
