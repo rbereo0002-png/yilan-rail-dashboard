@@ -24,7 +24,7 @@ export function calculateModel(project, today = todayLocal()) {
   const payments = calculatePayments(source,schedule);
   const currentReviews = latestReviewItems(source,schedule,today);
   const linkedReviewIds=new Set(currentReviews.map(x=>source.versionTracking?.[x.id]?.activeReview?.linkedControlId).filter(Boolean));
-  const reviewActionItems=currentReviews.filter(x=>x.actionDue && !x.actionCompleted);
+  const reviewActionItems=currentReviews.filter(x=>x.actionDue && !x.actionCompleted && !x.approval);
   const currentReviewActionOverdueItems=reviewActionItems.filter(x=>x.actionOverdueDays>0);
   const reviewAttention=reviewActionItems.map(x=>{
     const remainingDays=daysBetween(today,x.actionDue);
