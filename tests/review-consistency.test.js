@@ -88,3 +88,11 @@ test('north issued review confirmation and 11/17 draft are distinct corresponden
  assert.match(draft.status,/待決行發文/);
  assert.equal(p.versionTracking.designRiskPlan.activeReview.linkedControlId,'north-risk-plan-A-review-1151126');
 });
+
+test('operator completed-control table does not close unresolved transfer or meeting follow-ups',()=>{
+ const model=m('north');
+ const tables=tableMarkup(model,false);
+ assert.doesNotMatch(tables.completedControlTable,/north-yilan-hsr-transfer-revised-analysis-1151106/);
+ assert.doesNotMatch(tables.completedControlTable,/north-pcm-1151102-meeting/);
+ assert.match(tables.transferControlTable,/同月臺轉乘修正方案比較及下一版資料/);
+});
