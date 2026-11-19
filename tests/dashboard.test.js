@@ -161,7 +161,7 @@ test('v1.4.8 adds non-contract KPI controls without changing contract schedule c
   const northModel=calculateModel(north,'2026-10-02');
   const southModel=calculateModel(south,'2026-10-02');
   assert.equal(northModel.kpiControls.filter(x=>!x.id.startsWith('north-kickoff-1151006-')).length,north.kpiControls.filter(x=>!x.id.startsWith('north-kickoff-1151006-')).length);
-  assert.equal(northModel.kpiSummary.total,north.kpiControls.length);
+  assert.equal(northModel.kpiSummary.total,north.kpiControls.length-1); // linked agency review belongs to currentReviews
   assert.equal(southModel.kpiSummary.total,south.kpiControls.length);
   assert.equal(northModel.kpiSummary.unclear,0);
   assert.equal(southModel.kpiSummary.unclear,0);
@@ -199,6 +199,6 @@ test('executive 14-day summary includes meeting controls before signing and remo
  assert.deepEqual(dates,[...dates].sort());
  p.kpiControls.find(x=>x.id===report.id).actualDate='2026-10-08';
  const done=calculateModel(p,'2026-10-08');
- assert.ok(!done.dashboard.executiveItems.some(x=>x.id===report.id));
+ assert.ok(done.dashboard.executiveItems.some(x=>x.id===report.id && x.followUpOpen)); // meeting completed but next action remains
  assert.equal(done.dashboard.executiveDue14,m.dashboard.executiveDue14-1);
 });

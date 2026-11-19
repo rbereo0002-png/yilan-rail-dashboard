@@ -1,4 +1,4 @@
-import {latestReviewItems} from './review-workflow.js';
+import {latestReviewItems} from './review-workflow.js?v=20261119-review-sync';
 import {calculateSchedule} from './schedule-engine.js';
 import {calculatePayments} from './payment-engine.js';
 import {daysBetween, todayLocal, SIGN_DATE_WARNING} from './dates.js';
@@ -23,6 +23,19 @@ export function calculateModel(project, today = todayLocal()) {
   const schedule = calculateSchedule(source,today);
   const payments = calculatePayments(source,schedule);
   const currentReviews = latestReviewItems(source,schedule,today);
+  const linkedReviewIds=new Set(currentReviews.map(x=>source.versionTracking?.[x.id]?.activeReview?.linkedControlId).filter(Boolean));
+  const reviewActionItems=currentReviews.filter(x=>x.actionDue && !x.actionCompleted && !x.approval);
+  const currentReviewActionOverdueItems=reviewActionItems.filter(x=>x.actionOverdueDays>0);
+  const reviewAttention=reviewActionItems.map(x=>{
+    const remainingDays=daysBetween(today,x.actionDue);
+    const attentionPriority=remainingDays<0?1:remainingDays<=14?3:remainingDays<=30?4:5;
+    return {id:'review-action-'+x.id,name:x.name+'（'+x.version+'版）',kind:'review-action',
+      due:x.actionDue,contractDue:x.actionDue,reviewTarget:x.actionDue,effectiveSubmit:x.submitted,
+      label:remainingDays<0?'審查意見逾期':'審查意見回復',
+      attentionLabel:'審查意見回復',attentionReason:x.label,
+      description:x.label+'｜'+x.actionSource,remainingDays,attentionPriority,reviewId:x.id,
+      actionOverdueDays:x.actionOverdueDays};
+  });
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
   const deliverables = schedule.list.filter(x => x.contractRule);
   const completed = deliverables.filter(x => x.effectiveApproval).length;
@@ -43,7 +56,7 @@ export function calculateModel(project, today = todayLocal()) {
   const underReviewItems = formalDeliverables.filter(x => !source.versionTracking?.[x.id] && x.effectiveSubmit && !x.effectiveApproval);
   const reviewOverdueItems = underReviewItems.filter(x => x.reviewOverdueDays > 0);
   const correctionOverdueItems = currentReviews.filter(x => x.code === 'revision-overdue');
-  const reviewOverdue = reviewOverdueItems.length + correctionOverdueItems.length;
+  const reviewOverdue = reviewOverdueItems.length + correctionOverdueItems.length + currentReviewActionOverdueItems.length;
   const underReview = underReviewItems.length + currentReviews.filter(x => x.code === 'under-review').length;
   const overall = !schedule.awardEffective ? '尚未決標' : !signedEffective ? '已決標／待簽約' : overdue ? '有逾期事項' : reviewOverdue ? '審查列管中' : '實際履約中';
   const attention = formalDeliverables.filter(x=>!source.versionTracking?.[x.id]).map(x => {
@@ -59,9 +72,9 @@ export function calculateModel(project, today = todayLocal()) {
     .sort((a,b)=>a.attentionPriority-b.attentionPriority || (b.overdueDays-a.overdueDays) || (b.reviewOverdueDays-a.reviewOverdueDays) || (a.contractDue || '9999').localeCompare(b.contractDue || '9999'));
   const important = attention.slice(0,8);
   const workViews = {
-    today: attention.filter(x => x.attentionPriority <= 2),
-    due14: attention.filter(x => x.attentionPriority === 3),
-    due30: attention.filter(x => x.attentionPriority === 4)
+    today: [...attention.filter(x => x.attentionPriority <= 2),...reviewAttention.filter(x=>x.attentionPriority<=2)],
+    due14: [...attention.filter(x => x.attentionPriority === 3),...reviewAttention.filter(x=>x.attentionPriority===3)],
+    due30: [...attention.filter(x => x.attentionPriority === 4),...reviewAttention.filter(x=>x.attentionPriority===4)]
   };
   const stages = Object.values(deliverables.reduce((acc,item) => {
     const stage = acc[item.group] ||= {name:item.group,total:0,completed:0};
@@ -83,7 +96,7 @@ export function calculateModel(project, today = todayLocal()) {
     completed: quickEntryItems.filter(x => x.effectiveApproval).length
   };
   const dashboard = {completed,pending,underReview,reviewOverdue,underReviewItems,reviewOverdueItems,correctionOverdueItems,overdue,due14,due30,started,notStarted,phase,phaseLabel,overall,preSignSpecialItems,total:deliverables.length,
-    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages};
+    progress:deliverables.length ? Math.round(completed / deliverables.length * 100) : 0, important, attention, workViews, quickEntryItems, workbenchCounts, stages, reviewActionItems, reviewAttention, currentReviewActionOverdueItems};
   const counts = {contract:0,management:0,external:0};
   schedule.list.forEach(x => counts[x.dueType]++);
   const latest = values => values.filter(Boolean).sort().at(-1) || null;
@@ -108,28 +121,34 @@ export function calculateModel(project, today = todayLocal()) {
   const kpiControls = (source.kpiControls || []).map(item => {
     const due = item.internalTargetDate || item.targetDate || null;
     const remaining = due ? daysBetween(today,due) : null;
-    const completed = Boolean(item.actualDate && item.actualDate <= today);
-    const computedStatus = completed ? '已完成' : remaining != null && remaining < 0 ? '逾期' : item.status || (remaining == null ? (item.category === '設計查核' ? '待審查確認' : item.category === '介面決策' ? '待協調／決策' : item.category === '交辦待辦' ? '待確認期限' : '待釐清') : remaining <= 30 ? '30日內到期' : '列管中');
+    const actualMilestoneReached=Boolean(item.actualDate && item.actualDate <= today);
+    const linkedReview=linkedReviewIds.has(item.id);
+    // A dated meeting or submission is not automatically a final review/decision.
+    // Do not mark the original meeting/submission deadline overdue after that event occurred.
+    const followUpOpen=actualMilestoneReached && /待審查|未核定|待修正|待確認|後續.*列管|持續列管|工作未結案|待整合|待決策/.test(item.status||'');
+    const completed=actualMilestoneReached && !followUpOpen;
+    const computedStatus = followUpOpen ? '後續列管' : completed ? '已完成' : remaining != null && remaining < 0 ? '逾期' : item.status || (remaining == null ? (item.category === '設計查核' ? '待審查確認' : item.category === '介面決策' ? '待協調／決策' : item.category === '交辦待辦' ? '待確認期限' : '待釐清') : remaining <= 30 ? '30日內到期' : '列管中');
     const priority = computedStatus === '逾期' ? 0 : computedStatus === '30日內到期' ? 1 : computedStatus === '待釐清' ? 2 : computedStatus === '已完成' ? 10 : 9;
-    return {...item,due,remainingDays:remaining,computedStatus,priority};
+    return {...item,due,remainingDays:remaining,computedStatus,priority,linkedReview,followUpOpen,actualMilestoneReached};
   }).sort((a,b)=>a.priority-b.priority || (a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
   const kpiSummary = {
-    total:kpiControls.length,
-    overdue:kpiControls.filter(x=>x.computedStatus === '逾期').length,
-    due30:kpiControls.filter(x=>x.computedStatus === '30日內到期').length,
-    unclear:kpiControls.filter(x=>x.computedStatus === '待釐清').length,
-    completed:kpiControls.filter(x=>x.computedStatus === '已完成').length
+    total:kpiControls.filter(x=>!x.linkedReview).length,
+    overdue:kpiControls.filter(x=>!x.linkedReview && x.computedStatus === '逾期').length,
+    due30:kpiControls.filter(x=>!x.linkedReview && x.computedStatus === '30日內到期').length,
+    unclear:kpiControls.filter(x=>!x.linkedReview && x.computedStatus === '待釐清').length,
+    completed:kpiControls.filter(x=>!x.linkedReview && x.computedStatus === '已完成').length
   };
   // Executive reminders also include dated meeting / external controls, independently of signing.
   const executiveItems = [
+    ...reviewAttention,
     ...preSignSpecialItems.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.contractDue,label:'簽約前特別列管',description:x.note,kind:'special'})),
     ...attention.filter(x=>!x.effectiveApproval).map(x=>({...x,due:x.effectiveSubmit&&!x.effectiveApproval?x.reviewTarget:x.contractDue,label:x.attentionLabel,description:x.attentionReason,kind:'contract'})),
-    ...kpiControls.filter(x=>x.computedStatus!=='已完成' && (['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (x.remainingDays!=null && x.remainingDays<=30)))
+    ...kpiControls.filter(x=>!x.linkedReview && x.computedStatus!=='已完成' && (x.followUpOpen || ['逾期','30日內到期','待釐清'].includes(x.computedStatus) || (!x.actualMilestoneReached && x.remainingDays!=null && x.remainingDays<=30)))
       .map(x=>({...x,label:x.computedStatus,description:`${x.category}｜${x.scope || '範圍待確認'}｜${x.note || x.source || ''}`,kind:'control'}))
   ].filter((x,i,all)=>all.findIndex(y=>y.id===x.id)===i)
     .sort((a,b)=>(a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
   dashboard.executiveItems=executiveItems;
-  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && !x.effectiveSubmit && !x.effectiveApproval).length;
+  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && (x.kind==='review-action' || (!x.actualMilestoneReached && !x.effectiveSubmit && !x.effectiveApproval))).length;
   const actual = date => date && date <= today ? date : '';
   const insuranceControls=(source.insuranceRecords || []).map(item=>{
     const daysToExpiry=item.coverageEnd ? daysBetween(today,item.coverageEnd) : null;
