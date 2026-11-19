@@ -19,6 +19,8 @@
 | 北段11/2 PCM會議 | `north-pcm-1151102-meeting` | 會議已召開／工作未結案，續列管 | 原會議召開不重複當即將到期 |
 | 南段11/2 PCM會議 | `south-pcm-1151102-meeting` | 同上 | 同上 |
 
+- 正式函送之使用者確認另存於 `north-risk-A-review-user-confirmed-1151126`，不覆寫原先的 `north-1151117-risk-review-draft` 草稿事件；正式公文日期及文號待補。
+
 ## 統一顯示規範
 1. `model.js` 的 `currentReviews` + `reviewAttention` 唯一推導現行審查進度及行政回復期限，長官與承辦人不得另做第二套資料。
 2. `dashboard.workViews.today/due14/due30` 和 `dashboard.executiveItems` 共用同一 `reviewAttention.id`，且只列現行版次。回復審查意見期限與原契約送審期限分欄。
@@ -27,7 +29,7 @@
 5. 南段五件現行 B 版仍依原記錄處理；只有函稿、待核定者不逕認正式回覆或修正期限已確認。
 
 ## 發布及驗證
-- 中央 DB `north` 更新 revision 1→2，原 revision 已進入 change_history；`south` 維持 revision 1。
+- 中央 DB `north` 更新 revision 1→3（第2版更新共同審查行動，第3版新增已函送審查之確認事件，原擬稿保留）；原 revision 已進入 change_history；`south` 維持 revision 1。
 - GitHub PR #16 的南北段 JSON 與中央 DB 逐字段比對相同。
 - 新增 `tests/review-consistency.test.js`，比對廠商原契約、PCM/機關回復、跨頁面 action ID、審查逾期不重複及中間工作未結案。
 - 自動／瀏覽器測試需全數通過後才合併正式 `main`。尚待補正式會審函號及日期；不可自行臆造。
