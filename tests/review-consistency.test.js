@@ -18,7 +18,9 @@ test('north A-version risk: 11/16 received, 11/17 contract deadline, 11/26 opini
  assert.match(review.label,/已函送各單位審查/);
  assert.equal(review.overdueDays,0);
  assert.equal(review.actionOverdueDays,0);
- assert.equal(review.actionSource.includes('正式發文日期及文號待補'),true);
+ assert.match(review.actionSource,/1150005284號書函/);
+ assert.equal(model.project.versionTracking.designRiskPlan.activeReview.evidenceStatus,'issued');
+ assert.equal(model.project.versionTracking.designRiskPlan.activeReview.issuedDate,'2026-11-17');
  assert.ok(model.dashboard.reviewActionItems.some(x=>x.id==='designRiskPlan'));
  assert.ok(model.dashboard.workViews.due14.some(x=>x.reviewId==='designRiskPlan'));
  assert.ok(model.dashboard.executiveItems.some(x=>x.reviewId==='designRiskPlan'));
@@ -83,7 +85,8 @@ test('north issued review confirmation and 11/17 draft are distinct corresponden
  const draft=p.correspondenceRecords.find(x=>x.id==='north-1151117-risk-review-draft');
  assert.ok(issued);
  assert.match(issued.status,/已函送/);
- assert.equal(issued.documentNumber,'');
+ assert.equal(issued.documentNumber,'鐵道東土字第1150005284號');
+ assert.equal(issued.documentDate,'2026-11-17');
  assert.ok(draft);
  assert.match(draft.status,/待決行發文/);
  assert.equal(p.versionTracking.designRiskPlan.activeReview.linkedControlId,'north-risk-plan-A-review-1151126');
