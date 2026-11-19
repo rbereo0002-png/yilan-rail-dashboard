@@ -210,11 +210,10 @@ function renderDashboard(model) {
   const workViewMarkup = items => items.length ? items.slice(0,6).map(x=>`<div class="work-view-row"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span><b>${e(x.name)}</b><small>${e(x.attentionReason)}</small><time>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無列管事項</div>';
   html('preSignSpecialWorks',d.preSignSpecialItems.length ? d.preSignSpecialItems.map(x=>`<div class="work-view-row"><span class="timeline-pill tl-external">簽約前特別列管</span><b>${e(x.name)}</b><small>${e(x.note)}</small><time>${fmt(x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無簽約前特別列管事項</div>');
   text('preSignSpecialCount',d.preSignSpecialItems.length);
-  html('ovTodayWorks',workViewMarkup(d.workViews.today)+model.currentReviews.filter(x=>x.actionDue&&!x.actionCompleted).map(x=>
-    `<div class="work-view-row"><span class="timeline-pill attention-2">審查意見回復</span><b>${e(x.name)}（${e(x.version)}版）</b><small>${e(x.label)}</small><time>${fmt(x.actionDue)}</time></div>`).join(''));
+  html('ovTodayWorks',workViewMarkup(d.workViews.today));
   html('ov14Works',workViewMarkup(d.workViews.due14));
   html('ov30Works',workViewMarkup(d.workViews.due30));
-  text('ovTodayCount',d.workViews.today.length+d.currentReviewActionOverdueItems.length);
+  text('ovTodayCount',d.workViews.today.length);
   text('ov14Count',d.workViews.due14.length);
   text('ov30Count',d.workViews.due30.length);
   const activeQuickFilter = document.querySelector('[data-quick-filter].active')?.dataset.quickFilter || 'urgent';
