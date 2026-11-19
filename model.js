@@ -148,7 +148,7 @@ export function calculateModel(project, today = todayLocal()) {
   ].filter((x,i,all)=>all.findIndex(y=>y.id===x.id)===i)
     .sort((a,b)=>(a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
   dashboard.executiveItems=executiveItems;
-  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && !x.actualMilestoneReached && !x.effectiveSubmit && !x.effectiveApproval).length;
+  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && (x.kind==='review-action' || (!x.actualMilestoneReached && !x.effectiveSubmit && !x.effectiveApproval))).length;
   const actual = date => date && date <= today ? date : '';
   const insuranceControls=(source.insuranceRecords || []).map(item=>{
     const daysToExpiry=item.coverageEnd ? daysBetween(today,item.coverageEnd) : null;
