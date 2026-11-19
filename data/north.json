@@ -945,12 +945,13 @@
       "name": "北段風險評估實施計畫書(A版)PCM及分局會審",
       "targetDate": "2026-11-26",
       "internalTargetDate": "",
-      "source": "115/11/17擬簽及書函稿（尚待核定）",
+      "source": "依使用者確認已函送（正式發文日期及文號待補）；原115/11/17擬簽及書函稿",
       "scope": "北段",
-      "status": "擬訂審查期限／待正式發文",
+      "status": "已函送各單位審查／待115/11/26前回復審查意見",
       "actualDate": "",
       "actualNote": "",
-      "note": "行政預定回覆期限，非設計廠商契約期限；審查意見表RBH-2-D09-02，由土建軌道科彙整。PCM應先核對自主檢查表是否附齊，後續核定後依函定日期修正。"
+      "note": "本項為北段設計階段風險評估實施計畫書(A版)之「機關及PCM回復審查意見」子階段，與主成果共用同一管制ID，限115/11/26前回復；非廠商原契約提送期限，亦非廠商B版修正期限。以RBH-2-D09-02審查意見表彙整，正式函號及發文日期待補。",
+      "linkedReviewId": "designRiskPlan"
     }
   ],
   "constructionPackages": [],
@@ -1025,14 +1026,26 @@
       "currentVersion": "A",
       "currentDue": "2026-11-17",
       "currentSubmittedDate": "2026-11-16",
-      "currentStatus": "A版已於契約期限前1日提送／待審查",
+      "currentStatus": "A版已函送PCM及本分局相關單位審查／待115/11/26前回復審查意見",
       "history": [],
       "requirement": "契約生效日115/09/18＋60日曆天＝115/11/17；世曦115/11/16提送A版，提前1日，未逾期。此為A版原契約期限，日後B版應另依正式通知訂定送審期限，舊版保留歷程。",
       "contractEffectiveDate": "2026-09-18",
       "contractDays": 60,
       "contractDue": "2026-11-17",
       "submitVarianceDays": -1,
-      "submissionLate": false
+      "submissionLate": false,
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "A版已函送各單位審查／待115/11/26前回復審查意見",
+        "dueDate": "2026-11-26",
+        "deadlineConfirmed": true,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "user-confirmed",
+        "source": "依使用者最新確認：已函送各單位審查；正式發文日期及文號待補",
+        "linkedControlId": "north-risk-plan-A-review-1151126"
+      }
     }
   },
   "correspondenceRecords": [
