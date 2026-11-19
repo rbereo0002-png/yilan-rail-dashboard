@@ -1,7 +1,7 @@
 import {sharedTopicKey,groupSharedControls,uniqueControlKey} from './shared-controls.js';
 import {isTransferControl,transferStatus} from './transfer-controls.js';
 import {normalizeProject} from './store.js';
-import {calculateModel} from './model.js?v=20261103-north-consistency';
+import {calculateModel} from './model.js?v=20261119-review-sync';
 import {formatDate as fmt,todayLocal,daysBetween,addDays} from './dates.js';
 
 const $=id=>document.getElementById(id);
