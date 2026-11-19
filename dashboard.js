@@ -253,8 +253,7 @@ function renderAttention(){
   $('viewHint').textContent='依期限由近到遠排列，逾期事項在前、未訂期限事項在後；含契約、簽約前特別列管及會議／外部管制。';
   const cards=['south','north'].map(id=>{
     const m=models[id],d=m.dashboard;
-    const current=d.reviewActionItems.filter(x=>!x.approval).map(x=>row(`${x.name}（${x.version}版）`,x.label,x.actionDue,'審查意見回復',x.actionOverdueDays>0?'tag-danger':'tag-info'));
-    const items=[...current,...d.executiveItems.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,x.description,x.due,x.label,x.label==='逾期' || x.attentionPriority===0?'tag-danger':x.kind==='special' || x.attentionPriority===1?'tag-warn':'tag-info'))];
+    const items=d.executiveItems.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,x.description,x.due,x.label,x.kind==='review-action'&&x.actionOverdueDays>0?'tag-danger':x.label==='逾期' || x.attentionPriority===0?'tag-danger':x.kind==='special' || x.attentionPriority===1?'tag-warn':'tag-info'));
     return projectListCard('重要事項',m,items);
   }).join('');
   $('viewBody').innerHTML=`<div class="detail-grid">${cards}</div>`;
