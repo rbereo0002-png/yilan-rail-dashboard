@@ -82,7 +82,7 @@ export function tableMarkup(model, editable = false) {
     `${item.lastProgressDate ? `<div class="small"><b>實際研討／辦理日期：${fmt(item.lastProgressDate)}</b>｜${e(item.progressStage||'持續追蹤')}</div>` : ''}${editable ? `<textarea data-kpi-id="${e(item.id)}" data-kpi-field="actualNote" aria-label="${e(item.name)}實際辦理情形">${e(item.actualNote || '')}</textarea>` : e(item.actualNote || '')}<div class="small">${e(item.progressEvidence || '')}</div><div class="small">${e(item.note || '')}</div>`
   ],`data-kpi-id="${e(item.id)}"`);
   const headers=['類別','管制事項／子清單','來源目標日期','局內目標日期','實際完成日','狀態','依據','辦理情形／證據／備註'];
-  const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!isTransferControl(x) && !x.actualDate && x.category===category).map(controlRow));
+  const grouped = category => tableHTML(headers,model.kpiControls.filter(x=>!x.linkedReview && !isTransferControl(x) && (!x.actualMilestoneReached || x.followUpOpen) && x.category===category).map(controlRow));
   const revisionRows=latestReviewItems(model.project,model.schedule,model.today).map(item=>{
     const source=model.project.versionTracking[item.id] || {};
     const showHistory=(item.history||[]).map(h=>`<div><b>${e(h.version||'')}版</b>｜提送 ${fmt(h.submittedDate)}｜退回／審查 ${fmt(h.reviewLetterDate)}｜${e(h.outcome||'')}｜${e(h.reviewLetterNumber||'')}</div>`).join('');
@@ -98,7 +98,7 @@ export function tableMarkup(model, editable = false) {
   const insuranceRows=(model.insuranceControls || []).map(item=>{const attr=`data-insurance-id="${e(item.id)}"`;return tr([e(item.name),recordInput(item,'coverageStart','date',attr,'起保日'),recordInput(item,'coverageEnd','date',attr,'保期截止日'),recordInput(item,'submitDate','date',attr,'保單及收據提送日'),recordInput(item,'approvalDate','date',attr,'審查完成日'),recordInput(item,'renewalSubmitDate','date',attr,'續保提送日'),e(item.status),recordInput(item,'documentRef','text',attr,'保單／文號／收據'),recordInput(item,'note','text',attr,'保險審查及續保備註')]);});
   const reportRows=(model.monthlyReports || []).map(item=>{const attr=`data-report-month="${item.month}"`;return tr([e(item.month),`${fmt(item.baseDue)}<br>順延試算：${fmt(item.adjustedDue)}<br>${item.calendarVerified ? '行事曆已確認' : '假日行事曆待確認'}<br>${recordInput(item,'dueOverride','date',attr,'本期確認期限')}`,recordInput(item,'submitDate','date',attr,'實際收文日'),recordInput(item,'reviewDate','date',attr,'審查日'),recordInput(item,'revisionRequestDate','date',attr,'通知修正日'),recordInput(item,'resubmitDate','date',attr,'修正提送日'),recordInput(item,'approvalDate','date',attr,'核定日'),e(item.status),recordInput(item,'documentRef','text',attr,'收文／審查文號'),recordInput(item,'note','text',attr,'月報內容與缺失')]);});
   return {
-    revisionTrackingTable:tableHTML(['工作／成果','目前版次','目前狀態','退回／審查日期','本次修正期限','本版實際提送','完整歷史'],revisionRows),
+    revisionTrackingTable:tableHTML(['工作／成果','目前版次','目前狀態','審查意見回復／退回','期限分類與日期','本版實際提送','完整歷史'],revisionRows),
     insuranceTable:tableHTML(['險種','起保日','保期截止','文件提送','審查完成','續保提送','狀態','保單／文號／收據','備註'],insuranceRows),
     monthlyReportTable:tableHTML(['報告月份','每月10日基準／假日順延／本期確認期限','收文日','審查日','通知修正','修正提送','核定日','狀態','文號','備註'],reportRows),
     scheduleTable:tableHTML(['階段','成果／工作','期限性質','起算基準','契約日數','契約期限','管理預估期限','實際提送日','PCM審查期限／目標','實際核定日','狀態','說明'],scheduleRows),
@@ -110,7 +110,7 @@ export function tableMarkup(model, editable = false) {
     transferStudyTable:tableHTML(['契約子成果','依據／期限','實際提送','實際核定','狀態'],(model.specialDeliverables || []).filter(isTransferControl).map(x=>tr([e(x.name),e(x.note)+'<br>'+fmt(x.parentDue),fmt(x.actualSubmitDate),fmt(x.actualApprovalDate),e(x.status)]))),
     transferControlTable:tableHTML(headers,model.kpiControls.filter(isTransferControl).map(item=>controlRow({...item,computedStatus:transferStatus(item)}))),
     } : {}),
-    meetingControlTable:tableHTML(headers,model.kpiControls.filter(x=>x.category==='會議追蹤（非KPI）').map(controlRow)),
+    meetingControlTable:tableHTML(headers,model.kpiControls.filter(x=>!x.linkedReview && x.category==='會議追蹤（非KPI）').map(controlRow)),
     meetingTaskTable:grouped('交辦待辦'),
     designChecklistTable:grouped('設計查核'),
     interfaceControlTable:grouped('介面決策'),
@@ -200,7 +200,7 @@ function renderDashboard(model) {
   $('ovProgressBar').style.width=`${d.progress}%`;
   for (const [id,key] of Object.entries({ovOverdue:'overdue',ovDue14:'due14',ovDue30:'due30',ovPendingApproval:'underReview',ovCompleted:'completed'})) text(id,d[key]);
   text('overviewSub',`目前階段：${d.phaseLabel}。一般履約自實際簽約日起算；決標日起算之特殊事項另列，不計入簽約前正式履約項目。`);
-  const pendingControls=model.kpiControls.filter(x=>!x.actualDate && x.due && x.due<model.today && x.computedStatus==='逾期');
+  const pendingControls=model.kpiControls.filter(x=>!x.linkedReview && x.computedStatus==='逾期' && x.due && x.due<model.today);
   const mgt=pendingControls.filter(x=>!/^(116年度|上級KPI)/.test(x.category||''));
   const upper=pendingControls.filter(x=>/^(116年度|上級KPI)/.test(x.category||''));
   const counts=[['契約逾期',d.overdue],['管理目標逾期',mgt.length],['審查逾期',d.reviewOverdue],['上級KPI逾期',upper.length]];
@@ -210,10 +210,11 @@ function renderDashboard(model) {
   const workViewMarkup = items => items.length ? items.slice(0,6).map(x=>`<div class="work-view-row"><span class="timeline-pill attention-${x.attentionPriority}">${e(x.attentionLabel)}</span><b>${e(x.name)}</b><small>${e(x.attentionReason)}</small><time>${fmt(x.effectiveSubmit && !x.effectiveApproval ? x.reviewTarget : x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無列管事項</div>';
   html('preSignSpecialWorks',d.preSignSpecialItems.length ? d.preSignSpecialItems.map(x=>`<div class="work-view-row"><span class="timeline-pill tl-external">簽約前特別列管</span><b>${e(x.name)}</b><small>${e(x.note)}</small><time>${fmt(x.contractDue)}</time></div>`).join('') : '<div class="overview-empty">目前無簽約前特別列管事項</div>');
   text('preSignSpecialCount',d.preSignSpecialItems.length);
-  html('ovTodayWorks',workViewMarkup(d.workViews.today));
+  html('ovTodayWorks',workViewMarkup(d.workViews.today)+model.currentReviews.filter(x=>x.actionDue&&!x.actionCompleted).map(x=>
+    `<div class="work-view-row"><span class="timeline-pill attention-2">審查意見回復</span><b>${e(x.name)}（${e(x.version)}版）</b><small>${e(x.label)}</small><time>${fmt(x.actionDue)}</time></div>`).join(''));
   html('ov14Works',workViewMarkup(d.workViews.due14));
   html('ov30Works',workViewMarkup(d.workViews.due30));
-  text('ovTodayCount',d.workViews.today.length);
+  text('ovTodayCount',d.workViews.today.length+d.currentReviewActionOverdueItems.length);
   text('ov14Count',d.workViews.due14.length);
   text('ov30Count',d.workViews.due30.length);
   const activeQuickFilter = document.querySelector('[data-quick-filter].active')?.dataset.quickFilter || 'urgent';
