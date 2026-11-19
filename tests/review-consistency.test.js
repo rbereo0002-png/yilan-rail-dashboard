@@ -76,3 +76,15 @@ test('one agency review response deadline has one consistent current-action ID i
  assert.equal(ids[0].due,work[0].due);
  assert.equal(ids[0].due,'2026-11-26');
 });
+
+test('north issued review confirmation and 11/17 draft are distinct correspondence events',()=>{
+ const p=get('north');
+ const issued=p.correspondenceRecords.find(x=>x.id==='north-risk-A-review-user-confirmed-1151126');
+ const draft=p.correspondenceRecords.find(x=>x.id==='north-1151117-risk-review-draft');
+ assert.ok(issued);
+ assert.match(issued.status,/已函送/);
+ assert.equal(issued.documentNumber,'');
+ assert.ok(draft);
+ assert.match(draft.status,/待決行發文/);
+ assert.equal(p.versionTracking.designRiskPlan.activeReview.linkedControlId,'north-risk-plan-A-review-1151126');
+});
