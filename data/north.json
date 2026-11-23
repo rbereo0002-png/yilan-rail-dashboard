@@ -957,6 +957,86 @@
       "actualNote": "",
       "note": "書函說明一依世曦115/11/16世曦字第1150050172號函，說明二依契約附件A特定工作範疇第3.2.2節「工程施工風險評估及管理」第(17)項H款請協助審查。各單位應於115/11/26前填具RBH-2-D09-02審查意見表，送本分局土建軌道科彙整。此係審查意見期限，非廠商原契約A版提送期限115/11/17，亦非B版修正提送期限。",
       "linkedReviewId": "designRiskPlan"
+    },
+    {
+      "id": "north-yilan-hsr-transfer-revision-1151127",
+      "category": "交辦待辦",
+      "name": "同月臺轉乘同高程方案－11/20研討會修正提報",
+      "targetDate": "2026-11-27",
+      "internalTargetDate": "",
+      "source": "115/11/20「臺鐵宜蘭新站與高鐵宜蘭站同月臺轉乘方案」研討會議紀錄（上傳1153202038-002.xml）第六點（一）至（九），以1153202038-001.xml函稿辦理傳送，正式發文狀態待確認",
+      "scope": "北段／宜蘭新站－高鐵宜蘭站界面；世曦主辦，PCM林同棪及南段中興共同研議",
+      "status": "待修正提報；方案尚未報局確認",
+      "actualDate": "",
+      "actualNote": "",
+      "note": "11/20已完成本次方案研討（非方案核定）。請世曦會同PCM、中興於115/11/27前依會議9項結論修正提報。主要線形偏移縮減、蘭陽溪橋高程、車站整體規劃及分階段啟用、臨時站與軌道切換、橫渡線及橋型、臺電管線、都市計畫、初估新增臺鐵直接工程費24.5億元與分攤等，均應檢討；經大致確認後，再報鐵道局確認方案原則。此11/27為新的修正提報期限，不影響10/12初版與11/06版本歷史里程碑。正式發文日期／文號尚待確認。",
+      "children": [
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-1",
+          "name": "臺鐵／高鐵線形偏移及橋梁施工空間",
+          "actualDate": "",
+          "actualNote": "檢討臺鐵東移約15公尺、高鐵東移約17公尺及新舊橋面間距約2.2公尺；儘量縮小偏移，確認橋梁基礎、樁基與施工機具空間",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-2",
+          "name": "蘭陽溪橋與防洪高程",
+          "actualDate": "",
+          "actualNote": "朝臺鐵高程先行控制、高鐵配合調整方向檢討，補充橋下淨高、車站防洪及縱坡改善效益",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-3",
+          "name": "高鐵及臺鐵整體車站／分階段啟用",
+          "actualDate": "",
+          "actualNote": "視為一個完整車站規劃，檢討臺鐵宜蘭新站同步啟用、第一階段兩股道通過不停靠、後續月臺股道及屋頂施工安全",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-4",
+          "name": "既有宜蘭站臨時站及軌道切換",
+          "actualDate": "",
+          "actualNote": "評估既有宜蘭站部分作臨時站、分階段切換與新建，檢討臨時軌永久軌跨越及經費",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-5",
+          "name": "宜蘭站南端橫渡線及跨越橋型",
+          "actualDate": "",
+          "actualNote": "依八字形橫渡線曲率、速率及營運需求檢討，並比較門架、偏心單柱或其他橋型",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-6",
+          "name": "臺電變電所地下管線及用地",
+          "actualDate": "",
+          "actualNote": "優先確認地下電纜及管路、迴避與圖資套繪，必要時洽臺電協調",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-7",
+          "name": "都市計畫及高鐵車站專用區",
+          "actualDate": "",
+          "actualNote": "及早檢討東移所需都市計畫變更，儘量維持高鐵車站專用區規劃與面積需求",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-8",
+          "name": "工程費與分攤",
+          "actualDate": "",
+          "actualNote": "臺鐵直接工程費增加初估約24.5億元，應連同用地、拆遷及其他費用檢討；費用歸屬朝高鐵計畫負擔方向研議，尚未最終核定",
+          "status": "待檢討／待修正"
+        },
+        {
+          "id": "north-yilan-hsr-transfer-revision-1151127-issue-9",
+          "name": "修正方案提報及報局確認",
+          "actualDate": "",
+          "actualNote": "世曦會同PCM及中興於115/11/27前提出修正；內容大致確認後再將主要方案原則報局確認",
+          "status": "待檢討／待修正"
+        }
+      ],
+      "precedingControlId": "north-yilan-hsr-transfer-revised-analysis-1151106",
+      "meetingId": "north-meeting-1151120-transfer-elevation"
     }
   ],
   "constructionPackages": [],
@@ -1024,6 +1104,23 @@
         "north-pcm-1151102-alignment",
         "north-pcm-1151102-network"
       ]
+    },
+    {
+      "id": "north-meeting-1151120-transfer-elevation",
+      "meetingDate": "2026-11-20",
+      "name": "臺鐵宜蘭新站與高鐵宜蘭站同月臺轉乘同高程方案相關議題研商",
+      "status": "已召開；會議紀錄已擬稿，函送狀態待確認",
+      "source": "1153202038-002.xml（會議紀錄稿）；1153202038-001.xml（函稿）；附表及簡報附件尚未上傳驗證",
+      "closurePolicy": "11/20會議召開已完成，11/27修正提報及後續報局確認須另行列管，不得把會議已開當作方案核定",
+      "relatedControlIds": [
+        "north-yilan-hsr-transfer-revision-1151127",
+        "north-yilan-hsr-transfer-revised-analysis-1151106"
+      ],
+      "summary": "臺鐵與高鐵同高程轉乘線形、橋梁、車站、營運、費用及行政介面等九項研議；世曦會同PCM及中興於11/27前修正提報",
+      "meetingChair": "本分局分局長",
+      "meetingLocation": "本分局3樓會議室",
+      "startTime": "13:30",
+      "endTime": "15:05"
     }
   ],
   "versionTracking": {
@@ -1098,6 +1195,93 @@
       ],
       "note": "依正式書函說明二，請各受文單位於115/11/26（星期四）前填具RBH-2-D09-02審查意見表送本分局土建軌道科彙整。原115/11/17擬稿保留為歷史，不作為正式發文資料。",
       "sourceFile": "轉各單位審查_1150005284_.PDF（書函抄本，第1頁）"
+    },
+    {
+      "id": "north-transfer-1153202038-draft",
+      "direction": "outgoing-draft",
+      "documentDate": "2026-11-23",
+      "documentNumber": "鐵道東土字第1153202038號（XML函稿記載，正式發文待確認）",
+      "sender": "交通部鐵道局東部工程分局",
+      "recipient": "台灣世曦工程顧問股份有限公司、亞新工程顧問股份有限公司、中興工程顧問股份有限公司、林同棪工程顧問股份有限公司及本分局相關單位；副本鐵道局",
+      "subject": "檢送115年11月20日臺鐵宜蘭新站與高鐵宜蘭站同月臺轉乘方案研討會議紀錄",
+      "status": "函稿／尚未驗證正式發文",
+      "relatedRuleIds": [
+        "north-yilan-hsr-transfer-revision-1151127"
+      ],
+      "note": "來源1153202038-001.xml「函 類別=稿」，內載115/11/23及鐵道東土字第1153202038號；另1153202038-002.xml「會議紀錄 類別=稿」。不得在收到正式發文證據前標記已正式函送。",
+      "sourceFile": "1153202038-001.xml；1153202038-002.xml"
+    }
+  ],
+  "transferHistory": [
+    {
+      "id": "transfer-1151012-original",
+      "eventDate": "2026-10-12",
+      "type": "submission",
+      "title": "初版評估簡報提送",
+      "status": "已完成",
+      "documentRef": "世曦鐵道字第1150044583號",
+      "relatedControlId": "north-yilan-hsr-same-platform-meeting",
+      "note": "初版如期提送，10/19會議審查後此一階段結案"
+    },
+    {
+      "id": "transfer-1151019-review",
+      "eventDate": "2026-10-19",
+      "type": "meeting",
+      "title": "初版方案研商審查",
+      "status": "已完成",
+      "documentRef": "鐵道東土字第1153201806號（10/20紀錄函）",
+      "relatedControlId": "north-yilan-hsr-same-platform-meeting",
+      "note": "要求於11/06提新版本；舊項已結案"
+    },
+    {
+      "id": "transfer-1151105-v6",
+      "eventDate": "2026-11-05",
+      "type": "submission",
+      "title": "世曦V6轉乘構想提送",
+      "status": "提送完成",
+      "documentRef": "世曦鐵道字第1150048585號",
+      "relatedControlId": "north-yilan-hsr-transfer-revised-analysis-1151106",
+      "note": "原11/06期限，提前1日；提送不等於方案核定"
+    },
+    {
+      "id": "transfer-1151106-inspection",
+      "eventDate": "2026-11-06",
+      "type": "decision",
+      "title": "局長視察轉乘方案方向",
+      "status": "原則同意研議，未核定",
+      "documentRef": "依既有11/06視察辦理說明",
+      "relatedControlId": "north-yilan-hsr-transfer-revised-analysis-1151106",
+      "note": "原則朝同高程轉乘構想研議"
+    },
+    {
+      "id": "transfer-1151120-meeting",
+      "eventDate": "2026-11-20",
+      "type": "meeting",
+      "title": "同高程轉乘方案九項議題研商",
+      "status": "會議已召開",
+      "documentRef": "1153202038-002.xml（會議紀錄稿）",
+      "relatedControlId": "north-yilan-hsr-transfer-revision-1151127",
+      "note": "檢討東移縮減、高程、整體車站與分階段啟用、軌道與橋型、都市計畫、費用，11/27前修正提報"
+    },
+    {
+      "id": "transfer-1151123-circulation-draft",
+      "eventDate": "2026-11-23",
+      "type": "correspondence",
+      "title": "11/20會議紀錄函稿",
+      "status": "正式發文待確認",
+      "documentRef": "鐵道東土字第1153202038號（函稿）",
+      "relatedControlId": "north-yilan-hsr-transfer-revision-1151127",
+      "note": "XML類別為稿，不視為已正式發文"
+    },
+    {
+      "id": "transfer-1151127-revised-due",
+      "eventDate": "2026-11-27",
+      "type": "deadline",
+      "title": "同高程修正方案提報期限",
+      "status": "待提報",
+      "documentRef": "115/11/20會議結論第六點（九）",
+      "relatedControlId": "north-yilan-hsr-transfer-revision-1151127",
+      "note": "世曦會同PCM及中興修正；初步確認後報鐵道局確認原則"
     }
   ]
 }
