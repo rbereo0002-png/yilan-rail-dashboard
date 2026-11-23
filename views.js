@@ -1,5 +1,5 @@
 import {latestReviewItems,currentReviewGanttRows} from './review-workflow.js?v=20261119-review-sync';
-import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js';
+import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js?v=20261123-transfer-timeline';
 import {formatDate as fmt, daysBetween, addDays} from './dates.js';
 
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g,c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
