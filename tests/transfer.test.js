@@ -42,8 +42,9 @@ test('transfer topic includes initial controls and Nov20 follow-up without losin
  assert.match(tableMarkup(current).transferHistoryTable,/2026\/11\/27/);
  assert.match(tableMarkup(current).transferHistoryTable,/1153202038/);
  assert.equal(p.meetingRecords.some(x=>x.id==='north-meeting-1151120-transfer-elevation'),true);
- const letter=p.correspondenceRecords.find(x=>x.id==='north-transfer-1153202038-draft');
- assert.match(letter.status,/函稿/);
+ const letter=p.correspondenceRecords.find(x=>x.id==='north-transfer-1153202038-issued');
+ assert.match(letter.status,/已核發/);
+ assert.equal(letter.documentNumber,'鐵道東土字第1153202038號');
  assert.equal(letter.documentDate,'2026-11-23');
  assert.match(exportHTML(m),/<h2>同月台轉乘<\/h2>/);
  assert.equal(JSON.stringify(p),before);
