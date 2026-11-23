@@ -8,7 +8,8 @@
     "evaluationDate": "2026-09-07",
     "negotiationDate": "",
     "signDate": "2026-10-27",
-    "workStartDate": "2026-10-27"
+    "workStartDate": "2026-10-27",
+    "actualSignDate": "2026-10-27"
   },
   "settings": {
     "pcmDays": 30,
