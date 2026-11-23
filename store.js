@@ -82,6 +82,10 @@ export function normalizeProject(input, expectedId) {
       lastProgressDate:item.lastProgressDate || '',
       progressStage:String(item.progressStage || ''),
       progressEvidence:String(item.progressEvidence || ''),
+      closedDate:item.closedDate || '',
+      reviewCompletedDate:item.reviewCompletedDate || '',
+      reviewOutcome:String(item.reviewOutcome || ''),
+      followUpControlId:String(item.followUpControlId || ''),
       note:String(item.note || '')
     };
     for (const child of control.children) {
@@ -90,6 +94,7 @@ export function normalizeProject(input, expectedId) {
     }
     if (!control.name) throw new Error(`KPI管制項目第 ${index + 1} 筆缺少名稱`);
     if (control.targetDate && !validDate(control.targetDate)) throw new Error(`KPI管制日期格式錯誤：${control.name}`);
+    for(const dateKey of ['closedDate','reviewCompletedDate']) if(control[dateKey] && !validDate(control[dateKey])) throw new Error(`KPI管制${dateKey}日期格式錯誤：${control.name}`);
     if (control.internalTargetDate && !validDate(control.internalTargetDate)) throw new Error(`KPI局內管控日期格式錯誤：${control.name}`);
     if (control.actualDate && !validDate(control.actualDate)) throw new Error(`KPI實際完成日期格式錯誤：${control.name}`);
     if (control.lastProgressDate && !validDate(control.lastProgressDate)) throw new Error(`管制事項實際辦理日期格式錯誤：${control.name}`);

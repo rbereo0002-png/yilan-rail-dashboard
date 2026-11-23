@@ -95,7 +95,12 @@ test('north issued review confirmation and 11/17 draft are distinct corresponden
 test('operator completed-control table does not close unresolved transfer or meeting follow-ups',()=>{
  const model=m('north');
  const tables=tableMarkup(model,false);
- assert.doesNotMatch(tables.completedControlTable,/north-yilan-hsr-transfer-revised-analysis-1151106/);
+ assert.doesNotMatch(tables.completedControlTable,/data-kpi-id="north-yilan-hsr-transfer-revised-analysis-1151106"/);
+ assert.match(tables.completedControlTable,/data-kpi-id="north-yilan-hsr-same-platform-meeting"/);
+ const early=model.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting');
+ assert.equal(early.closedDate,'2026-10-19');
+ assert.equal(early.computedStatus,'已完成');
+ assert.equal(early.followUpControlId,'north-yilan-hsr-transfer-revised-analysis-1151106');
  assert.doesNotMatch(tables.completedControlTable,/north-pcm-1151102-meeting/);
  assert.match(tables.transferControlTable,/同月臺轉乘修正方案比較及下一版資料/);
 });

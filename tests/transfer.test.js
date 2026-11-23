@@ -14,8 +14,19 @@ test('transfer topic includes all five meeting/interface records and contractual
   assert.ok(tables.transferControlTable.includes('data-kpi-id="'+x.id+'"'));
   for(const key of ['meetingTaskTable','interfaceControlTable','kpiControlTable']) assert.ok(!tables[key].includes('data-kpi-id="'+x.id+'"'));
  }
- assert.match(tables.transferControlTable,/已完成會議審查／待修正/);
+ assert.match(tables.transferControlTable,/115\/10\/19完成會議審查並結案/);
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-same-platform-meeting').actualDate,'2026-10-12');
+ const initial=items.find(x=>x.id==='north-yilan-hsr-same-platform-meeting');
+ assert.equal(initial.computedStatus,'已完成');
+ assert.equal(initial.followUpOpen,false);
+ assert.equal(initial.closedDate,'2026-10-19');
+ assert.equal(initial.followUpControlId,'north-yilan-hsr-transfer-revised-analysis-1151106');
+ const current=calculateModel(p,'2026-11-23');
+ const next=current.kpiControls.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106');
+ assert.equal(next.followUpOpen,true);
+ assert.equal(next.computedStatus,'後續列管');
+ assert.equal(current.dashboard.executiveItems.some(x=>x.id===initial.id),false);
+ assert.equal(current.dashboard.executiveItems.some(x=>x.id===next.id),true);
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').targetDate,'2026-11-06');
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').actualDate,'2026-11-05');
  assert.match(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').status,/內容待審查/);
