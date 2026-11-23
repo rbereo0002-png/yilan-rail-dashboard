@@ -21,11 +21,12 @@ test('transfer topic includes all five meeting/interface records and contractual
  assert.equal(initial.followUpOpen,false);
  assert.equal(initial.closedDate,'2026-10-19');
  assert.equal(initial.followUpControlId,'north-yilan-hsr-transfer-revised-analysis-1151106');
- const next=items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106');
+ const current=calculateModel(p,'2026-11-23');
+ const next=current.kpiControls.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106');
  assert.equal(next.followUpOpen,true);
  assert.equal(next.computedStatus,'後續列管');
- assert.equal(m.dashboard.executiveItems.some(x=>x.id===initial.id),false);
- assert.equal(m.dashboard.executiveItems.some(x=>x.id===next.id),true);
+ assert.equal(current.dashboard.executiveItems.some(x=>x.id===initial.id),false);
+ assert.equal(current.dashboard.executiveItems.some(x=>x.id===next.id),true);
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').targetDate,'2026-11-06');
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').actualDate,'2026-11-05');
  assert.match(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').status,/內容待審查/);
