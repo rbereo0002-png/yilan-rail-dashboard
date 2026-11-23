@@ -1,7 +1,7 @@
 import {ProjectStore} from './store.js';
 import {calculateModel} from './model.js?v=20261119-review-sync';
 import {todayLocal, signingState, SIGN_DATE_WARNING} from './dates.js';
-import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261119-review-sync';
+import {renderModel, renderNavigation, exportHTML} from './views.js?v=20261123-transfer-timeline';
 
 const $ = id => document.getElementById(id);
 let store, model, lastDownloadURL;

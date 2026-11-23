@@ -49,9 +49,13 @@ test('the submission of an unresolved transfer study or held meeting is not prem
  const north=m('north');
  const transfer=north.kpiControls.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106');
  assert.ok(transfer.actualMilestoneReached);
- assert.equal(transfer.followUpOpen,true);
- assert.equal(transfer.computedStatus,'後續列管');
- assert.ok(north.dashboard.executiveItems.some(x=>x.id===transfer.id));
+ assert.equal(transfer.followUpOpen,false);
+ assert.equal(transfer.computedStatus,'已完成');
+ assert.ok(!north.dashboard.executiveItems.some(x=>x.id===transfer.id));
+ const next=north.kpiControls.find(x=>x.id==='north-yilan-hsr-transfer-revision-1151127');
+ assert.equal(next.due,'2026-11-27');
+ assert.equal(next.actualDate,'');
+ assert.ok(north.dashboard.executiveItems.some(x=>x.id===next.id));
  const meeting=north.kpiControls.find(x=>x.id==='north-pcm-1151102-meeting');
  assert.equal(meeting.followUpOpen,true);
  assert.notEqual(meeting.computedStatus,'已完成');
@@ -95,7 +99,8 @@ test('north issued review confirmation and 11/17 draft are distinct corresponden
 test('operator completed-control table does not close unresolved transfer or meeting follow-ups',()=>{
  const model=m('north');
  const tables=tableMarkup(model,false);
- assert.doesNotMatch(tables.completedControlTable,/data-kpi-id="north-yilan-hsr-transfer-revised-analysis-1151106"/);
+ assert.match(tables.completedControlTable,/data-kpi-id="north-yilan-hsr-transfer-revised-analysis-1151106"/);
+ assert.doesNotMatch(tables.completedControlTable,/data-kpi-id="north-yilan-hsr-transfer-revision-1151127"/);
  assert.match(tables.completedControlTable,/data-kpi-id="north-yilan-hsr-same-platform-meeting"/);
  const early=model.kpiControls.find(x=>x.id==='north-yilan-hsr-same-platform-meeting');
  assert.equal(early.closedDate,'2026-10-19');

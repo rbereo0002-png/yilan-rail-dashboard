@@ -1,5 +1,5 @@
 import {sharedTopicKey,groupSharedControls,uniqueControlKey} from './shared-controls.js';
-import {isTransferControl,transferStatus} from './transfer-controls.js';
+import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js?v=20261123-transfer-timeline';
 import {normalizeProject} from './store.js';
 import {calculateModel} from './model.js?v=20261119-review-sync';
 import {formatDate as fmt,todayLocal,daysBetween,addDays} from './dates.js';
@@ -319,7 +319,10 @@ function renderTransfer(){
       [x.scope,x.source,x.actualDate ? `實際辦理日 ${fmt(x.actualDate)}` : '',x.actualNote,x.note].filter(Boolean).join('｜'),
       x.due,transferStatus(x),kpiStatusClass(transferStatus(x)))));
   });
-  $('viewBody').innerHTML=`<div class="detail-grid">${cards.join('') || '<div class="empty">目前無列管事項</div>'}</div>`;
+  const history=transferHistoryItems(models.north.project);
+  const historyCard=history.length?'<section class="detail-card"><details><summary><strong>歷次辦理歷程（'+history.length+'筆，展開查詢）</strong></summary>'+
+    history.map(x=>row(x.title,[x.status,x.documentRef,x.note].filter(Boolean).join('｜'),x.eventDate,x.type==='deadline'?'期限':'歷程',x.type==='deadline'?'tag-warn':'tag-info')).join('')+'</details></section>':'';
+  $('viewBody').innerHTML=`<div class="detail-grid">${cards.join('') || '<div class="empty">目前無列管事項</div>'}${historyCard}</div>`;
 }
 function renderReview(){
   $('viewTitle').textContent='審查狀況';

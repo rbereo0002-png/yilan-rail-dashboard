@@ -1,5 +1,5 @@
 import {latestReviewItems,currentReviewGanttRows} from './review-workflow.js?v=20261119-review-sync';
-import {isTransferControl,transferStatus} from './transfer-controls.js';
+import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js?v=20261123-transfer-timeline';
 import {formatDate as fmt, daysBetween, addDays} from './dates.js';
 
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g,c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -109,6 +109,7 @@ export function tableMarkup(model, editable = false) {
     ...(model.project.id === 'north' ? {
     transferStudyTable:tableHTML(['契約子成果','依據／期限','實際提送','實際核定','狀態'],(model.specialDeliverables || []).filter(isTransferControl).map(x=>tr([e(x.name),e(x.note)+'<br>'+fmt(x.parentDue),fmt(x.actualSubmitDate),fmt(x.actualApprovalDate),e(x.status)]))),
     transferControlTable:tableHTML(headers,model.kpiControls.filter(isTransferControl).map(item=>controlRow({...item,computedStatus:transferStatus(item)}))),
+    transferHistoryTable:tableHTML(['事件日期','階段／歷程','辦理狀態','依據文號','說明'],transferHistoryItems(model.project).map(x=>tr([fmt(x.eventDate),e(x.title),e(x.status),e(x.documentRef),e(x.note)]))),
     } : {}),
     meetingControlTable:tableHTML(headers,model.kpiControls.filter(x=>!x.linkedReview && x.category==='會議追蹤（非KPI）').map(controlRow)),
     meetingTaskTable:grouped('交辦待辦'),
@@ -120,7 +121,7 @@ export function tableMarkup(model, editable = false) {
 }
 
 export function exportHTML(model) {
-  const names = {revisionTrackingTable:'版本送審現行管制及歷程',meetingControlTable:'115年11月2日研討會及解除列管',transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
+  const names = {revisionTrackingTable:'版本送審現行管制及歷程',meetingControlTable:'115年11月2日研討會及解除列管',transferStudyTable:'同月台轉乘契約子成果',transferControlTable:'同月台轉乘',transferHistoryTable:'同月臺轉乘歷次辦理歷程',insuranceTable:'保險文件及保期',monthlyReportTable:'逐月工作月報',meetingTaskTable:'交辦待辦',designChecklistTable:'設計查核',interfaceControlTable:'介面決策',completedControlTable:'已結案',scheduleTable:'履約主時程',contractRuleTable:'契約時限主檔',dependencyTable:'前後置關聯',paymentTable:'付款預測',yearSummary:'年度資金需求',kpiControlTable:'會議紀錄／非契約KPI與外部管制'};
   return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${e(model.project.name)}履約管制</title></head><body><h1>${e(model.project.name)}履約與付款管制</h1><p>資料日期：${fmt(model.today)}；用地及監造付款未納入本版年度彙整。</p>${Object.entries(tableMarkup(model)).map(([id,markup])=>`<h2>${names[id]}</h2><table border="1">${markup}</table>`).join('')}</body></html>`;
 }
 

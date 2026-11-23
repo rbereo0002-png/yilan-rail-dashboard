@@ -34,6 +34,12 @@ async function operator(width,height){
  await page.locator('#projectSelect').selectOption('north');
  await page.locator('[data-module="transfer"]').click();
  assert.ok(await page.locator('#transferControl').isVisible());
+ const transferCurrent=await page.locator('#transferControlTable').textContent();
+ assert.match(transferCurrent,/2026\/11\/27/,'new Nov27 deadline visible in operator');
+ assert.match(transferCurrent,/同高程方案/,'new current action visible in operator');
+ const transferHistory=await page.locator('#transferHistoryTable').textContent();
+ assert.match(transferHistory,/2026\/11\/20/,'Nov20 meeting recorded in chronological history');
+ assert.match(transferHistory,/1153202038/,'draft letter reference retained in history');
  await page.locator('[data-module="review"]').click();
  assert.ok(await page.locator('#revisionTrackingControl').isVisible());
  const reviewText=await page.locator('#revisionTrackingControl').innerText();
@@ -54,6 +60,10 @@ async function executive(width,height){
    await page.locator('.exec-nav [data-view="'+view+'"]').click();
    assert.ok((await page.locator('#viewBody').innerText()).length>30,view+' should render content');
  }
+ await page.locator('.exec-nav [data-view="transfer"]').click();
+ const transferText=await page.locator('#viewBody').textContent();
+ assert.match(transferText,/11\/27/,'executive has Nov27 due date');
+ assert.match(transferText,/1153202038/,'executive history can query draft-letter reference');
  await page.locator('.exec-nav [data-view="review"]').click();
  const reviewText=await page.locator('#viewBody').innerText();
  assert.match(reviewText,/11\/26/,'north risk review due date visible in executive page');
