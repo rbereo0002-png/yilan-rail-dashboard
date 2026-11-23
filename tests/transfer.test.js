@@ -5,11 +5,11 @@ import {normalizeProject} from '../store.js';
 import {calculateModel} from '../model.js';
 import {tableMarkup,exportHTML} from '../views.js';
 import {isTransferControl} from '../transfer-controls.js';
-test('transfer topic includes all five meeting/interface records and contractual study without losing history',()=>{
+test('transfer topic includes initial controls and Nov20 follow-up without losing history',()=>{
  const p=normalizeProject(JSON.parse(readFileSync(new URL('../data/north.json',import.meta.url))));
  const before=JSON.stringify(p),m=calculateModel(p,'2026-10-27'),tables=tableMarkup(m,true);
  const items=m.kpiControls.filter(isTransferControl);
- assert.equal(items.length,5);
+ assert.equal(items.length,6);
  for(const x of items){
   assert.ok(tables.transferControlTable.includes('data-kpi-id="'+x.id+'"'));
   for(const key of ['meetingTaskTable','interfaceControlTable','kpiControlTable']) assert.ok(!tables[key].includes('data-kpi-id="'+x.id+'"'));
@@ -23,15 +23,28 @@ test('transfer topic includes all five meeting/interface records and contractual
  assert.equal(initial.followUpControlId,'north-yilan-hsr-transfer-revised-analysis-1151106');
  const current=calculateModel(p,'2026-11-23');
  const next=current.kpiControls.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106');
- assert.equal(next.followUpOpen,true);
- assert.equal(next.computedStatus,'後續列管');
+ assert.equal(next.followUpOpen,false);
+ assert.equal(next.computedStatus,'已完成');
  assert.equal(current.dashboard.executiveItems.some(x=>x.id===initial.id),false);
- assert.equal(current.dashboard.executiveItems.some(x=>x.id===next.id),true);
+ assert.equal(current.dashboard.executiveItems.some(x=>x.id===next.id),false);
+ const latest=current.kpiControls.find(x=>x.id==='north-yilan-hsr-transfer-revision-1151127');
+ assert.equal(latest.due,'2026-11-27');
+ assert.equal(latest.actualDate,'');
+ assert.equal(current.dashboard.executiveItems.some(x=>x.id===latest.id),true);
+ assert.equal(next.followUpControlId,latest.id);
+ assert.equal(latest.children.length,9);
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').targetDate,'2026-11-06');
  assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').actualDate,'2026-11-05');
- assert.match(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').status,/內容待審查/);
+ assert.equal(items.find(x=>x.id==='north-yilan-hsr-transfer-revised-analysis-1151106').status,'已完成');
  assert.match(tables.transferControlTable,/1153201806/);
  assert.match(tables.transferStudyTable,/共月台轉乘專案研究報告/);
+ assert.equal(p.transferHistory.length,7);
+ assert.match(tableMarkup(current).transferHistoryTable,/2026\/11\/27/);
+ assert.match(tableMarkup(current).transferHistoryTable,/1153202038/);
+ assert.equal(p.meetingRecords.some(x=>x.id==='north-meeting-1151120-transfer-elevation'),true);
+ const letter=p.correspondenceRecords.find(x=>x.id==='north-transfer-1153202038-draft');
+ assert.match(letter.status,/函稿/);
+ assert.equal(letter.documentDate,'2026-11-23');
  assert.match(exportHTML(m),/<h2>同月台轉乘<\/h2>/);
  assert.equal(JSON.stringify(p),before);
 });
