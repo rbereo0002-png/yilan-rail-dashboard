@@ -45,6 +45,9 @@ async function operator(width,height){
  const reviewText=await page.locator('#revisionTrackingControl').innerText();
  assert.match(reviewText,/11\/26/,'north risk review due date visible in operator page');
  assert.match(reviewText,/已函送/,'north actual review stage visible in operator page');
+ for(const name of ['工程設計執行服務計畫書','補充測量工作計畫書','補充地質調查工作計畫書','管線調查工作計畫書','鄰近建物及結構物調查工作計畫書','價值工程研析工作計畫書','出流管制計畫工作計畫書']) assert.ok(reviewText.includes(name),name+' present in review');
+ assert.match(reviewText,/12\/03/,'provisional Dec3 reply date visible');
+ assert.match(reviewText,/待核發|擬稿/,'provisional letter is not reported as issued');
  await page.screenshot({path:'browser-qa-workbench-'+width+'.png',fullPage:true});
  assert.equal(await page.evaluate(()=>Object.keys(localStorage).some(k=>k.startsWith('yilan-dashboard-'))),false);
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+4);
@@ -68,6 +71,9 @@ async function executive(width,height){
  const reviewText=await page.locator('#viewBody').innerText();
  assert.match(reviewText,/11\/26/,'north risk review due date visible in executive page');
  assert.match(reviewText,/已函送/,'north risk review stage visible in executive page');
+ for(const name of ['工程設計執行服務計畫書','補充測量工作計畫書','補充地質調查工作計畫書','管線調查工作計畫書','鄰近建物及結構物調查工作計畫書','價值工程研析工作計畫書','出流管制計畫工作計畫書']) assert.ok(reviewText.includes(name),name+' present in review');
+ assert.match(reviewText,/12\/03/,'provisional Dec3 reply date visible');
+ assert.match(reviewText,/待核發|擬稿/,'provisional letter is not reported as issued');
  await page.locator('.exec-nav [data-view="overview"]').click();
  await page.screenshot({path:'browser-qa-executive-'+width+'.png',fullPage:true});
  await page.close();
