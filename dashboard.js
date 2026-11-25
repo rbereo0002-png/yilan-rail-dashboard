@@ -1,7 +1,7 @@
 import {sharedTopicKey,groupSharedControls,uniqueControlKey} from './shared-controls.js';
 import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js?v=20261123-transfer-timeline';
 import {normalizeProject} from './store.js';
-import {calculateModel} from './model.js?v=20261119-review-sync';
+import {calculateModel} from './model.js?v=20261125-seven-plans';
 import {formatDate as fmt,todayLocal,daysBetween,addDays} from './dates.js';
 
 const $=id=>document.getElementById(id);
@@ -136,7 +136,7 @@ function overviewMilestones(m){
       const reviewDate=review.actionDue||review.submitted||review.due;
       return `<div class="overview-milestone-row">
         <div class="milestone-name"><b>${esc(review.name)}（${esc(review.version)}版）</b><small>${esc(review.label)}</small></div>
-        <div class="milestone-dates"><span>${review.actionDue?'意見回復期限':review.submitted?'本版實際提送':'本版修正期限'} ${fmt(reviewDate)}</span><span>${review.evidenceStatus==='draft'?'函稿／待確認':'退回'} ${fmt(review.returnDate)}</span></div>
+        <div class="milestone-dates"><span>${review.actionDue?(review.actionDeadlineConfirmed?'意見回復期限':'暫定意見回復日'):review.submitted?'本版實際提送':'本版修正期限'} ${fmt(reviewDate)}</span><span>${review.evidenceStatus==='draft'?'函稿／待確認':'退回'} ${fmt(review.returnDate)}</span></div>
         <div class="milestone-diff ${review.overdueDays>0?'late':'pending'}">${review.actionOverdueDays>0?'+ '+review.actionOverdueDays+'日':review.overdueDays>0?'+ '+review.overdueDays+'日':'目前版'}</div>
       </div>`;
     }
@@ -332,8 +332,8 @@ function renderReview(){
     const items=m.dashboard.underReviewItems.filter(x=>!m.project.versionTracking?.[x.id]).map(x=>row(x.name,`${x.pcmReviewContract?'PCM契約':'管理預估'} ${x.reviewDays}日；${x.reviewOverdueDays>0?`逾期 ${x.reviewOverdueDays}日`:'審查中'}`,x.reviewTarget,x.reviewOverdueDays>0?'催辦':'審查中',x.reviewOverdueDays>0?'tag-danger':'tag-info'));
     const periodic=[...(m.insuranceControls || []).filter(x=>x.status!=='已審查／持續保期追蹤').map(x=>row(x.name,x.note,x.coverageEnd || x.coverageStart,x.status,'tag-info')),...(m.monthlyReports || []).filter(x=>x.status!=='已核定／結案').map(x=>row(`${x.month}工作月報`,`${x.documentRef || ''} ${x.calendarVerified ? '' : '假日行事曆待確認'}`,x.due,x.status,x.status==='逾期未提送' ? 'tag-danger' : 'tag-info'))];
     const versions=m.currentReviews.filter(x=>!x.approval).map(x=>row(`${x.name}（${x.version}版）`,
-    `${x.label}｜${x.actionDue?'各單位意見回復期限 '+fmt(x.actionDue)+'｜':''}${x.actionSource||''}${x.returnDate?'｜退回 '+fmt(x.returnDate):''}`,
-    x.actionDue||(!x.submitted?x.due:null),x.actionDue?'意見回復列管':x.label,
+    `${x.label}｜${x.actionDue?(x.actionDeadlineConfirmed?'各單位意見回復期限 ':'暫定意見回復日期 ')+fmt(x.actionDue)+'｜':''}${x.actionSource||''}${x.returnDate?'｜退回 '+fmt(x.returnDate):''}`,
+    x.actionDue||(!x.submitted?x.due:null),x.actionDue?(x.actionDeadlineConfirmed?'意見回復列管':'待核發／暫定期限'):x.label,
     x.actionOverdueDays>0||x.overdueDays>0?'tag-danger':'tag-info'));
     return projectListCard('現行版本送審（歷史A版不列入）',m,versions)+projectListCard('其他審查中',m,items)+projectListCard('保險／逐月月報',m,periodic);
   }).join('');

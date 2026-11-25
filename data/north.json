@@ -50,7 +50,11 @@
     "constructionClose": ""
   },
   "rows": {
-    "designRiskPlan_submit": "2026-11-16"
+    "designRiskPlan_submit": "2026-11-16",
+    "execPlan_submit": "2026-11-25",
+    "surveyPlan_submit": "2026-11-25",
+    "geoPlan_submit": "2026-11-25",
+    "utilityPlan_submit": "2026-11-25"
   },
   "notes": "北段已於2026/09/18決標並自決標日起契約生效；設計階段施工風險評估實施計畫書自契約生效日起60日內提送。一般履約仍自實際簽約日起算；執行服務計畫書、補充測量、補充地質及管線調查工作計畫書自簽約日起30日內提送；工作啟始日另行紀錄。；115/10/6核定啟始紀錄：預定簽約及開始服務日為115/10/27，仍待書面通知及實際簽約確認。；115/10/8鐵道東土字第1153201725號函已通知115/10/27開始服務，保險起始日同日，需定期提報工作月報；不以通知函代替實際簽約證明。；115/10/19承辦確認：本段委託設計及施工監造技術服務契約詳細價目表金額與預算詳細價目表金額相同。",
   "kpiControls": [
@@ -1151,6 +1155,160 @@
         "source": "115年11月17日鐵道東土字第1150005284號書函（上傳正式抄本），115年11月26日前回復RBH-2-D09-02審查意見表",
         "linkedControlId": "north-risk-plan-A-review-1151126"
       }
+    },
+    "execPlan": {
+      "name": "工程設計執行服務計畫書",
+      "currentVersion": "A",
+      "currentDue": "2026-11-26",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。含設計品質計畫、技師簽證執行計畫及BIM執行計畫等章節；車站建築執行計畫是否完整仍待審查；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "2026-11-26",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
+    },
+    "surveyPlan": {
+      "name": "補充測量工作計畫書",
+      "currentVersion": "A",
+      "currentDue": "2026-11-26",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。測量項目、數量、範圍與契約要求分項審查；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "2026-11-26",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
+    },
+    "geoPlan": {
+      "name": "補充地質調查工作計畫書",
+      "currentVersion": "A",
+      "currentDue": "2026-11-26",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。調查數量、位置、深度與期限分項審查；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "2026-11-26",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
+    },
+    "utilityPlan": {
+      "name": "管線調查工作計畫書",
+      "currentVersion": "A",
+      "currentDue": "2026-11-26",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。調查方法、工作範圍及工作期限分項審查；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "2026-11-26",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
+    },
+    "north-adjacent-building-plan": {
+      "name": "鄰近建物及結構物調查工作計畫書",
+      "currentVersion": "A",
+      "currentDue": "",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。本項計畫單獨審查，正式成果階段另行列管；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
+    },
+    "north-value-engineering-plan": {
+      "name": "價值工程研析工作計畫書",
+      "currentVersion": "A",
+      "currentDue": "",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。本項為研析工作計畫，非價值工程研析報告成果核定；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
+    },
+    "north-runoff-control-work-plan": {
+      "name": "出流管制計畫工作計畫書",
+      "currentVersion": "A",
+      "currentDue": "",
+      "currentSubmittedDate": "2026-11-25",
+      "currentStatus": "A版已提送；1150005464號分送審查書函擬稿，預訂12/3前回復意見；函稿尚待核發",
+      "currentApprovalDate": "",
+      "history": [],
+      "requirement": "世曦115/11/25世曦鐵道字第1150051845號函所送7份工作計畫A版之一。本項為工作計畫，非正式出流管制計畫書核定；原計畫提送日與各單位回復審查意見期限分別列管。",
+      "contractDue": "",
+      "activeReview": {
+        "type": "agency-opinions",
+        "status": "分送審查書函擬稿／預訂12/3前回復審查意見（尚待核發）",
+        "dueDate": "2026-12-03",
+        "deadlineConfirmed": false,
+        "completedDate": "",
+        "issuedDate": "",
+        "referenceNumber": "",
+        "evidenceStatus": "draft",
+        "source": "1150005464-001 (2).xml 說明二，預訂115/12/3(星期四)前分別填具RBH-2-D09-02並送土建軌道科彙整；尚待正式核發文號與發文日期"
+      }
     }
   },
   "correspondenceRecords": [
@@ -1213,6 +1371,48 @@
       ],
       "note": "依使用者115/11/23確認：此公文已核發；XML之「稿」為公文系統匯出格式，不代表未發文。發文日期115/11/23，文號鐵道東土字第1153202038號。",
       "sourceFile": "1153202038-001.xml；1153202038-002.xml"
+    },
+    {
+      "id": "north-seven-work-plans-review-1150005464-draft",
+      "direction": "outgoing-draft",
+      "documentDate": "",
+      "documentNumber": "1150005464（公文擬稿編號；非確認正式發文字號）",
+      "sender": "交通部鐵道局東部工程分局",
+      "recipient": "林同棪工程顧問股份有限公司、本分局綜合科、機電科、運務及安全衛生科、工事科（正本）；承辦人抄本",
+      "subject": "檢送北段工程設計執行服務計畫書及相關工作計畫書（A版）7份，分送審查",
+      "status": "115/11/25第2次修正函稿／尚未確認核發",
+      "relatedRuleIds": [
+        "execPlan",
+        "surveyPlan",
+        "geoPlan",
+        "utilityPlan",
+        "north-adjacent-building-plan",
+        "north-value-engineering-plan",
+        "north-runoff-control-work-plan"
+      ],
+      "note": "依世曦115/11/25世曦鐵道字第1150051845號函提送7份計畫A版；擬請各受文單位於115/12/3前就7份文件分別填具RBH-2-D09-02審查意見表，無意見亦回復；雲端電子檔連結見原函。尚未提供核發證據，不能將此擬稿當成已函送正式審查。",
+      "sourceFile": "1150005464-001 (2).xml"
+    },
+    {
+      "id": "north-ceci-1150051845-seven-plans",
+      "direction": "incoming",
+      "documentDate": "2026-11-25",
+      "documentNumber": "世曦鐵道字第1150051845號",
+      "sender": "台灣世曦工程顧問股份有限公司",
+      "recipient": "依世曦原函辦理；本次分送函引用其函副本",
+      "subject": "北段工程設計執行服務計畫書及相關工作計畫書A版共7份提送",
+      "status": "115/11/25已提送A版7份，各份分別待審查",
+      "relatedRuleIds": [
+        "execPlan",
+        "surveyPlan",
+        "geoPlan",
+        "utilityPlan",
+        "north-adjacent-building-plan",
+        "north-value-engineering-plan",
+        "north-runoff-control-work-plan"
+      ],
+      "note": "1.工程設計執行服務計畫書；2.補充測量工作計畫書；3.補充地質調查工作計畫書；4.管線調查工作計畫書；5.鄰近建物及結構物調查工作計畫書；6.價值工程研析工作計畫書；7.出流管制計畫工作計畫書。設計階段風險評估實施計畫書另案提送，不屬本批七份。",
+      "sourceFile": "世曦115/11/25世曦鐵道字第1150051845號函及七份A版附件；1150005464-001 (2).xml說明一"
     }
   ],
   "transferHistory": [

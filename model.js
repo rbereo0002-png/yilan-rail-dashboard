@@ -1,4 +1,4 @@
-import {latestReviewItems} from './review-workflow.js?v=20261119-review-sync';
+import {latestReviewItems} from './review-workflow.js?v=20261125-seven-plans';
 import {calculateSchedule} from './schedule-engine.js';
 import {calculatePayments} from './payment-engine.js';
 import {daysBetween, todayLocal, SIGN_DATE_WARNING} from './dates.js';
@@ -28,13 +28,13 @@ export function calculateModel(project, today = todayLocal()) {
   const currentReviewActionOverdueItems=reviewActionItems.filter(x=>x.actionOverdueDays>0);
   const reviewAttention=reviewActionItems.map(x=>{
     const remainingDays=daysBetween(today,x.actionDue);
-    const attentionPriority=remainingDays<0?1:remainingDays<=14?3:remainingDays<=30?4:5;
+    const attentionPriority=!x.actionDeadlineConfirmed?5:remainingDays<0?1:remainingDays<=14?3:remainingDays<=30?4:5;
     return {id:'review-action-'+x.id,name:x.name+'（'+x.version+'版）',kind:'review-action',
       due:x.actionDue,contractDue:x.actionDue,reviewTarget:x.actionDue,effectiveSubmit:x.submitted,
-      label:remainingDays<0?'審查意見逾期':'審查意見回復',
+      label:!x.actionDeadlineConfirmed?'暫定審查期限（函待核發）':remainingDays<0?'審查意見逾期':'審查意見回復',
       attentionLabel:'審查意見回復',attentionReason:x.label,
       description:x.label+'｜'+x.actionSource,remainingDays,attentionPriority,reviewId:x.id,
-      actionOverdueDays:x.actionOverdueDays};
+      actionOverdueDays:x.actionOverdueDays,actionDeadlineConfirmed:x.actionDeadlineConfirmed};
   });
   // Fixed deliverable population; changing an estimate to a contract date must not change progress.
   const deliverables = schedule.list.filter(x => x.contractRule);
@@ -148,7 +148,7 @@ export function calculateModel(project, today = todayLocal()) {
   ].filter((x,i,all)=>all.findIndex(y=>y.id===x.id)===i)
     .sort((a,b)=>(a.due || '9999').localeCompare(b.due || '9999') || a.name.localeCompare(b.name));
   dashboard.executiveItems=executiveItems;
-  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && (x.kind==='review-action' || (!x.actualMilestoneReached && !x.effectiveSubmit && !x.effectiveApproval))).length;
+  dashboard.executiveDue14=executiveItems.filter(x=>x.due && daysBetween(today,x.due)>=0 && daysBetween(today,x.due)<=14 && ((x.kind==='review-action' && x.actionDeadlineConfirmed) || (!x.actualMilestoneReached && !x.effectiveSubmit && !x.effectiveApproval))).length;
   const actual = date => date && date <= today ? date : '';
   const insuranceControls=(source.insuranceRecords || []).map(item=>{
     const daysToExpiry=item.coverageEnd ? daysBetween(today,item.coverageEnd) : null;

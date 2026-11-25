@@ -16,10 +16,12 @@ export function currentReviewState(record={},base={},today=''){
   const activeAction=record.activeReview||null;
   const actionDue=activeAction?.dueDate||'';
   const actionStatus=activeAction?.status||'';
+  const actionDeadlineConfirmed=activeAction?.deadlineConfirmed!==false;
+  const actionEvidenceStatus=activeAction?.evidenceStatus||'unverified';
   const actionSource=activeAction?.source||'';
   const actionType=activeAction?.type||'';
   const actionCompleted=Boolean(activeAction?.completedDate);
-  const actionOverdueDays=!actionCompleted && actionDue && today && actionDue<today && activeAction?.deadlineConfirmed!==false ? utcDays(actionDue,today):0;
+  const actionOverdueDays=!actionCompleted && actionDue && today && actionDue<today && actionDeadlineConfirmed ? utcDays(actionDue,today):0;
   const dueKind=history.length>0 || version!=='A'?'revision':'contract';
   const deadlineConfirmed=dueKind==='contract' || record.deadlineConfirmed===true || (evidenceStatus==='issued' && record.deadlineConfirmed!==false);
   const overdueDays=!submitted && !approval && deadlineConfirmed && due && today && due<today?utcDays(due,today):0;
@@ -35,7 +37,7 @@ export function currentReviewState(record={},base={},today=''){
     label='待首次提送'+(overdueDays>0?'（逾期'+overdueDays+'日）':'');
   }
   return {version,code,label,due,dueKind,deadlineConfirmed,evidenceStatus,
-    actionDue,actionStatus,actionSource,actionType,actionCompleted,actionOverdueDays,
+    actionDue,actionStatus,actionSource,actionType,actionCompleted,actionOverdueDays,actionDeadlineConfirmed,actionEvidenceStatus,
     submitted,approval,returnDate,returnRef,overdueDays,
     contractDue:base.contractDue||record.contractDue||'',
     initialSubmit:base.actualSubmit||history[0]?.submittedDate||'',originalApproval:base.actualApproval||'',history};
@@ -43,7 +45,7 @@ export function currentReviewState(record={},base={},today=''){
 export function latestReviewItems(project,schedule,today){
   const tracking=project.versionTracking||{};
   return Object.entries(tracking).map(([id,record])=>({
-    id,name:schedule.model[id]?.name||id,
+    id,name:record.name||schedule.model[id]?.name||id,
     ...currentReviewState(record,schedule.model[id]||{},today)
   }));
 }
@@ -51,7 +53,7 @@ export function latestReviewItems(project,schedule,today){
 export function currentReviewGanttRows(model){
   return (model.currentReviews||[]).map(x=>{
     const chartEnd=x.approval||x.actionDue||x.submitted||x.due;
-    const chartStart=x.returnDate||x.initialSubmit||x.contractDue||chartEnd;
+    const chartStart=x.returnDate||x.initialSubmit||x.submitted||x.contractDue||chartEnd;
     const start=chartStart && chartEnd && chartStart>chartEnd ? chartEnd : chartStart;
     return {id:'current-review-'+x.id,group:'現行審查版本',
       name:x.name+'（'+x.version+'版）',baselineStart:start,baselineDue:chartEnd,
