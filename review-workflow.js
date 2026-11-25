@@ -53,7 +53,7 @@ export function latestReviewItems(project,schedule,today){
 export function currentReviewGanttRows(model){
   return (model.currentReviews||[]).map(x=>{
     const chartEnd=x.approval||x.actionDue||x.submitted||x.due;
-    const chartStart=x.returnDate||x.initialSubmit||x.contractDue||chartEnd;
+    const chartStart=x.returnDate||x.initialSubmit||x.submitted||x.contractDue||chartEnd;
     const start=chartStart && chartEnd && chartStart>chartEnd ? chartEnd : chartStart;
     return {id:'current-review-'+x.id,group:'現行審查版本',
       name:x.name+'（'+x.version+'版）',baselineStart:start,baselineDue:chartEnd,
