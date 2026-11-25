@@ -1,4 +1,4 @@
-import {latestReviewItems,currentReviewGanttRows} from './review-workflow.js?v=20261119-review-sync';
+import {latestReviewItems,currentReviewGanttRows} from './review-workflow.js?v=20261125-seven-plans';
 import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js?v=20261123-transfer-timeline';
 import {formatDate as fmt, daysBetween, addDays} from './dates.js';
 
