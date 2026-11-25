@@ -1,7 +1,7 @@
 import {sharedTopicKey,groupSharedControls,uniqueControlKey} from './shared-controls.js';
 import {isTransferControl,transferStatus,transferHistoryItems} from './transfer-controls.js?v=20261123-transfer-timeline';
 import {normalizeProject} from './store.js';
-import {calculateModel} from './model.js?v=20261119-review-sync';
+import {calculateModel} from './model.js?v=20261125-seven-plans';
 import {formatDate as fmt,todayLocal,daysBetween,addDays} from './dates.js';
 
 const $=id=>document.getElementById(id);
