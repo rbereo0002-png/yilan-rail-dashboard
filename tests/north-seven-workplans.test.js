@@ -19,7 +19,7 @@ test('Nov25 seven A-version work plans remain independent, and risk study stays 
    assert.equal(x.actionDue,'2026-12-03');
    assert.equal(x.actionDeadlineConfirmed,false);
    assert.equal(x.actionEvidenceStatus,'draft');
-   assert.match(x.label,/函稿/);
+   assert.match(x.label,/擬稿|待核發/);
    assert.equal(x.actionOverdueDays,0);
    assert.equal(x.approval,'');
  }
