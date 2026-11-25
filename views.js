@@ -86,11 +86,11 @@ export function tableMarkup(model, editable = false) {
   const revisionRows=latestReviewItems(model.project,model.schedule,model.today).map(item=>{
     const source=model.project.versionTracking[item.id] || {};
     const showHistory=(item.history||[]).map(h=>`<div><b>${e(h.version||'')}版</b>｜提送 ${fmt(h.submittedDate)}｜退回／審查 ${fmt(h.reviewLetterDate)}｜${e(h.outcome||'')}｜${e(h.reviewLetterNumber||'')}</div>`).join('');
-    const currentDueLabel=item.actionDue ? '各單位審查意見回復期限' : item.submitted ? '本版提送期限（歷史）' : item.dueKind==='revision' ? '修正提送期限' : '契約提送期限';
+    const currentDueLabel=item.actionDue ? (item.actionDeadlineConfirmed?'各單位審查意見回復期限':'暫定各單位審查意見回復期限（書函待核發）') : item.submitted ? '本版提送期限（歷史）' : item.dueKind==='revision' ? '修正提送期限' : '契約提送期限';
     const dueEdit=editable ? `<input type="date" data-revision-id="${e(item.id)}" data-revision-field="currentDue" value="${e(source.currentDue||'')}" aria-label="目前版本送審期限">` : `${e(currentDueLabel)}：${fmt(item.actionDue||item.due)}`;
     const submitEdit=editable ? `<input type="date" data-revision-id="${e(item.id)}" data-revision-field="currentSubmittedDate" value="${e(item.submitted)}" max="${e(model.today)}" aria-label="目前版本實際送審日">` : fmt(item.submitted);
     const verEdit=editable ? `<input type="text" data-revision-id="${e(item.id)}" data-revision-field="currentVersion" value="${e(item.version)}" aria-label="目前送審版次">` : `${e(item.version)}版`;
-    return tr([e(item.name),verEdit,`<b>${e(item.label)}</b>`,`各單位意見回復：${fmt(item.actionDue)}<div class="small">${e(item.actionSource||'')}</div>退回／審查：${fmt(item.returnDate)}`,dueEdit,submitEdit,
+    return tr([e(item.name),verEdit,`<b>${e(item.label)}</b>`,`各單位意見回復${item.actionDeadlineConfirmed?'':'（待核發確認）'}：${fmt(item.actionDue)}<div class="small">${e(item.actionSource||'')}</div>退回／審查：${fmt(item.returnDate)}`,dueEdit,submitEdit,
       `<details><summary>查詢歷次審查及原契約基準</summary>${showHistory}<div>原契約期限：${fmt(item.contractDue)}；首次提送：${fmt(item.initialSubmit)}；原核定：${fmt(item.originalApproval)}</div><div>${e(source.requirement||'')}</div></details>`],
       `data-revision-node-id="${e(item.id)}"`);
   });
