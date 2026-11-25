@@ -43,7 +43,7 @@ export function currentReviewState(record={},base={},today=''){
 export function latestReviewItems(project,schedule,today){
   const tracking=project.versionTracking||{};
   return Object.entries(tracking).map(([id,record])=>({
-    id,name:schedule.model[id]?.name||id,
+    id,name:record.name||schedule.model[id]?.name||id,
     ...currentReviewState(record,schedule.model[id]||{},today)
   }));
 }
